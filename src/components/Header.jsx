@@ -7,6 +7,7 @@ function Header() {
   const [showModal, setShowModal] = useState(false);
   const [animation, setAnimation] = useState('animate__fadeIn');
   const [exitAnimation, setExitAnimation] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
   const handleSearchClick = (e) => {
     e.preventDefault();
@@ -884,78 +885,103 @@ function Header() {
             aria-modal="true" 
             role="dialog"
           >
-            <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-dialog modal-dialog-centered modal-lg">
               <div className="modal-content">
-                <div className="modal-header">
-                  <h5 className="modal-title">Search</h5>
+                <div className="modal-header d-flex align-items-center">
+                  <h5 className="modal-title flex-grow-1">Select Outlet</h5>
                   <button 
                     type="button" 
-                    className="btn-close" 
+                    className="btn-close cursor-pointer" 
                     onClick={handleCloseModal}
                     aria-label="Close"
+                    style={{ margin: '0.25rem 0.25rem auto auto' }}
                   />
                 </div>
-                <div className="modal-body">
-                  {/* Animation Select */}
-                  <div className="mb-3">
-                    <label className="form-label">Choose Animation</label>
+
+                <div className="modal-body p-4">
+                  {/* Search Box */}
+                  <div className="position-relative mb-4">
+                    <input
+                      type="text"
+                      className="form-control search-input"
+                      placeholder="Search"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <div className="position-absolute top-50 end-0 translate-middle-y pe-3 d-flex gap-2">
+                      {searchTerm && (
+                        <button 
+                          className="btn btn-text-secondary btn-sm p-0"
+                          onClick={() => setSearchTerm('')}
+                        >
+                          Clear
+                        </button>
+                      )}
+                      <i className="fas fa-search text-muted"></i>
+                    </div>
+                  </div>
+
+                  {/* Quick Select Buttons */}
+                  <div className="d-flex gap-2 flex-wrap mb-4">
+                    <button className="btn btn-outline-primary btn-sm">
+                      Delhi-Petpooja-Demo
+                    </button>
+                    <button className="btn btn-outline-primary btn-sm">
+                      Ahmedabad-Central kitchen-Demo
+                    </button>
+                    <button className="btn btn-outline-primary btn-sm">
+                      Chennai-Petpooja-Demo
+                    </button>
+                    <button className="btn btn-outline-primary btn-sm">
+                      Pune-Petpooja-Demo
+                    </button>
+                  </div>
+
+                  {/* Outlet List */}
+                  <div className="list-group">
+                    <button className="list-group-item list-group-item-action d-flex align-items-center">
+                      <i className="fas fa-building me-3"></i>
+                      <div className="flex-grow-1">All Outlet</div>
+                    </button>
+                    <button className="list-group-item list-group-item-action d-flex align-items-center">
+                      <i className="fas fa-store me-3"></i>
+                      <div className="flex-grow-1">Ahmedabad-NewHeadoffice-Demo</div>
+                      <small className="text-muted">[ id: 25084 ]</small>
+                    </button>
+                    <button className="list-group-item list-group-item-action d-flex align-items-center">
+                      <i className="fas fa-store me-3"></i>
+                      <div className="flex-grow-1">Chennai-Petpooja-Demo</div>
+                      <small className="text-muted">[ id: 2054 ]</small>
+                    </button>
+                    <button className="list-group-item list-group-item-action d-flex align-items-center">
+                      <i className="fas fa-store me-3"></i>
+                      <div className="flex-grow-1">Pune-Petpooja-Demo</div>
+                      <small className="text-muted">[ id: 8 ]</small>
+                    </button>
+                    <button className="list-group-item list-group-item-action d-flex align-items-center">
+                      <i className="fas fa-utensils me-3"></i>
+                      <div className="flex-grow-1">Ahmedabad-Central kitchen-Demo</div>
+                      <small className="text-muted">[ id: 15344 ]</small>
+                    </button>
+                    <button className="list-group-item list-group-item-action d-flex align-items-center">
+                      <i className="fas fa-store me-3"></i>
+                      <div className="flex-grow-1">Delhi-Petpooja-Demo</div>
+                      <small className="text-muted">[ id: 18789 ]</small>
+                    </button>
+                    <button className="list-group-item list-group-item-action d-flex align-items-center">
+                      <i className="fas fa-store me-3"></i>
+                      <div className="flex-grow-1">Goa-Petpooja-Demo</div>
+                      <small className="text-muted">[ id: 6248 ]</small>
+                    </button>
+                  </div>
+
+                  {/* Animation Select (hidden but keeping functionality) */}
+                  <div className="d-none">
                     <AnimationSelect 
                       value={animation}
                       onChange={setAnimation}
                     />
                   </div>
-                  
-                  <div className="row">
-                    <div className="col mb-6 mt-2">
-                      <div className="form-floating form-floating-outline">
-                        <input 
-                          type="text" 
-                          id="nameAnimation" 
-                          className="form-control" 
-                          placeholder="Enter Name"
-                        />
-                        <label htmlFor="nameAnimation">Name</label>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="row g-4">
-                    <div className="col mb-2">
-                      <div className="form-floating form-floating-outline">
-                        <input 
-                          type="email" 
-                          id="emailAnimation" 
-                          className="form-control" 
-                          placeholder="xxxx@xxx.xx"
-                        />
-                        <label htmlFor="emailAnimation">Email</label>
-                      </div>
-                    </div>
-                    <div className="col mb-2">
-                      <div className="form-floating form-floating-outline">
-                        <input 
-                          type="date" 
-                          id="dobAnimation" 
-                          className="form-control"
-                        />
-                        <label htmlFor="dobAnimation">DOB</label>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="modal-footer">
-                  <button 
-                    type="button" 
-                    className="btn btn-outline-secondary" 
-                    onClick={handleCloseModal}
-                  >
-                    Close
-                  </button>
-                  <button 
-                    type="button" 
-                    className="btn btn-primary"
-                  >
-                    Save changes
-                  </button>
                 </div>
               </div>
             </div>
