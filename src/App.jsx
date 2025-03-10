@@ -4,6 +4,7 @@ import "./assets/css/demo.css";
 import "./assets/css/core.css";
 import "./assets/css/theme-default.css";
 import HomeScreen from './screen/HomeScreen'
+import LoginScreen from './screen/LoginScreen'
 
 import Header from './components/Header'
 
@@ -14,11 +15,14 @@ function App() {
         <div className="layout-container">
           {/* Routes */}
           <Routes>
-            {/* Default redirect to home */}
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            {/* Public routes */}
+            <Route path="/login" element={<LoginScreen />} />
             
-            {/* Dashboard/Home route */}
+            {/* Protected routes */}
             <Route path="/dashboard" element={<HomeScreen />} />
+            
+            {/* Default redirect to login */}
+            <Route path="/" element={<Navigate to="/login" replace />} />
 
             {/* Add more routes here */}
             {/* Example:
@@ -28,7 +32,7 @@ function App() {
             */}
 
             {/* 404 - Not Found */}
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
         </div>
       </div>
