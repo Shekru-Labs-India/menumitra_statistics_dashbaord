@@ -138,14 +138,14 @@ function Header() {
               <i className="fas fa-times" />
             </a>
           </div>
-          <button
+          {/* <button
             type="button"
             class="btn btn-label-primary dropdown-toggle waves-effect"
             data-bs-toggle="dropdown"
             aria-expanded="false"
           >
             Primary
-          </button>
+          </button> */}
           <div className="layout-menu-toggle navbar-nav align-items-xl-center me-4 me-xl-0  d-xl-none  ">
             <a
               className="nav-item nav-link px-0 me-xl-6"
