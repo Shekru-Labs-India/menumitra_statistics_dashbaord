@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import img from '../assets/img/avatars/1.png'
 import 'animate.css'
 import AnimationSelect from './AnimationSelect'
@@ -8,6 +9,7 @@ function Header() {
   const [animation, setAnimation] = useState('animate__fadeIn');
   const [exitAnimation, setExitAnimation] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
 
   const handleSearchClick = (e) => {
     e.preventDefault();
@@ -24,6 +26,11 @@ function Header() {
       setShowModal(false);
       setExitAnimation('');
     }, 500);
+  };
+
+  const handleLogout = () => {
+    // Add any logout logic here (e.g. clearing tokens, state, etc)
+    navigate('/login');
   };
 
   // Add event listener for ESC key
@@ -317,14 +324,13 @@ function Header() {
                   </li>
                   <li>
                     <div className="d-grid px-4 pt-2 pb-1">
-                      <a
-                        className="btn btn-danger d-flex"
-                        href="auth-login-cover.html"
-                        target="_blank"
+                      <button
+                        className="btn btn-danger d-flex align-items-center justify-content-center"
+                        onClick={handleLogout}
                       >
                         <small className="align-middle">Logout</small>
                         <i className="fas fa-sign-out-alt fa-sm ms-2" />
-                      </a>
+                      </button>
                     </div>
                   </li>
                 </ul>
