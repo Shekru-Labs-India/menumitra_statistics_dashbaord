@@ -16,15 +16,42 @@ This document provides a comprehensive overview of the CSS styling used in the M
    - [Theme Semi-Dark (theme-semi-dark.css)](#theme-semi-dark-theme-semi-darkcss)
 7. [Modal Styling (modal.css)](#modal-styling-modalcss)
 8. [Demo Styling (demo.css)](#demo-styling-democss)
-9. [Component Styling](#component-styling)
-10. [Layout & Spacing](#layout--spacing)
-11. [Responsive Design](#responsive-design)
-12. [Utility Classes](#utility-classes)
-13. [Page-Specific Styling](#page-specific-styling)
-14. [Animation & Transitions](#animation--transitions)
-15. [Third-Party Libraries](#third-party-libraries)
-16. [Using This Documentation](#using-this-documentation)
-17. [Conclusion](#conclusion)
+9. [Application-Specific CSS Files](#application-specific-css-files)
+   - [Chat Application (app-chat.css)](#chat-application-app-chatcss)
+   - [Email Application (app-email.css)](#email-application-app-emailcss)
+   - [Calendar Application (app-calendar.css)](#calendar-application-app-calendarcss)
+   - [Kanban Board (app-kanban.css)](#kanban-board-app-kanbancss)
+   - [Invoice Management (app-invoice.css)](#invoice-management-app-invoicecss)
+   - [Invoice Print (app-invoice-print.css)](#invoice-print-app-invoice-printcss)
+   - [E-commerce Dashboard (app-ecommerce-dashboard.css)](#e-commerce-dashboard-app-ecommerce-dashboardcss)
+   - [E-commerce General (app-ecommerce.css)](#e-commerce-general-app-ecommercecss)
+   - [Logistics Dashboard (app-logistics-dashboard.css)](#logistics-dashboard-app-logistics-dashboardcss)
+   - [Logistics Fleet (app-logistics-fleet.css)](#logistics-fleet-app-logistics-fleetcss)
+10. [Page-Specific CSS Files](#page-specific-css-files)
+    - [Authentication Pages (page-auth.css)](#authentication-pages-page-authcss)
+    - [User Profile (page-profile.css)](#user-profile-page-profilecss)
+    - [User View (page-user-view.css)](#user-view-page-user-viewcss)
+    - [Account Settings (page-account-settings.css)](#account-settings-page-account-settingscss)
+    - [FAQ Page (page-faq.css)](#faq-page-page-faqcss)
+    - [Pricing Page (page-pricing.css)](#pricing-page-page-pricingcss)
+    - [Miscellaneous Pages (page-misc.css)](#miscellaneous-pages-page-misccss)
+    - [Icons Page (page-icons.css)](#icons-page-page-iconscss)
+11. [UI Component CSS Files](#ui-component-css-files)
+    - [Carousel (ui-carousel.css)](#carousel-ui-carouselcss)
+    - [Cards - Statistics (cards-statistics.css)](#cards---statistics-cards-statisticscss)
+    - [Cards - Gamifications (cards-gamifications.css)](#cards---gamifications-cards-gamificationscss)
+    - [Front Page Components](#front-page-components)
+    - [Wizard Components](#wizard-components)
+12. [Component Styling](#component-styling)
+13. [Layout & Spacing](#layout--spacing)
+14. [Responsive Design](#responsive-design)
+15. [Utility Classes](#utility-classes)
+16. [Page-Specific Styling](#page-specific-styling)
+17. [Animation & Transitions](#animation--transitions)
+18. [Third-Party Libraries](#third-party-libraries)
+19. [Using This Documentation](#using-this-documentation)
+20. [Conclusion](#conclusion)
+21. [Complete CSS File Reference](#complete-css-file-reference)
 
 ## CSS File Structure
 
@@ -37,14 +64,50 @@ The application uses a modular CSS structure with the following organization:
 ### Asset CSS Files
 - `src/assets/css/core.css` - Core Bootstrap styling (785KB)
 - `src/assets/css/core-dark.css` - Dark mode core styling (787KB)
-- `src/assets/css/demo.css` - Demo-specific styling
-- `src/assets/css/modal.css` - Modal component styling
+- `src/assets/css/demo.css` - Demo-specific styling (2.6KB)
+- `src/assets/css/modal.css` - Modal component styling (493B)
 
 ### Theme Files
-- `src/assets/css/theme-default.css` - Default theme (primary color: #8c57ff)
-- `src/assets/css/theme-default-dark.css` - Dark version of default theme
-- `src/assets/css/theme-bordered.css` - Bordered version of theme
-- `src/assets/css/theme-semi-dark.css` - Semi-dark theme variation
+- `src/assets/css/theme-default.css` - Default theme (primary color: #8c57ff) (46KB)
+- `src/assets/css/theme-default-dark.css` - Dark version of default theme (47KB)
+- `src/assets/css/theme-bordered.css` - Bordered version of theme (50KB)
+- `src/assets/css/theme-semi-dark.css` - Semi-dark theme variation (47KB)
+
+### Application-Specific CSS Files
+- `src/assets/css/app-chat.css` - Chat application styling (11KB)
+- `src/assets/css/app-email.css` - Email application styling (10KB)
+- `src/assets/css/app-calendar.css` - Calendar application styling (3.6KB)
+- `src/assets/css/app-kanban.css` - Kanban board styling (4.6KB)
+- `src/assets/css/app-invoice.css` - Invoice management styling (1.1KB)
+- `src/assets/css/app-invoice-print.css` - Invoice print styling (372B)
+- `src/assets/css/app-ecommerce.css` - E-commerce general styling (302B)
+- `src/assets/css/app-ecommerce-dashboard.css` - E-commerce dashboard styling (128B)
+- `src/assets/css/app-logistics-dashboard.css` - Logistics dashboard styling (1.0KB)
+- `src/assets/css/app-logistics-fleet.css` - Logistics fleet management styling (2.1KB)
+- `src/assets/css/app-academy.css` - Academy application styling (472B)
+- `src/assets/css/app-academy-details.css` - Academy details styling (87B)
+
+### Page-Specific CSS Files
+- `src/assets/css/page-auth.css` - Authentication pages styling (2.0KB)
+- `src/assets/css/page-profile.css` - User profile page styling (556B)
+- `src/assets/css/page-user-view.css` - User view page styling (1.1KB)
+- `src/assets/css/page-account-settings.css` - Account settings page styling (145B)
+- `src/assets/css/page-faq.css` - FAQ page styling (707B)
+- `src/assets/css/page-pricing.css` - Pricing page styling (483B)
+- `src/assets/css/page-misc.css` - Miscellaneous pages styling (529B)
+- `src/assets/css/page-icons.css` - Icons page styling (309B)
+
+### UI Component CSS Files
+- `src/assets/css/ui-carousel.css` - Carousel component styling (700B)
+- `src/assets/css/cards-statistics.css` - Statistical cards styling (188B)
+- `src/assets/css/cards-gamifications.css` - Gamification cards styling (128B)
+- `src/assets/css/front-page.css` - Front page general styling (5.3KB)
+- `src/assets/css/front-page-landing.css` - Landing page styling (5.0KB)
+- `src/assets/css/front-page-pricing.css` - Front-facing pricing page styling (1017B)
+- `src/assets/css/front-page-help-center.css` - Help center styling (431B)
+- `src/assets/css/front-page-payment.css` - Payment page styling (84B)
+- `src/assets/css/wizard-ex-checkout.css` - Checkout wizard styling (53B)
+- `src/assets/css/dashboards-crm.css` - CRM dashboard styling (32B)
 
 ### Vendor CSS Files
 - `src/assets/vendor/css/rtl/` - Right-to-left language support
@@ -963,139 +1026,14 @@ To modify the animations or add new ones:
    ```
 
 3. **Add New Animations**:
-   ```css
-   @keyframes modalSlideIn {
-     from {
-       opacity: 0;
-       transform: translateX(-100px);
-     }
-     to {
-       opacity: 1;
-       transform: translateX(0);
-     }
-   }
    ```
-
-## Demo Styling (demo.css)
-
-The `demo.css` file (2.6KB) provides styling specifically for demonstration and example components in the MenuMitra Owner Dashboard application.
-
-### File Overview
-
-- **File Size**: 2.6KB
-- **Purpose**: Provides styling for demo components and layout examples
-- **Compatible with**: Both light and dark themes
-
-### Key Features
-
-1. **Brand Demo Styling**
-   - Styling for demo brand logos and text
-   - Height adjustments for brand containers in light and dark modes
-   - Text size and capitalization for authentication pages
-
-2. **Layout Fixes**
-   - Padding adjustments for fixed navbar layouts
-   - Z-index solutions for navbar components
-
-3. **Spacing Utilities**
-   - `.demo-blocks`: Forces block display for child elements
-   - `.demo-inline-spacing`: Adds horizontal margins between inline elements
-   - `.demo-vertical-spacing`: Adds vertical margins between elements
-   - `.demo-vertical-spacing-lg`: Adds larger vertical margins
-   - `.demo-vertical-spacing-xl`: Adds extra-large vertical margins
-
-4. **RTL Support**
-   - Special handling for right-to-left text direction
-   - Conditional display of elements in RTL mode
-
-5. **Responsive Fixes**
-   - Adjustments for dropdown buttons on small screens
-   - Position fixes for truncated text
-
-6. **Layout Demo Components**
-   - Styling for layout demonstration wrappers
-   - Placeholder image sizing
-   - Info text alignment
-
-### Usage
-
-This file is used primarily for demonstration purposes and example components:
-
-```html
-<link rel="stylesheet" href="src/assets/css/demo.css">
 ```
 
-#### Spacing Examples
+## Complete CSS File Reference
 
-```html
-<!-- Vertical spacing between elements -->
-<div class="demo-vertical-spacing">
-  <button class="btn btn-primary">Button 1</button>
-  <button class="btn btn-secondary">Button 2</button>
-  <button class="btn btn-success">Button 3</button>
-</div>
+Below is a comprehensive reference of all CSS files in the MenuMitra Owner Dashboard application:
 
-<!-- Larger vertical spacing -->
-<div class="demo-vertical-spacing-lg">
-  <div class="card">Card 1</div>
-  <div class="card">Card 2</div>
-</div>
-
-<!-- Inline spacing for elements in a row -->
-<div class="demo-inline-spacing">
-  <span class="badge bg-primary">Badge 1</span>
-  <span class="badge bg-secondary">Badge 2</span>
-  <span class="badge bg-success">Badge 3</span>
-</div>
-```
-
-#### Layout Demo Example
-
-```html
-<div class="layout-demo-wrapper">
-  <div class="layout-demo-placeholder">
-    <img src="path/to/layout-image.png" alt="Layout example">
-  </div>
-  <div class="layout-demo-info">
-    This is an example of the Fluid layout.
-  </div>
-</div>
-```
-
-### Customization
-
-The demo styles can be customized for specific demonstration needs:
-
-1. **Adjust Spacing Values**:
-   ```css
-   .demo-vertical-spacing > * {
-     margin-top: 2rem !important; /* Increase default spacing */
-     margin-bottom: 0 !important;
-   }
-   ```
-
-2. **Modify Demo Layout Components**:
-   ```css
-   .layout-demo-placeholder img {
-     width: 100%; /* Make images responsive */
-     max-width: 900px;
-   }
-   ```
-
-3. **Add New Demo Utilities**:
-   ```css
-   .demo-shadow-examples > * {
-     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-     margin: 1rem;
-     padding: 1.5rem;
-   }
-   ```
-
-## Conclusion
-
-This documentation provides a comprehensive overview of the CSS files used in the MenuMitra Owner Dashboard application. By understanding the structure and purpose of each CSS file, developers and AI assistants can more effectively work with the codebase.
-
-### Summary of CSS Files
+### Core and Theme Files
 
 | File | Size | Purpose |
 |------|------|---------|
@@ -1108,47 +1046,49 @@ This documentation provides a comprehensive overview of the CSS files used in th
 | modal.css | 493B | Custom animations for modal dialogs |
 | demo.css | 2.6KB | Styling for demonstration components |
 
-### Best Practices
+### Application-Specific CSS Files
 
-1. **Theme Selection**
-   - Use the appropriate combination of core and theme files based on design requirements
-   - Consider user preferences for light/dark mode and provide toggle functionality
+| File | Size | Purpose |
+|------|------|---------|
+| app-chat.css | 11KB | Chat application interface |
+| app-email.css | 10KB | Email application interface |
+| app-calendar.css | 3.6KB | Calendar application interface |
+| app-kanban.css | 4.6KB | Kanban board for task management |
+| app-invoice.css | 1.1KB | Invoice management interface |
+| app-invoice-print.css | 372B | Invoice print optimization |
+| app-ecommerce.css | 302B | E-commerce general pages |
+| app-ecommerce-dashboard.css | 128B | E-commerce dashboard |
+| app-logistics-dashboard.css | 1.0KB | Logistics dashboard |
+| app-logistics-fleet.css | 2.1KB | Fleet management interface |
+| app-academy.css | 472B | Academy application |
+| app-academy-details.css | 87B | Academy details pages |
 
-2. **Performance Considerations**
-   - The core CSS files are large (785-787KB) and should be minified for production
-   - Consider loading theme files asynchronously or on-demand
+### Page-Specific CSS Files
 
-3. **Customization Approach**
-   - Prefer using utility classes over custom CSS when possible
-   - When custom styling is needed, follow the existing naming conventions
-   - Maintain the separation between core styling and theme-specific styling
+| File | Size | Purpose |
+|------|------|---------|
+| page-auth.css | 2.0KB | Authentication pages |
+| page-profile.css | 556B | User profile pages |
+| page-user-view.css | 1.1KB | User detail view pages |
+| page-account-settings.css | 145B | Account settings pages |
+| page-faq.css | 707B | FAQ pages |
+| page-pricing.css | 483B | Pricing pages |
+| page-misc.css | 529B | Error and miscellaneous pages |
+| page-icons.css | 309B | Icons showcase page |
 
-4. **Accessibility**
-   - Ensure sufficient color contrast when customizing themes
-   - Test all UI components in both light and dark modes
+### UI Component CSS Files
 
-5. **Documentation**
-   - Keep this documentation updated when making significant changes to CSS files
-   - Document any custom components or utilities added to the codebase
+| File | Size | Purpose |
+|------|------|---------|
+| ui-carousel.css | 700B | Carousel components |
+| cards-statistics.css | 188B | Statistical card components |
+| cards-gamifications.css | 128B | Gamification card components |
+| front-page.css | 5.3KB | Front-facing pages general styling |
+| front-page-landing.css | 5.0KB | Landing page styling |
+| front-page-pricing.css | 1017B | Front-facing pricing page |
+| front-page-help-center.css | 431B | Help center styling |
+| front-page-payment.css | 84B | Payment page styling |
+| wizard-ex-checkout.css | 53B | Checkout wizard interface |
+| dashboards-crm.css | 32B | CRM dashboard styling |
 
-### Future Enhancements
-
-Potential improvements to the CSS architecture could include:
-
-1. **CSS Optimization**
-   - Further minification and tree-shaking to reduce file sizes
-   - Splitting large files into smaller, more manageable chunks
-
-2. **CSS Variables**
-   - Expanding the use of CSS custom properties for easier theming
-   - Creating a centralized theme configuration file
-
-3. **Component Library**
-   - Developing a more structured component library with documentation
-   - Creating interactive examples of available components
-
-4. **Responsive Improvements**
-   - Enhancing mobile-first approach across all components
-   - Adding more responsive utilities for complex layouts
-
-By following these guidelines and leveraging the existing CSS structure, developers can maintain a consistent and visually appealing user interface for the MenuMitra Owner Dashboard application.
+This comprehensive reference provides a quick overview of all CSS files in the application, their sizes, and their purposes. When working on a specific feature or page, refer to the appropriate CSS file to maintain consistency with the existing styling patterns.
