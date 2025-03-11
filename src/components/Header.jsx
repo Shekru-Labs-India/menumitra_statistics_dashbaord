@@ -165,9 +165,9 @@ function Header() {
             className="navbar-nav-right d-flex align-items-center"
             id="navbar-collapse"
           >
-            <ul className="navbar-nav flex-row align-items-center ms-auto">
-              {/* Search */}
-              <li className="nav-item navbar-search-wrapper me-1 me-xl-0">
+            {/* Search */}
+            <div className="navbar-nav flex-row">
+              <li className="nav-item navbar-search-wrapper">
                 <div className="nav-link search-wrapper">
                   <div className="position-relative">
                     <input
@@ -182,14 +182,18 @@ function Header() {
                   </div>
                 </div>
               </li>
-              
-              <li className="nav-item dropdown-style-switcher dropdown">
+            </div>
+
+            {/* Right aligned items */}
+            <ul className="navbar-nav flex-row align-items-center ms-auto">
+              {/* Theme Mode */}
+              <li className="nav-item dropdown-style-switcher dropdown me-3">
                 <a
                   className="nav-link btn btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow"
                   href="javascript:void(0);"
                   data-bs-toggle="dropdown"
                 >
-                  <i className="fas fa-sun fa-lg me-3" />
+                  <i className="fas fa-sun fa-lg" />
                 </a>
                 <ul className="dropdown-menu dropdown-menu-end dropdown-styles">
                   <li>
@@ -230,15 +234,11 @@ function Header() {
                   </li>
                 </ul>
               </li>
-              {/* / Style Switcher*/}
-             
-              {/* Quick links */}
-             
-              {/*/ Notification */}
-              {/* User */}
+
+              {/* User Profile */}
               <li className="nav-item navbar-dropdown dropdown-user dropdown">
                 <a
-                  className="nav-link dropdown-toggle hide-arrow p-0"
+                  className="nav-link dropdown-toggle hide-arrow"
                   href="javascript:void(0);"
                   data-bs-toggle="dropdown"
                 >
@@ -335,7 +335,6 @@ function Header() {
                   </li>
                 </ul>
               </li>
-              {/*/ User */}
             </ul>
           </div>
           {/* Search Small Screens */}
