@@ -1,0 +1,121 @@
+import React, { useState } from 'react';
+import ReactApexChart from 'react-apexcharts';
+
+const PaymentMethodsChart = () => {
+  const [dateRange, setDateRange] = useState('1st Jan to 31st Jan');
+  const [loading, setLoading] = useState(false);
+
+  const handleDateRangeChange = (range) => {
+    setDateRange(range);
+    fetchData(range);
+  };
+
+  const handleReload = () => {
+    setLoading(true);
+    fetchData(dateRange);
+    setTimeout(() => setLoading(false), 1000);
+  };
+
+  const fetchData = (range) => {
+    console.log('Fetching data for range:', range);
+  };
+
+  const data = [
+    { method: 'Cash', value: Math.floor(Math.random() * 2000) },
+    { method: 'Card', value: Math.floor(Math.random() * 2000) },
+    { method: 'Wallet', value: Math.floor(Math.random() * 2000) },
+    { method: 'Due Payment', value: Math.floor(Math.random() * 2000) },
+    { method: 'Other', value: Math.floor(Math.random() * 2000) },
+    { method: 'Online Paid', value: Math.floor(Math.random() * 2000) },
+    { method: 'Online COD', value: Math.floor(Math.random() * 2000) }
+  ];
+
+  const total = data.reduce((sum, item) => sum + item.value, 0);
+
+  return (
+    <div className="card">
+      <div className="card-header d-flex justify-content-between align-items-md-center align-items-start">
+        <h5 className="card-title mb-0">Total Sales</h5>
+        <div className="d-flex align-items-center gap-2">
+          <div className="dropdown">
+            <button 
+              type="button" 
+              className="btn btn-outline-primary dropdown-toggle"
+              data-bs-toggle="dropdown" 
+              aria-expanded="false"
+            >
+              <i className="fas fa-calendar me-2"></i>
+              {dateRange}
+            </button>
+            <ul className="dropdown-menu dropdown-menu-end">
+              <li>
+                <a href="#" className="dropdown-item d-flex align-items-center" onClick={(e) => { e.preventDefault(); handleDateRangeChange('Today'); }}>Today</a>
+              </li>
+              <li>
+                <a href="#" className="dropdown-item d-flex align-items-center" onClick={(e) => { e.preventDefault(); handleDateRangeChange('Yesterday'); }}>Yesterday</a>
+              </li>
+              <li>
+                <a href="#" className="dropdown-item d-flex align-items-center" onClick={(e) => { e.preventDefault(); handleDateRangeChange('Last 7 Days'); }}>Last 7 Days</a>
+              </li>
+              <li>
+                <a href="#" className="dropdown-item d-flex align-items-center" onClick={(e) => { e.preventDefault(); handleDateRangeChange('Last 30 Days'); }}>Last 30 Days</a>
+              </li>
+              <li><hr className="dropdown-divider" /></li>
+              <li>
+                <a href="#" className="dropdown-item d-flex align-items-center" onClick={(e) => { e.preventDefault(); handleDateRangeChange('Current Month'); }}>Current Month</a>
+              </li>
+              <li>
+                <a href="#" className="dropdown-item d-flex align-items-center" onClick={(e) => { e.preventDefault(); handleDateRangeChange('Last Month'); }}>Last Month</a>
+              </li>
+            </ul>
+          </div>
+          <button 
+            type="button" 
+            className={`btn btn-icon btn-outline-primary ${loading ? 'disabled' : ''}`}
+            onClick={handleReload}
+            disabled={loading}
+          >
+            <i className={`fas fa-sync-alt ${loading ? 'fa-spin' : ''}`}></i>
+          </button>
+        </div>
+      </div>
+      <div className="card-body">
+        <div className="d-flex justify-content-between mb-3">
+          <div>
+            <h6 className="mb-0">Total: ₹{total}</h6>
+          </div>
+        </div>
+        <div className="payment-methods-chart">
+          {data.map((item, index) => (
+            <div key={index} className="d-flex align-items-center mb-3 payment-row">
+              <div className="payment-method" style={{ width: '120px', color: '#433c50' }}>
+                {item.method}
+              </div>
+              <div className="flex-grow-1 px-3">
+                <div className="progress" style={{ height: '8px', backgroundColor: '#f4f5fa' }}>
+                  <div 
+                    className="progress-bar bg-primary" 
+                    role="progressbar" 
+                    style={{ 
+                      width: `${(item.value / Math.max(...data.map(d => d.value))) * 100}%`,
+                      backgroundColor: '#8c57ff',
+                      borderRadius: '4px'
+                    }} 
+                    aria-valuenow={item.value} 
+                    aria-valuemin="0" 
+                    aria-valuemax={Math.max(...data.map(d => d.value))}
+                  ></div>
+                </div>
+              </div>
+              <div className="payment-amount" style={{ width: '80px', textAlign: 'right', color: '#433c50' }}>
+                ₹{item.value}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default PaymentMethodsChart; 

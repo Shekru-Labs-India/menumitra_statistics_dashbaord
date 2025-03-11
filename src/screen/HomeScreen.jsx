@@ -1,6 +1,7 @@
 import React from "react";
 import VerticalSidebar from "../components/VerticalSidebar";
 import Header from "../components/Header";
+import PaymentMethodsChart from "../components/PaymentMethodsChart";
 
 function HomeScreen() {
   return (
@@ -20,7 +21,7 @@ function HomeScreen() {
                         Select an outlet from the search menu above to view detailed analytics and reports.
                       </p>
                       <div className="row g-4">
-                        <div className="col-md-6 col-lg-4">
+                        <div className="col-md-6 col-lg-3">
                           <div className="card h-100">
                             <div className="card-body">
                               <div className="d-flex align-items-start justify-content-between">
@@ -40,7 +41,7 @@ function HomeScreen() {
                             </div>
                           </div>
                         </div>
-                        <div className="col-md-6 col-lg-4">
+                        <div className="col-md-6 col-lg-3">
                           <div className="card h-100">
                             <div className="card-body">
                               <div className="d-flex align-items-start justify-content-between">
@@ -60,7 +61,7 @@ function HomeScreen() {
                             </div>
                           </div>
                         </div>
-                        <div className="col-md-6 col-lg-4">
+                        <div className="col-md-6 col-lg-3">
                           <div className="card h-100">
                             <div className="card-body">
                               <div className="d-flex align-items-start justify-content-between">
@@ -80,9 +81,116 @@ function HomeScreen() {
                             </div>
                           </div>
                         </div>
+                        <div className="col-md-6 col-lg-3">
+                          <div className="card h-100">
+                            <div className="card-body">
+                              <div className="d-flex align-items-start justify-content-between">
+                                <div className="content-left">
+                                  <span className="fw-medium d-block mb-1">Average Order Value</span>
+                                  <div className="d-flex align-items-center">
+                                    <h4 className="mb-0 me-2">₹0</h4>
+                                    <span className="text-success">(+0%)</span>
+                                  </div>
+                                </div>
+                                <div className="avatar">
+                                  <span className="avatar-initial rounded bg-label-info">
+                                    <i className="fas fa-chart-line"></i>
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="col-md-6 col-lg-3">
+                          <div className="card h-100">
+                            <div className="card-body">
+                              <div className="d-flex align-items-start justify-content-between">
+                                <div className="content-left">
+                                  <span className="fw-medium d-block mb-1">Table Turnover</span>
+                                  <div className="d-flex align-items-center">
+                                    <h4 className="mb-0 me-2">0</h4>
+                                    <span className="text-success">(+0%)</span>
+                                  </div>
+                                </div>
+                                <div className="avatar">
+                                  <span className="avatar-initial rounded bg-label-danger">
+                                    <i className="fas fa-chair"></i>
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="col-md-6 col-lg-3">
+                          <div className="card h-100">
+                            <div className="card-body">
+                              <div className="d-flex align-items-start justify-content-between">
+                                <div className="content-left">
+                                  <span className="fw-medium d-block mb-1">Peak Hours</span>
+                                  <div className="d-flex align-items-center">
+                                    <h4 className="mb-0 me-2">0</h4>
+                                    <span className="text-success">(+0%)</span>
+                                  </div>
+                                </div>
+                                <div className="avatar">
+                                  <span className="avatar-initial rounded bg-label-secondary">
+                                    <i className="fas fa-clock"></i>
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="col-md-6 col-lg-3">
+                          <div className="card h-100">
+                            <div className="card-body">
+                              <div className="d-flex align-items-start justify-content-between">
+                                <div className="content-left">
+                                  <span className="fw-medium d-block mb-1">Popular Items</span>
+                                  <div className="d-flex align-items-center">
+                                    <h4 className="mb-0 me-2">0</h4>
+                                    <span className="text-success">(+0%)</span>
+                                  </div>
+                                </div>
+                                <div className="avatar">
+                                  <span className="avatar-initial rounded bg-label-primary">
+                                    <i className="fas fa-utensils"></i>
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="col-md-6 col-lg-3">
+                          <div className="card h-100">
+                            <div className="card-body">
+                              <div className="d-flex align-items-start justify-content-between">
+                                <div className="content-left">
+                                  <span className="fw-medium d-block mb-1">Customer Satisfaction</span>
+                                  <div className="d-flex align-items-center">
+                                    <h4 className="mb-0 me-2">0%</h4>
+                                    <span className="text-success">(+0%)</span>
+                                  </div>
+                                </div>
+                                <div className="avatar">
+                                  <span className="avatar-initial rounded bg-label-success">
+                                    <i className="fas fa-smile"></i>
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
+              
+              {/* Payment Methods Chart */}
+              <div className="row mt-4">
+                <div className="col-4">
+                  <PaymentMethodsChart />
                 </div>
               </div>
             </div>

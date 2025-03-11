@@ -173,7 +173,7 @@ function Header() {
                     <input
                       type="text"
                       className="form-control search-input rounded-pill bg-light border-0 px-4"
-                      placeholder="Search..."
+                      placeholder="Search Outlet.."
                       style={{ width: '250px', height: '40px' }}
                       onClick={handleSearchClick}
                       readOnly
@@ -267,7 +267,7 @@ function Header() {
                           </div>
                         </div>
                         <div className="flex-grow-1">
-                          <h6 className="mb-0 small">John Doe</h6>
+                          <h6 className="mb-0 small">Rahul S</h6>
                           <small className="text-muted">Admin</small>
                         </div>
                       </div>
@@ -310,18 +310,7 @@ function Header() {
                   <li>
                     <div className="dropdown-divider" />
                   </li>
-                  <li>
-                    <a className="dropdown-item" href="pages-pricing.html">
-                      <i className="fas fa-dollar-sign fa-lg me-2" />
-                      <span className="align-middle">Pricing</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a className="dropdown-item" href="pages-faq.html">
-                      <i className="far fa-question-circle fa-lg me-2" />
-                      <span className="align-middle">FAQ</span>
-                    </a>
-                  </li>
+                
                   <li>
                     <div className="d-grid px-4 pt-2 pb-1">
                       <button
@@ -342,8 +331,8 @@ function Header() {
             <input
               type="text"
               className="form-control search-input  border-0"
-              placeholder="Search..."
-              aria-label="Search..."
+              placeholder="Search outlet"
+              aria-label="Search outlet"
             />
             <i className="fas fa-times search-toggler cursor-pointer" />
           </div>
