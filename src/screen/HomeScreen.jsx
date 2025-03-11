@@ -2,6 +2,7 @@ import React from "react";
 import VerticalSidebar from "../components/VerticalSidebar";
 import Header from "../components/Header";
 import PaymentMethodsChart from "../components/PaymentMethodsChart";
+import RevenueLossWidget from "../components/RevenueLossWidget";
 
 function HomeScreen() {
   return (
@@ -187,10 +188,13 @@ function HomeScreen() {
                 </div>
               </div>
               
-              {/* Payment Methods Chart */}
+              {/* Payment Methods Chart and Revenue Loss Widget */}
               <div className="row mt-4">
-                <div className="col-4">
+                <div className="col-md-6">
                   <PaymentMethodsChart />
+                </div>
+                <div className="col-md-6">
+                  <RevenueLossWidget />
                 </div>
               </div>
             </div>
