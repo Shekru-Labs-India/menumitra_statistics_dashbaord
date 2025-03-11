@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 const FoodTypeGraph = () => {
-    const [dateRange, setDateRange] = useState('7th Mar');
+    const [dateRange, setDateRange] = useState('Today');
     const [loading, setLoading] = useState(false);
   
     const handleDateRangeChange = (range) => {
@@ -31,28 +31,66 @@ const FoodTypeGraph = () => {
         <div className="card">
             <div className="card-header d-flex justify-content-between align-items-md-center align-items-start">
                 <h5 className="card-title mb-0">Food Type Analysis</h5>
-                <div className="d-flex align-items-center gap-2">
+                <div className="d-flex align-items-center gap-3">
+                    <span className="text-muted">{dateRange}</span>
                     <div className="dropdown">
                         <button 
                             type="button" 
-                            className="btn btn-outline-primary dropdown-toggle"
+                            className="btn dropdown-toggle p-0"
                             data-bs-toggle="dropdown" 
                             aria-expanded="false"
                         >
-                            {dateRange}
+                            <i className="ri-calendar-2-line"></i>
                         </button>
                         <ul className="dropdown-menu dropdown-menu-end">
                             <li>
-                                <a href="#" className="dropdown-item d-flex align-items-center" 
-                                   onClick={(e) => { e.preventDefault(); handleDateRangeChange('7th Mar'); }}>
-                                    7th Mar
+                                <a href="javascript:void(0);" 
+                                   className="dropdown-item d-flex align-items-center"
+                                   onClick={() => handleDateRangeChange('Today')}>
+                                    Today
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0);" 
+                                   className="dropdown-item d-flex align-items-center"
+                                   onClick={() => handleDateRangeChange('Yesterday')}>
+                                    Yesterday
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0);" 
+                                   className="dropdown-item d-flex align-items-center"
+                                   onClick={() => handleDateRangeChange('Last 7 Days')}>
+                                    Last 7 Days
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0);" 
+                                   className="dropdown-item d-flex align-items-center"
+                                   onClick={() => handleDateRangeChange('Last 30 Days')}>
+                                    Last 30 Days
+                                </a>
+                            </li>
+                            <li><hr className="dropdown-divider" /></li>
+                            <li>
+                                <a href="javascript:void(0);" 
+                                   className="dropdown-item d-flex align-items-center"
+                                   onClick={() => handleDateRangeChange('Current Month')}>
+                                    Current Month
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0);" 
+                                   className="dropdown-item d-flex align-items-center"
+                                   onClick={() => handleDateRangeChange('Last Month')}>
+                                    Last Month
                                 </a>
                             </li>
                         </ul>
                     </div>
                     <button 
                         type="button" 
-                        className={`btn btn-icon btn-outline-primary ${loading ? 'disabled' : ''}`}
+                        className={`btn btn-icon p-0 ${loading ? 'disabled' : ''}`}
                         onClick={handleReload}
                         disabled={loading}
                     >

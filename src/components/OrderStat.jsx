@@ -48,7 +48,7 @@ const OrderStat = () => {
           </div>
           <button 
             type="button" 
-            className={`btn btn-icon btn-outline-primary ${loading ? 'disabled' : ''}`}
+            className={`btn btn-icon p-0 ${loading ? 'disabled' : ''}`}
             onClick={handleReload}
             disabled={loading}
           >

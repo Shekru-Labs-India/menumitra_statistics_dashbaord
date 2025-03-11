@@ -1,9 +1,24 @@
 import React, { useState } from 'react';
 
-
 function TopSell() {
   const [selectedTab, setSelectedTab] = useState('top');
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [dateRange, setDateRange] = useState('Today');
+  const [loading, setLoading] = useState(false);
+
+  const handleDateRangeChange = (range) => {
+    setDateRange(range);
+    fetchData(range);
+  };
+
+  const handleReload = () => {
+    setLoading(true);
+    fetchData(dateRange);
+    setTimeout(() => setLoading(false), 1000);
+  };
+
+  const fetchData = (range) => {
+    console.log('Fetching data for range:', range);
+  };
 
   const topSellingProducts = [
     { id: 1, name: 'Butter Chicken', quantity: 350, revenue: '₹15,000' },
@@ -22,54 +37,120 @@ function TopSell() {
   ];
 
   return (
-    <div className="card p-3">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h5 className="mb-0">Products</h5>
-        <div className="d-flex align-items-center gap-2">
-          <input
-            type="date"
-            className="form-control"
-            value={selectedDate.split('T')[0]}
-            onChange={(e) => setSelectedDate(e.target.value)}
-          />
-          <button className="btn btn-outline-primary">
-            <i className="fas fa-sync-alt"></i>
+    <div className="card">
+      <div className="card-header d-flex justify-content-between align-items-md-center align-items-start">
+        <h5 className="card-title mb-0">Products Analysis</h5>
+        <div className="d-flex align-items-center gap-3">
+          <span className="text-muted">{dateRange}</span>
+          <div className="dropdown">
+            <button 
+              type="button" 
+              className="btn dropdown-toggle p-0"
+              data-bs-toggle="dropdown" 
+              aria-expanded="false"
+            >
+              <i className="ri-calendar-2-line"></i>
+            </button>
+            <ul className="dropdown-menu dropdown-menu-end">
+              <li>
+                <a href="javascript:void(0);" 
+                   className="dropdown-item d-flex align-items-center"
+                   onClick={() => handleDateRangeChange('Today')}>
+                    Today
+                </a>
+              </li>
+              <li>
+                <a href="javascript:void(0);" 
+                   className="dropdown-item d-flex align-items-center"
+                   onClick={() => handleDateRangeChange('Yesterday')}>
+                    Yesterday
+                </a>
+              </li>
+              <li>
+                <a href="javascript:void(0);" 
+                   className="dropdown-item d-flex align-items-center"
+                   onClick={() => handleDateRangeChange('Last 7 Days')}>
+                    Last 7 Days
+                </a>
+              </li>
+              <li>
+                <a href="javascript:void(0);" 
+                   className="dropdown-item d-flex align-items-center"
+                   onClick={() => handleDateRangeChange('Last 30 Days')}>
+                    Last 30 Days
+                </a>
+              </li>
+              <li><hr className="dropdown-divider" /></li>
+              <li>
+                <a href="javascript:void(0);" 
+                   className="dropdown-item d-flex align-items-center"
+                   onClick={() => handleDateRangeChange('Current Month')}>
+                    Current Month
+                </a>
+              </li>
+              <li>
+                <a href="javascript:void(0);" 
+                   className="dropdown-item d-flex align-items-center"
+                   onClick={() => handleDateRangeChange('Last Month')}>
+                    Last Month
+                </a>
+              </li>
+            </ul>
+          </div>
+          <button 
+            type="button" 
+            className={`btn btn-icon p-0 ${loading ? 'disabled' : ''}`}
+            onClick={handleReload}
+            disabled={loading}
+          >
+            <i className={`fas fa-sync-alt ${loading ? 'fa-spin' : ''}`}></i>
           </button>
         </div>
       </div>
       
-      <div className="d-flex border-bottom mb-2">
-        <span
-          className={`me-3 pb-2 ${selectedTab === 'top' ? 'border-bottom border-danger' : ''}`}
-          style={{ cursor: 'pointer' }}
-          onClick={() => setSelectedTab('top')}
-        >
-          Top Selling
-        </span>
-        <span
-          className={`pb-2 ${selectedTab === 'low' ? 'border-bottom border-danger' : ''}`}
-          style={{ cursor: 'pointer' }}
-          onClick={() => setSelectedTab('low')}
-        >
-          Low Selling
-        </span>
-      </div>
+      <div className="card-body">
+        <div className="nav nav-tabs mb-3">
+          <button
+            className={`nav-link ${selectedTab === 'top' ? 'active' : ''}`}
+            onClick={() => setSelectedTab('top')}
+          >
+            Top Selling
+          </button>
+          <button
+            className={`nav-link ${selectedTab === 'low' ? 'active' : ''}`}
+            onClick={() => setSelectedTab('low')}
+          >
+            Low Selling
+          </button>
+        </div>
 
-      <div>
-        {(selectedTab === 'top' ? topSellingProducts : lowSellingProducts).length > 0 ? (
-          <ul className="list-group">
-            {(selectedTab === 'top' ? topSellingProducts : lowSellingProducts).map((product) => (
-              <li key={product.id} className="list-group-item d-flex justify-content-between">
-                <span>{product.name}</span>
-                <span>{product.quantity} Sold</span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <div className="text-center text-muted">There Are No Items Available</div>
-        )}
+        <div className="tab-content">
+          {(selectedTab === 'top' ? topSellingProducts : lowSellingProducts).length > 0 ? (
+            <div className="table-responsive">
+              <table className="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Product Name</th>
+                    <th>Quantity Sold</th>
+                    <th>Revenue</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(selectedTab === 'top' ? topSellingProducts : lowSellingProducts).map((product) => (
+                    <tr key={product.id}>
+                      <td>{product.name}</td>
+                      <td>{product.quantity}</td>
+                      <td>{product.revenue}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="text-center text-muted p-3">There Are No Items Available</div>
+          )}
+        </div>
       </div>
-
     </div>
   );
 }
