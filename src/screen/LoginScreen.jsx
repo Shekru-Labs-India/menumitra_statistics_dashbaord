@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+// Import the images at the top of the file
+import tree3 from '../assets/img/illustrations/tree-3.png';
+import authMaskLight from '../assets/img/illustrations/auth-basic-mask-light.png';
+import tree from '../assets/img/illustrations/tree.png';
+// Import the auth CSS
+import '../assets/css/page-auth.css';
 
 function LoginScreen() {
   const [mobileNumber, setMobileNumber] = useState('');
@@ -53,32 +59,10 @@ function LoginScreen() {
   };
 
   return (
-    <div 
-      className="position-relative"
-      style={{
-        minHeight: '100vh',
-        overflow: 'hidden'
-      }}
-    >
-      <div 
-        className="authentication-wrapper authentication-basic"
-        style={{
-          minHeight: '100vh',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          padding: '1rem'
-        }}
-      >
-        <div 
-          className="authentication-inner py-4"
-          style={{
-            width: '100%',
-            maxWidth: '400px',
-            margin: '0 auto'
-          }}
-        >
-          <div className="card">
+    <div className="position-relative">
+      <div className="authentication-wrapper authentication-basic container-p-y authentication-bg">
+        <div className="authentication-inner py-6 mx-4">
+          <div className="card p-7">
             <div className="card-body">
               {/* Logo */}
               <div className="app-brand justify-content-center mb-4 mt-2">
@@ -197,6 +181,10 @@ function LoginScreen() {
             </div>
           </div>
         </div>
+        {/* Decorative illustrations */}
+        <img src={tree3} alt="auth-tree" className="authentication-image-object-left d-none d-lg-block" />
+        <img src={authMaskLight} className="authentication-image d-none d-lg-block scaleX-n1-rtl" height="172" alt="triangle-bg" data-app-light-img="illustrations/auth-basic-mask-light.png" data-app-dark-img="illustrations/auth-basic-mask-dark.png" />
+        <img src={tree} alt="auth-tree" className="authentication-image-object-right d-none d-lg-block" />
       </div>
     </div>
   );
