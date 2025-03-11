@@ -7,6 +7,7 @@ import HomeScreen from './screen/HomeScreen'
 import LoginScreen from './screen/LoginScreen'
 
 import Header from './components/Header'
+import TopSell from './components/TopSell';
 
 function App() {
   return (

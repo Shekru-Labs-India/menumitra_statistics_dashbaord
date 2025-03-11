@@ -3,6 +3,7 @@ import VerticalSidebar from "../components/VerticalSidebar";
 import Header from "../components/Header";
 import PaymentMethodsChart from "../components/PaymentMethodsChart";
 import RevenueLossWidget from "../components/RevenueLossWidget";
+import TopSell from "../components/TopSell";
 
 function HomeScreen() {
   return (
@@ -196,6 +197,13 @@ function HomeScreen() {
                 <div className="col-md-6">
                   <RevenueLossWidget />
                 </div>
+                <div className="row mt-2">
+                <div className="col-md-6">
+                  <TopSell />
+                </div>
+                </div>
+                
+                
               </div>
             </div>
           </div>
