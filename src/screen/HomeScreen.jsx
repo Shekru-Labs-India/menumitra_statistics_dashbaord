@@ -7,6 +7,9 @@ function HomeScreen() {
     <>
       <VerticalSidebar />
       <Header />
+      <div className="container-xxl flex-grow-1 container-p-y">
+        <h1>Home</h1>
+      </div>
     </>
   );
 }
