@@ -6,7 +6,7 @@ import AnimationSelect from './AnimationSelect'
 
 function Header() {
   const [showModal, setShowModal] = useState(false);
-  const [animation, setAnimation] = useState('animate__fadeIn');
+  const [animation, setAnimation] = useState('animate__fadeIn animate__faster');
   const [exitAnimation, setExitAnimation] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
@@ -21,11 +21,11 @@ function Header() {
     const exitAnim = animation.replace('In', 'Out');
     setExitAnimation(`animate__animated ${exitAnim}`);
     
-    // Wait for animation to complete before hiding modal
+    // Reduced timeout from 500ms to 200ms for faster animation
     setTimeout(() => {
       setShowModal(false);
       setExitAnimation('');
-    }, 500);
+    }, 100);
   };
 
   const handleLogout = () => {
@@ -357,13 +357,19 @@ function Header() {
           <div 
             className={`modal ${exitAnimation || `animate__animated ${animation}`}`}
             tabIndex="-1" 
-            style={{display: "block"}} 
+            style={{
+              display: "block",
+              '--animate-duration': '0.2s',
+              backgroundColor: 'rgba(0, 0, 0, 0.1)',
+              backdropFilter: 'blur(5px)',
+              WebkitBackdropFilter: 'blur(5px)' // For Safari support
+            }} 
             aria-modal="true" 
             role="dialog"
           >
             <div className="modal-dialog modal-dialog-centered modal-lg">
-              <div className="modal-content">
-                <div className="modal-header d-flex align-items-center">
+              <div className="modal-content bg-blur">
+                <div className="modal-header border-bottom-0 d-flex align-items-center">
                   <h5 className="modal-title flex-grow-1">Select Outlet</h5>
                   <button 
                     type="button" 
@@ -466,6 +472,11 @@ function Header() {
           <div 
             className={`modal-backdrop ${exitAnimation || `animate__animated ${animation}`}`}
             onClick={handleCloseModal}
+            style={{
+              backgroundColor: 'rgba(0, 0, 0, 0.2)',
+              backdropFilter: 'blur(5px)',
+              WebkitBackdropFilter: 'blur(5px)'
+            }}
           />
         </>
       )}
