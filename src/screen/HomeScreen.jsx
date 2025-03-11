@@ -5,6 +5,7 @@ import PaymentMethodsChart from "../components/PaymentMethodsChart";
 import RevenueLossWidget from "../components/RevenueLossWidget";
 import TopSell from "../components/TopSell";
 import OrderStat from "../components/OrderStat";
+import FoodTypeGraph from "../components/FoodTypeGraph";
 
 function HomeScreen() {
   return (
@@ -205,6 +206,11 @@ function HomeScreen() {
                 <div className="col-md-6">
                   <OrderStat />
                 </div>
+                </div>
+                <div className="row mt-4">
+                  <div className="col-md-6">
+                    <FoodTypeGraph />
+                  </div>
                 </div>
                 
                 

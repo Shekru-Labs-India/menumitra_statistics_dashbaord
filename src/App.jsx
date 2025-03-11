@@ -8,6 +8,7 @@ import LoginScreen from './screen/LoginScreen'
 
 import Header from './components/Header'
 import TopSell from './components/TopSell';
+import FoodTypeGraph from './components/FoodTypeGraph';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
             
             {/* Default redirect to login */}
             <Route path="/" element={<Navigate to="/login" replace />} />
+        
 
             {/* Add more routes here */}
             {/* Example:
