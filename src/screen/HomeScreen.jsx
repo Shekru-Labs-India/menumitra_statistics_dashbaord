@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import PaymentMethodsChart from "../components/PaymentMethodsChart";
 import RevenueLossWidget from "../components/RevenueLossWidget";
 import TopSell from "../components/TopSell";
+import OrderStat from "../components/OrderStat";
 
 function HomeScreen() {
   return (
@@ -197,11 +198,15 @@ function HomeScreen() {
                 <div className="col-md-6">
                   <RevenueLossWidget />
                 </div>
-                <div className="row mt-2">
+                <div className="row mt-4">
                 <div className="col-md-6">
                   <TopSell />
                 </div>
+                <div className="col-md-6">
+                  <OrderStat />
                 </div>
+                </div>
+                
                 
                 
               </div>
