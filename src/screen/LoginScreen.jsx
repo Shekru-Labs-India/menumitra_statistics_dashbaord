@@ -98,7 +98,10 @@ function LoginScreen() {
                   <img
                     src={logo}
                     alt={`${menuMitraAppInfo.name} Logo`}
-                    style={{ width: menuMitraAppInfo.logo.width, height: menuMitraAppInfo.logo.height }}
+                    style={{
+                      width: menuMitraAppInfo.logo.width,
+                      height: menuMitraAppInfo.logo.height,
+                    }}
                   />
                 </span>
               </span>
@@ -205,7 +208,7 @@ function LoginScreen() {
                   <h4 className="mb-0">Verify OTP</h4>
                 </div>
                 <p className="mb-4 text-center">
-                  Please enter the OTP sent to {mobileNumber}
+                  Please enter the OTP sent to <b>{mobileNumber}</b>
                 </p>
 
                 <form onSubmit={handleVerifyOtp}>
@@ -249,8 +252,8 @@ function LoginScreen() {
                     onClick={handleResendOtp}
                     disabled={resendDisabled}
                   >
-                    {resendDisabled 
-                      ? `Resend OTP in ${countdown}s` 
+                    {resendDisabled
+                      ? `Resend OTP in ${countdown}s`
                       : "Resend OTP"}
                   </button>
                 </div>
