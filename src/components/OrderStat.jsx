@@ -31,21 +31,66 @@ const OrderStat = () => {
       <div className="card-header d-flex justify-content-between align-items-md-center align-items-start">
         <h5 className="card-title mb-0">Order Statistics</h5>
         <div className="d-flex align-items-center gap-2">
-          <div className="dropdown">
-            <button 
+         
+        <div className="dropdown">
+                    <button 
               type="button" 
               className="btn btn-outline-primary dropdown-toggle"
               data-bs-toggle="dropdown" 
               aria-expanded="false"
             >
+              <i className="fas fa-calendar me-2"></i>
               {dateRange}
             </button>
-            <ul className="dropdown-menu dropdown-menu-end">
-              <li>
-                <a href="#" className="dropdown-item d-flex align-items-center" onClick={(e) => { e.preventDefault(); handleDateRangeChange('7th Mar'); }}>7th Mar</a>
-              </li>
-            </ul>
-          </div>
+                        <ul className="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a href="javascript:void(0);" 
+                                   className="dropdown-item d-flex align-items-center"
+                                   onClick={() => handleDateRangeChange('Today')}>
+                                    Today
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0);" 
+                                   className="dropdown-item d-flex align-items-center"
+                                   onClick={() => handleDateRangeChange('Yesterday')}>
+                                    Yesterday
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0);" 
+                                   className="dropdown-item d-flex align-items-center"
+                                   onClick={() => handleDateRangeChange('Last 7 Days')}>
+                                    Last 7 Days
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0);" 
+                                   className="dropdown-item d-flex align-items-center"
+                                   onClick={() => handleDateRangeChange('Last 30 Days')}>
+                                    Last 30 Days
+                                </a>
+                            </li>
+                            <li><hr className="dropdown-divider" /></li>
+                            <li>
+                                <a href="javascript:void(0);" 
+                                   className="dropdown-item d-flex align-items-center"
+                                   onClick={() => handleDateRangeChange('Current Month')}>
+                                    Current Month
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0);" 
+                                   className="dropdown-item d-flex align-items-center"
+                                   onClick={() => handleDateRangeChange('Last Month')}>
+                                    Last Month
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+         
+
           <button 
             type="button" 
             className={`btn btn-icon p-0 ${loading ? 'disabled' : ''}`}

@@ -32,16 +32,17 @@ const FoodTypeGraph = () => {
             <div className="card-header d-flex justify-content-between align-items-md-center align-items-start">
                 <h5 className="card-title mb-0">Food Type Analysis</h5>
                 <div className="d-flex align-items-center gap-3">
-                    <span className="text-muted">{dateRange}</span>
+                
                     <div className="dropdown">
-                        <button 
-                            type="button" 
-                            className="btn dropdown-toggle p-0"
-                            data-bs-toggle="dropdown" 
-                            aria-expanded="false"
-                        >
-                            <i className="ri-calendar-2-line"></i>
-                        </button>
+                    <button 
+              type="button" 
+              className="btn btn-outline-primary dropdown-toggle"
+              data-bs-toggle="dropdown" 
+              aria-expanded="false"
+            >
+              <i className="fas fa-calendar me-2"></i>
+              {dateRange}
+            </button>
                         <ul className="dropdown-menu dropdown-menu-end">
                             <li>
                                 <a href="javascript:void(0);" 
