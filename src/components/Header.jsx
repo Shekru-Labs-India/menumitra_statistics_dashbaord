@@ -12,6 +12,7 @@ function Header() {
   const [selectedOutlet, setSelectedOutlet] = useState('');
   const [isMenuCollapsed, setIsMenuCollapsed] = useState(false);
   const navigate = useNavigate();
+  const inputRef = React.useRef(null);
 
   useEffect(() => {
     // Check if menu is collapsed on initial load
@@ -33,6 +34,13 @@ function Header() {
       window.removeEventListener('layout:toggle', handleMenuToggle);
     };
   }, []);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      const textWidth = inputRef.current.scrollWidth;
+      inputRef.current.style.width = `${textWidth + 20}px`;
+    }
+  }, [selectedOutlet]);
 
   const handleSearchClick = (e) => {
     e.preventDefault();
@@ -125,8 +133,9 @@ function Header() {
                     type="text"
                     className="form-control search-input rounded-pill bg-light border-0 px-4"
                     placeholder="Search Outlet.."
-                      value={selectedOutlet || ''}
-                    style={{ width: '400px', height: '40px' }}
+                    value={selectedOutlet || ''}
+                    ref={inputRef}
+                    style={{ maxWidth: '100%', height: '40px' }}
                     onClick={handleSearchClick}
                     readOnly
                   />
