@@ -9,6 +9,7 @@ import TopSell from "../components/TopSell";
 import OrderStat from "../components/OrderStat";
 import FoodTypeGraph from "../components/FoodTypeGraph";
 import OrderType from "../components/OrderType";
+import OrderAnalytics from '../components/OrderAnalytics';
 
 function HomeScreen() {
   const [dateRange, setDateRange] = useState('Today');
@@ -331,9 +332,9 @@ const handleCustomDateSelect = () => {
                     <OrderType />
                   </div>
                 </div>
-                
-                
-                
+                <div className="row mt-4">
+                  <OrderAnalytics />
+                </div>
               </div>
             </div>
           </div>
