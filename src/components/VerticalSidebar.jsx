@@ -136,7 +136,7 @@ function VerticalSidebar() {
   }
 
   return (
-    <aside id="layout-menu" className="layout-menu menu-vertical menu bg-menu-theme">
+    <aside id="layout-menu" className="layout-menu menu-vertical menu bg-menu-theme" style={{ position: 'sticky', top: 0, height: '100vh', overflowY: 'auto', overflowX: 'hidden' }}>
       <div className="app-brand demo py-3 px-4">
         <Link to="/" className="app-brand-link gap-2">
           <span className="app-brand-logo demo">

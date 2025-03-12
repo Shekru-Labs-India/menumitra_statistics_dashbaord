@@ -10,8 +10,10 @@ function Header() {
   const [exitAnimation, setExitAnimation] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedOutlet, setSelectedOutlet] = useState('');
+  const [fullOutletName, setFullOutletName] = useState('');
   const [isMenuCollapsed, setIsMenuCollapsed] = useState(false);
   const navigate = useNavigate();
+  const inputRef = React.useRef(null);
 
   useEffect(() => {
     // Check if menu is collapsed on initial load
@@ -34,6 +36,13 @@ function Header() {
     };
   }, []);
 
+  useEffect(() => {
+    if (inputRef.current) {
+      const textWidth = inputRef.current.scrollWidth;
+      inputRef.current.style.width = `${textWidth + 20}px`;
+    }
+  }, [selectedOutlet]);
+
   const handleSearchClick = (e) => {
     e.preventDefault();
     setShowModal(true);
@@ -51,7 +60,9 @@ function Header() {
   };
 
   const handleOutletSelect = (outletName) => {
-    setSelectedOutlet(outletName);
+    setFullOutletName(outletName);
+    const truncatedName = truncateText(outletName, 20);
+    setSelectedOutlet(truncatedName);
     handleCloseModal();
   };
 
@@ -96,6 +107,27 @@ function Header() {
     };
   }, []);
 
+  // Update outlet names
+  const outlets = [
+    'Pune',
+    'Mumbai',
+    'Delhi Mejwani asdsa asfasf asdasfas fsa asfasf saf saf as',
+    'Chennai',
+    'Goa'
+  ];
+
+  // Utility function to truncate text
+  const truncateText = (text, maxLength, maxWords = 3) => {
+    const words = text.split(' ');
+    if (words.length <= maxWords) return text; // No truncation for maxWords or fewer words
+    let truncated = '';
+    for (let word of words) {
+      if ((truncated + word).length > maxLength) break;
+      truncated += word + ' ';
+    }
+    return truncated.trim() + '...';
+  };
+
   return (
     <div>
     <nav
@@ -120,13 +152,14 @@ function Header() {
           <div className="navbar-nav flex-row">
             <li className="nav-item navbar-search-wrapper">
               <div className="nav-link search-wrapper">
-                <div className="position-relative">
+                <div className="position-relative" style={{ width: '100%' }}>
                   <input
                     type="text"
                     className="form-control search-input rounded-pill bg-light border-0 px-4"
                     placeholder="Search Outlet.."
-                      value={selectedOutlet || ''}
-                    style={{ width: '400px', height: '40px' }}
+                    value={selectedOutlet || ''}
+                    ref={inputRef}
+                    style={{ maxWidth: '100%', height: '40px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
                     onClick={handleSearchClick}
                     readOnly
                   />
@@ -321,14 +354,15 @@ function Header() {
                 </div>
 
                 <div className="modal-body p-4">
+                  <h5>Selected Outlet: {fullOutletName}</h5>
                   {/* Search Box */}
                   <div className="position-relative mb-4">
-                      <input
-                        type="text"
+                    <input
+                      type="text"
                       className="form-control search-input"
                       placeholder="Search"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
                     />
                     <div className="position-absolute top-50 end-0 translate-middle-y pe-3 d-flex gap-2">
                       {searchTerm && (
@@ -345,90 +379,30 @@ function Header() {
 
                   {/* Quick Select Buttons */}
                   <div className="d-flex gap-2 flex-wrap mb-4">
-                    <button 
-                      className="btn btn-outline-primary btn-sm"
-                      onClick={() => handleOutletSelect('Delhi-Petpooja-Demo')}
-                    >
-                      Delhi-Petpooja-Demo
-                    </button>
-                    <button 
-                      className="btn btn-outline-primary btn-sm"
-                      onClick={() => handleOutletSelect('Ahmedabad-Central kitchen-Demo')}
-                    >
-                      Ahmedabad-Central kitchen-Demo
-                    </button>
-                    <button 
-                      className="btn btn-outline-primary btn-sm"
-                      onClick={() => handleOutletSelect('Chennai-Petpooja-Demo')}
-                    >
-                      Chennai-Petpooja-Demo
-                    </button>
-                    <button 
-                      className="btn btn-outline-primary btn-sm"
-                      onClick={() => handleOutletSelect('Pune-Petpooja-Demo')}
-                    >
-                      Pune-Petpooja-Demo
-                    </button>
+                    {outlets.map((outlet) => (
+                      <button 
+                        key={outlet}
+                        className="btn btn-outline-primary btn-sm"
+                        onClick={() => handleOutletSelect(outlet)}
+                      >
+                        {outlet}
+                      </button>
+                    ))}
                   </div>
 
                   {/* Outlet List */}
                   <div className="list-group">
-                    <button 
-                      className="list-group-item list-group-item-action d-flex align-items-center"
-                      onClick={() => handleOutletSelect('All Outlet')}
-                    >
-                      <i className="fas fa-building me-3"></i>
-                      <div className="flex-grow-1">All Outlet</div>
-                    </button>
-                    <button 
-                      className="list-group-item list-group-item-action d-flex align-items-center"
-                      onClick={() => handleOutletSelect('Ahmedabad-NewHeadoffice-Demo')}
-                    >
-                      <i className="fas fa-store me-3"></i>
-                      <div className="flex-grow-1">Ahmedabad-NewHeadoffice-Demo</div>
-                      <small className="text-muted">[ id: 25084 ]</small>
-                    </button>
-                    <button 
-                      className="list-group-item list-group-item-action d-flex align-items-center"
-                      onClick={() => handleOutletSelect('Chennai-Petpooja-Demo')}
-                    >
-                      <i className="fas fa-store me-3"></i>
-                      <div className="flex-grow-1">Chennai-Petpooja-Demo</div>
-                      <small className="text-muted">[ id: 2054 ]</small>
-                    </button>
-                    <button 
-                      className="list-group-item list-group-item-action d-flex align-items-center"
-                      onClick={() => handleOutletSelect('Pune-Petpooja-Demo')}
-                    >
-                      <i className="fas fa-store me-3"></i>
-                      <div className="flex-grow-1">Pune-Petpooja-Demo</div>
-                      <small className="text-muted">[ id: 8 ]</small>
-                    </button>
-                    <button 
-                      className="list-group-item list-group-item-action d-flex align-items-center"
-                      onClick={() => handleOutletSelect('Ahmedabad-Central kitchen-Demo')}
-                    >
-                      <i className="fas fa-utensils me-3"></i>
-                      <div className="flex-grow-1">Ahmedabad-Central kitchen-Demo</div>
-                      <small className="text-muted">[ id: 15344 ]</small>
-                    </button>
-                    <button 
-                      className="list-group-item list-group-item-action d-flex align-items-center"
-                      onClick={() => handleOutletSelect('Delhi-Petpooja-Demo')}
-                    >
-                      <i className="fas fa-store me-3"></i>
-                      <div className="flex-grow-1">Delhi-Petpooja-Demo</div>
-                      <small className="text-muted">[ id: 18789 ]</small>
-                    </button>
-                    <button 
-                      className="list-group-item list-group-item-action d-flex align-items-center"
-                      onClick={() => handleOutletSelect('Goa-Petpooja-Demo')}
-                    >
-                      <i className="fas fa-store me-3"></i>
-                      <div className="flex-grow-1">Goa-Petpooja-Demo</div>
-                      <small className="text-muted">[ id: 6248 ]</small>
-                    </button>
-                    </div>
+                    {outlets.map((outlet) => (
+                      <button 
+                        key={outlet}
+                        className="list-group-item list-group-item-action d-flex align-items-center"
+                        onClick={() => handleOutletSelect(outlet)}
+                      >
+                        <i className="fas fa-store me-3"></i>
+                        <div className="flex-grow-1">{outlet}</div>
+                      </button>
+                    ))}
+                  </div>
                     
                   {/* Animation Select (hidden but keeping functionality) */}
                   <div className="d-none">
