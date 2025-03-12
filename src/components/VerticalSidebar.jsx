@@ -150,13 +150,14 @@ function VerticalSidebar() {
         </Link>
 
         {/* Menu Pin Toggle (Radio style) */}
-        <div className="menu-pin-toggle ms-auto me-2">
+        <div className="menu-pin-toggle ms-auto me-1">
           <input 
             className="form-check-input" 
             type="checkbox" 
             id="dockMenu" 
             checked={isDocked} 
             onChange={handleDockToggle} 
+            title="Pin/Unpin Menu"
           />
         </div>
 
@@ -189,7 +190,7 @@ function VerticalSidebar() {
             window.dispatchEvent(new Event('layout:toggle'));
           }
         }}>
-          <i className={`ri-menu-${isDocked ? 'fold' : 'unfold'}-line align-middle`}></i>
+          <i className="ri-menu-fold-line align-middle"></i>
         </a>
       </div>
 

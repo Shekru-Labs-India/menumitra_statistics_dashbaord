@@ -31,6 +31,8 @@
   margin-left: 0;
   transition: width 0.2s ease-in-out, margin-left 0.2s ease-in-out;
   z-index: 1020;
+  background-color: var(--bs-white);
+  border-right: 1px solid var(--bs-border-color);
 }
 
 /* Menu Animation */
@@ -56,7 +58,7 @@
   height: 1.25rem;
   cursor: pointer;
   background-color: transparent;
-  border: 2px solid var(--bs-border-color);
+  border: 2px solid rgba(124, 125, 182, 0.5);
   border-radius: 50%;
   appearance: none;
   transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
@@ -88,7 +90,7 @@
 /* Menu Pin Icon */
 .menu-pin-icon {
   display: none;
-  color: var(--bs-border-color);
+  color: #7071dc;
   font-size: 1.1rem;
   cursor: pointer;
 }
@@ -111,8 +113,8 @@
 .layout-menu-hover.layout-menu-collapsed .menu-pin-icon {
   display: inline-block;
   position: absolute;
-  right: 8px;
-  top: 8px;
+  right: 0.75rem;
+  top: 0.75rem;
 }
 
 /* Menu Inner Shadow */
@@ -127,7 +129,7 @@
 
 /* Collapsed Menu State */
 .layout-menu-collapsed .layout-menu {
-  width: 70px; /* Reduced width for collapsed state */
+  width: 80px; /* Materio uses 80px width */
   overflow: visible;
 }
 
@@ -148,15 +150,17 @@
 .layout-menu-collapsed:not(.layout-menu-hover) .app-brand {
   padding: 0.75rem !important;
   justify-content: center;
+  height: 70px; /* Match Materio's height */
 }
 
 /* Menu Item Link in collapsed state */
 .layout-menu-collapsed:not(.layout-menu-hover) .menu-inner > .menu-item > .menu-link {
-  padding: 0.625rem 0;
+  padding: 0.675rem 0;
   width: 100%;
   text-align: center;
   border-radius: 0;
   margin: 0;
+  height: 42px; /* Match Materio's height */
 }
 
 .layout-menu-collapsed:not(.layout-menu-hover) .menu-inner > .menu-item > .menu-link > .menu-icon {
@@ -165,6 +169,7 @@
   font-size: 1.25rem;
   text-align: center;
   width: 100%;
+  color: #6f6b7d; /* Match Materio's icon color */
 }
 
 /* Menu Headers in collapsed state */
@@ -187,18 +192,18 @@
 
 /* Active Item in collapsed state */
 .layout-menu-collapsed:not(.layout-menu-hover) .menu-inner > .menu-item.active > .menu-link {
-  background-color: var(--bs-primary);
-  color: #fff;
+  background-color: #e9e9ff; /* Lighter background for active state */
+  color: var(--bs-primary);
 }
 
 .layout-menu-collapsed:not(.layout-menu-hover) .menu-inner > .menu-item.active > .menu-link .menu-icon {
-  color: #fff;
+  color: var(--bs-primary);
 }
 
-/* Hover State - Match the same styling as expanded state */
+/* Hover State - Match exactly the same styling as expanded state */
 .layout-menu-hover.layout-menu-collapsed .layout-menu {
   width: 260px;
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 50px 0 rgba(0, 0, 0, 0.1);
 }
 
 .layout-menu-hover.layout-menu-collapsed .app-brand-text,
@@ -209,6 +214,7 @@
 .layout-menu-hover.layout-menu-collapsed .app-brand {
   padding: 0.75rem 1.25rem !important;
   justify-content: flex-start;
+  height: auto;
 }
 
 .layout-menu-hover.layout-menu-collapsed .menu-inner > .menu-item > .menu-link {
@@ -217,6 +223,7 @@
   width: auto;
   text-align: left;
   border-radius: 0.375rem;
+  height: auto;
 }
 
 .layout-menu-hover.layout-menu-collapsed .menu-inner > .menu-item > .menu-link > .menu-icon {
@@ -327,6 +334,20 @@
   border-radius: 0.375rem;
   cursor: pointer;
   transition: background-color 0.2s ease-in-out;
+  color: #6f6b7d; /* Match Materio's text color */
+}
+
+.menu-item .menu-link:hover {
+  background-color: #f6f6f6; /* Lighter background on hover */
+}
+
+.menu-item.active > .menu-link {
+  background-color: #e9e9ff; /* Lighter purple background for active */
+  color: var(--bs-primary);
+}
+
+.menu-item.active > .menu-link .menu-icon {
+  color: var(--bs-primary);
 }
 
 .menu-item .menu-toggle::after {
@@ -352,6 +373,7 @@
 .menu-header {
   padding: 0.5rem 1.25rem;
   margin-top: 0.5rem;
+  color: #a5a3ae; /* Match Materio's header color */
 }
 
 /* Menu Pin Section */
