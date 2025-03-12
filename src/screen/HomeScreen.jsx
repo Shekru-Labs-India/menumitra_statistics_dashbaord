@@ -6,6 +6,7 @@ import RevenueLossWidget from "../components/RevenueLossWidget";
 import TopSell from "../components/TopSell";
 import OrderStat from "../components/OrderStat";
 import FoodTypeGraph from "../components/FoodTypeGraph";
+import OrderType from "../components/OrderType";
 
 function HomeScreen() {
   const [dateRange, setDateRange] = useState('Today');
@@ -218,7 +219,7 @@ function HomeScreen() {
                                 <div className="content-left">
                                   <span className="fw-medium d-block mb-1">Peak Hours</span>
                                   <div className="d-flex align-items-center">
-                                    <h4 className="mb-0 me-2">10:00 AM - 11:00 AM</h4>
+                                    <h4 className="mb-0 me-2">10:00 AM - 11:00 PM</h4>
                                     <span className="text-success">(+10%)</span>
                                   </div>
                                 </div>
@@ -296,6 +297,9 @@ function HomeScreen() {
                 <div className="row mt-4">
                   <div className="col-md-6">
                     <FoodTypeGraph />
+                  </div>
+                  <div className="col-md-6">
+                    <OrderType />
                   </div>
                 </div>
                 
