@@ -98,11 +98,11 @@ function Header() {
 
   return (
     <div>
-      <nav
-        className="layout-navbar navbar navbar-expand-xl align-items-center bg-navbar-theme"
-        id="layout-navbar"
-      >
-        <div className="container-xxl">
+    <nav
+      className="layout-navbar navbar navbar-expand-xl align-items-center bg-navbar-theme"
+      id="layout-navbar"
+    >
+      <div className="container-xxl">
           <div className="layout-menu-toggle navbar-nav align-items-xl-center me-4 me-xl-0 d-xl-none">
             <a
               className="nav-item nav-link px-0 me-xl-6"
@@ -112,35 +112,35 @@ function Header() {
               <i className={`fas fa-${isMenuCollapsed ? 'bars' : 'times'}`} />
             </a>
           </div>
-          <div
-            className="navbar-nav-right d-flex align-items-center"
-            id="navbar-collapse"
-          >
-            {/* Search */}
-            <div className="navbar-nav flex-row">
-              <li className="nav-item navbar-search-wrapper">
-                <div className="nav-link search-wrapper">
-                  <div className="position-relative">
-                    <input
-                      type="text"
-                      className="form-control search-input rounded-pill bg-light border-0 px-4"
-                      placeholder="Search Outlet.."
+        <div
+          className="navbar-nav-right d-flex align-items-center"
+          id="navbar-collapse"
+        >
+          {/* Search */}
+          <div className="navbar-nav flex-row">
+            <li className="nav-item navbar-search-wrapper">
+              <div className="nav-link search-wrapper">
+                <div className="position-relative">
+                  <input
+                    type="text"
+                    className="form-control search-input rounded-pill bg-light border-0 px-4"
+                    placeholder="Search Outlet.."
                       value={selectedOutlet || ''}
-                      style={{ width: '250px', height: '40px' }}
-                      onClick={handleSearchClick}
-                      readOnly
-                    />
-                    <i className="fas fa-search position-absolute top-50 end-0 translate-middle-y me-3 text-muted" />
-                  </div>
+                    style={{ width: '250px', height: '40px' }}
+                    onClick={handleSearchClick}
+                    readOnly
+                  />
+                  <i className="fas fa-search position-absolute top-50 end-0 translate-middle-y me-3 text-muted" />
                 </div>
-              </li>
-            </div>
+              </div>
+            </li>
+          </div>
 
-            {/* Right aligned items */}
-            <ul className="navbar-nav flex-row align-items-center ms-auto">
-              {/* Theme Mode */}
-              <li className="nav-item dropdown-style-switcher dropdown me-3">
-                <a
+          {/* Right aligned items */}
+          <ul className="navbar-nav flex-row align-items-center ms-auto">
+            {/* Theme Mode */}
+            <li className="nav-item dropdown-style-switcher dropdown me-3">
+              <a
                   className="nav-link btn btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow"
                   href="javascript:void(0);"
                   data-bs-toggle="dropdown"
@@ -175,33 +175,33 @@ function Header() {
                   <li>
                     <a
                       className="dropdown-item"
-                      href="javascript:void(0);"
+                href="javascript:void(0);"
                       data-theme="system"
-                    >
+              >
                       <span className="align-middle">
                         <i className="fas fa-desktop fa-lg me-3" />
                         System
                       </span>
-                    </a>
+              </a>
                   </li>
                 </ul>
-              </li>
+            </li>
 
-              {/* User Profile */}
-              <li className="nav-item navbar-dropdown dropdown-user dropdown">
-                <a
-                  className="nav-link dropdown-toggle hide-arrow"
-                  href="javascript:void(0);"
-                  data-bs-toggle="dropdown"
-                >
-                  <div className="avatar avatar-online">
-                    <img
-                      src={img}
-                      alt=""
-                      className="w-px-40 h-auto rounded-circle"
-                    />
-                  </div>
-                </a>
+            {/* User Profile */}
+            <li className="nav-item navbar-dropdown dropdown-user dropdown">
+              <a
+                className="nav-link dropdown-toggle hide-arrow"
+                href="javascript:void(0);"
+                data-bs-toggle="dropdown"
+              >
+                <div className="avatar avatar-online">
+                  <img
+                    src={img}
+                    alt=""
+                    className="w-px-40 h-auto rounded-circle"
+                  />
+                </div>
+              </a>
                 <ul className="dropdown-menu dropdown-menu-end mt-3 py-2">
                   <li>
                     <a
@@ -210,31 +210,31 @@ function Header() {
                     >
                       <div className="d-flex align-items-center">
                         <div className="flex-shrink-0 me-2">
-                          <div className="avatar avatar-online">
-                            <img
+                        <div className="avatar avatar-online">
+                          <img
                               src="../../assets/img/avatars/1.png"
-                              alt=""
-                              className="w-px-40 h-auto rounded-circle"
-                            />
-                          </div>
-                        </div>
-                        <div className="flex-grow-1">
-                          <h6 className="mb-0 small">Rahul S</h6>
-                          <small className="text-muted">Admin</small>
+                            alt=""
+                            className="w-px-40 h-auto rounded-circle"
+                          />
                         </div>
                       </div>
-                    </a>
-                  </li>
-                  <li>
-                    <div className="dropdown-divider" />
-                  </li>
-                  <li>
+                      <div className="flex-grow-1">
+                          <h6 className="mb-0 small">Rahul S</h6>
+                        <small className="text-muted">Admin</small>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <div className="dropdown-divider" />
+                </li>
+                <li>
                     <a className="dropdown-item" href="pages-profile-user.html">
                       <i className="far fa-user fa-lg me-2" />
                       <span className="align-middle">My Profile</span>
                     </a>
-                  </li>
-                  <li>
+                </li>
+                <li>
                     <a
                       className="dropdown-item"
                       href="pages-account-settings-account.html"
@@ -242,8 +242,8 @@ function Header() {
                       <i className="fas fa-cog fa-lg me-2" />
                       <span className="align-middle">Settings</span>
                     </a>
-                  </li>
-                  <li>
+                </li>
+                <li>
                     <a
                       className="dropdown-item"
                       href="pages-account-settings-billing.html"
@@ -258,10 +258,10 @@ function Header() {
                         </span>
                       </span>
                     </a>
-                  </li>
-                  <li>
-                    <div className="dropdown-divider" />
-                  </li>
+                </li>
+                <li>
+                  <div className="dropdown-divider" />
+                </li>
                 
                   <li>
                     <div className="d-grid px-4 pt-2 pb-1">
@@ -273,11 +273,11 @@ function Header() {
                         <i className="fas fa-sign-out-alt fa-sm ms-2" />
                       </button>
                     </div>
-                  </li>
-                </ul>
-              </li>
-            </ul>
-          </div>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
           {/* Search Small Screens */}
           <div className="navbar-search-wrapper search-input-wrapper container-xxl d-none">
             <input
@@ -291,12 +291,12 @@ function Header() {
         </div>
       </nav>
 
-      {/* Search Modal */}
-      {showModal && (
+        {/* Search Modal */}
+        {showModal && (
         <>
-          <div 
+          <div
             className={`modal ${exitAnimation || `animate__animated ${animation}`}`}
-            tabIndex="-1" 
+            tabIndex="-1"
             style={{
               display: "block",
               '--animate-duration': '0.2s',
@@ -311,8 +311,8 @@ function Header() {
               <div className="modal-content bg-blur">
                 <div className="modal-header border-bottom-0 d-flex align-items-center">
                   <h5 className="modal-title flex-grow-1">Select Outlet</h5>
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className="btn-close cursor-pointer" 
                     onClick={handleCloseModal}
                     aria-label="Close"
@@ -323,12 +323,12 @@ function Header() {
                 <div className="modal-body p-4">
                   {/* Search Box */}
                   <div className="position-relative mb-4">
-                    <input
-                      type="text"
+                      <input
+                        type="text"
                       className="form-control search-input"
                       placeholder="Search"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
                     />
                     <div className="position-absolute top-50 end-0 translate-middle-y pe-3 d-flex gap-2">
                       {searchTerm && (
@@ -428,12 +428,12 @@ function Header() {
                       <div className="flex-grow-1">Goa-Petpooja-Demo</div>
                       <small className="text-muted">[ id: 6248 ]</small>
                     </button>
-                  </div>
-
+                    </div>
+                    
                   {/* Animation Select (hidden but keeping functionality) */}
                   <div className="d-none">
-                    <AnimationSelect 
-                      value={animation}
+                      <AnimationSelect 
+                        value={animation} 
                       onChange={setAnimation}
                     />
                   </div>
@@ -453,7 +453,7 @@ function Header() {
           />
         </>
       )}
-    </div>
+      </div>
   );
 }
 

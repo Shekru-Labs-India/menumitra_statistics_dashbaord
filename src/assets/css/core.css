@@ -34369,7 +34369,7 @@ html:not([dir=rtl]) .menu-inner>.menu-header::after {
 }
 
 html:not([dir=rtl]) .menu-toggle::after {
-    content: ""
+    /* content: "" */
 }
 
 [dir=rtl] .menu-toggle::after {
