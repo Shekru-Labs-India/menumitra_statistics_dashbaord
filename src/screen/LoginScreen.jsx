@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 // Import the images at the top of the file
 import tree3 from '../assets/img/illustrations/tree-3.png';
 import authMaskLight from '../assets/img/illustrations/auth-basic-mask-light.png';
@@ -12,7 +12,22 @@ function LoginScreen() {
   const [mobileNumber, setMobileNumber] = useState('');
   const [showOtpForm, setShowOtpForm] = useState(false);
   const [otp, setOtp] = useState(['', '', '', '']);
+  const [countdown, setCountdown] = useState(15);
+  const [resendDisabled, setResendDisabled] = useState(true);
   const navigate = useNavigate();
+
+  // Start countdown timer when OTP form is shown
+  useEffect(() => {
+    let timer;
+    if (showOtpForm && countdown > 0) {
+      timer = setTimeout(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+    } else if (countdown === 0) {
+      setResendDisabled(false);
+    }
+    return () => clearTimeout(timer);
+  }, [showOtpForm, countdown]);
 
   const handleMobileSubmit = (e) => {
     e.preventDefault();
@@ -20,6 +35,8 @@ function LoginScreen() {
       // Here you would typically make an API call to send OTP
       console.log('Sending OTP to:', mobileNumber);
       setShowOtpForm(true);
+      setCountdown(15);
+      setResendDisabled(true);
     }
   };
 
@@ -59,6 +76,13 @@ function LoginScreen() {
     setOtp(['', '', '', '']);
   };
 
+  const handleResendOtp = () => {
+    console.log('Resending OTP to:', mobileNumber);
+    // Add your resend OTP logic here
+    setCountdown(15);
+    setResendDisabled(true);
+  };
+
   return (
     <div className="authentication-wrapper authentication-basic container-p-y">
       <div className="authentication-inner">
@@ -69,18 +93,28 @@ function LoginScreen() {
             <div className="d-flex flex-column align-items-center">
               <span className="app-brand-logo demo mb-2">
                 <span style={{ color: "var(--bs-primary)" }}>
-                  <img src={logo} alt="MenuMitra Logo" style={{ width: "60px", height: "60px" }} />
+                  <img
+                    src={logo}
+                    alt="MenuMitra Logo"
+                    style={{ width: "60px", height: "60px" }}
+                  />
                 </span>
               </span>
-              <span className="app-brand-text demo text-heading fw-bold">MenuMitra</span>
+              <span className="app-brand-text demo text-heading fw-bold">
+                MenuMitra
+              </span>
             </div>
           </div>
 
           <div className="card-body mt-1">
             {!showOtpForm ? (
               <>
-                <h4 className="mb-2 text-center fs-5">Welcome to MenuMitra Statistics Dashboard</h4>
-                <p className="mb-4 text-center">Please enter your mobile number to login</p>
+                <h4 className="mb-2 text-center fs-5">
+                  Welcome to MenuMitra Statistics Dashboard
+                </h4>
+                <p className="mb-4 text-center">
+                  Please enter your mobile number to login
+                </p>
 
                 <form className="mb-3" onSubmit={handleMobileSubmit}>
                   <div className="form-floating form-floating-outline mb-3">
@@ -92,7 +126,7 @@ function LoginScreen() {
                       placeholder="Enter your mobile number"
                       value={mobileNumber}
                       onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, '');
+                        const value = e.target.value.replace(/\D/g, "");
                         if (value.length <= 10) setMobileNumber(value);
                       }}
                       autoFocus
@@ -103,8 +137,8 @@ function LoginScreen() {
                   </div>
 
                   <div className="mb-3">
-                    <button 
-                      className="btn btn-primary d-grid w-100" 
+                    <button
+                      className="btn btn-primary d-grid w-100"
                       type="submit"
                       disabled={mobileNumber.length !== 10}
                     >
@@ -112,7 +146,7 @@ function LoginScreen() {
                     </button>
                   </div>
                 </form>
-{/* 
+                {/* 
                 <p className="text-center">
                   <span>New on our platform?</span>
                   <a href="/register">
@@ -120,63 +154,75 @@ function LoginScreen() {
                   </a>
                 </p> */}
                 <div className="d-flex justify-content-center gap-2">
-            <a
-              href="https://www.facebook.com/share/x5wymXr6w7W49vaQ/?mibextid=qi2Omg"
-              className="btn btn-icon btn-lg rounded-pill btn-text-facebook waves-effect waves-light"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <i className="fa-brands fa-facebook" />
-            </a>
-            <a
-              href="https://www.linkedin.com/company/102429337/admin/dashboard/"
-              className="btn btn-icon btn-lg rounded-pill btn-text-linkedin waves-effect waves-light"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <i className="fa-brands fa-linkedin" />
-            </a>
-            <a
-              href="https://www.youtube.com/@menumitra"
-              className="btn btn-icon btn-lg rounded-pill btn-text-youtube waves-effect waves-light"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <i className="fa-brands fa-youtube" />
-            </a>
-            <a
-              href="https://t.me/MenuMitra"
-              className="btn btn-icon btn-lg rounded-pill btn-text-telegram waves-effect waves-light"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <i className="fa-brands fa-telegram" />
-            </a>
-            <a
-              href="https://www.instagram.com/menumitra/"
-              className="btn btn-icon btn-lg rounded-pill btn-text-instagram waves-effect waves-light"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <i className="fa-brands fa-instagram" />
-            </a>
-          </div>
+                  <a
+                    href="https://www.facebook.com/share/x5wymXr6w7W49vaQ/?mibextid=qi2Omg"
+                    className="btn btn-icon btn-lg rounded-pill btn-text-facebook waves-effect waves-light"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <i className="fa-brands fa-facebook" />
+                  </a>
+                  <a
+                    href="https://www.linkedin.com/company/102429337/admin/dashboard/"
+                    className="btn btn-icon btn-lg rounded-pill btn-text-linkedin waves-effect waves-light"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <i className="fa-brands fa-linkedin" />
+                  </a>
+                  <a
+                    href="https://www.youtube.com/@menumitra"
+                    className="btn btn-icon btn-lg rounded-pill btn-text-youtube waves-effect waves-light"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <i className="fa-brands fa-youtube" />
+                  </a>
+                  <a
+                    href="https://t.me/MenuMitra"
+                    className="btn btn-icon btn-lg rounded-pill btn-text-telegram waves-effect waves-light"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <i className="fa-brands fa-telegram" />
+                  </a>
+                  <a
+                    href="https://www.instagram.com/menumitra/"
+                    className="btn btn-icon btn-lg rounded-pill btn-text-instagram waves-effect waves-light"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <i className="fa-brands fa-instagram" />
+                  </a>
+                </div>
 
-          <div className="mt-4 text-center">
-            <p className="text-muted mb-0">
-              <small>
-                <span><i className="fa-solid fa-bolt text-primary me-1"></i> Powered by</span><br />
-                <span className="text-primary">Shekru Labs India Pvt. Ltd.</span><br />
-                <span className="text-muted">version 1.0.0</span>
-              </small>
-            </p>
-          </div>
-
+                <div className="mt-4 text-center">
+                  <p className="text-muted mb-0">
+                    <small>
+                      <span>
+                        <i className="fa-solid fa-bolt text-primary me-1"></i>{" "}
+                        Powered by
+                      </span>
+                      <br />
+                      <Link
+                        to="https://shekruweb.com/"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <span className="text-primary">
+                          Shekru Labs India Pvt. Ltd.
+                        </span>
+                        <br />
+                      </Link>
+                      <span className="text-muted">version 1.0.0</span>
+                    </small>
+                  </p>
+                </div>
               </>
             ) : (
               <>
                 <div className="d-flex align-items-center justify-content-center mb-2">
-                  <button 
+                  <button
                     className="btn btn-icon btn-text-secondary rounded-pill btn-sm me-2"
                     onClick={handleBack}
                     type="button"
@@ -185,7 +231,9 @@ function LoginScreen() {
                   </button>
                   <h4 className="mb-0">Verify OTP</h4>
                 </div>
-                <p className="mb-4 text-center">Please enter the OTP sent to {mobileNumber}</p>
+                <p className="mb-4 text-center">
+                  Please enter the OTP sent to {mobileNumber}
+                </p>
 
                 <form onSubmit={handleVerifyOtp}>
                   <div className="d-flex gap-2 justify-content-center mb-4">
@@ -195,7 +243,11 @@ function LoginScreen() {
                         id={`otp-${index}`}
                         type="text"
                         className="form-control text-center"
-                        style={{ width: '60px', height: '60px', fontSize: '24px' }}
+                        style={{
+                          width: "60px",
+                          height: "60px",
+                          fontSize: "24px",
+                        }}
                         maxLength={1}
                         value={otp[index]}
                         onChange={(e) => handleOtpChange(e.target.value, index)}
@@ -207,10 +259,10 @@ function LoginScreen() {
                   </div>
 
                   <div className="mb-3 d-flex justify-content-center">
-                    <button 
-                      type="submit" 
+                    <button
+                      type="submit"
                       className="btn btn-primary w-100"
-                      disabled={otp.some(digit => !digit)}
+                      disabled={otp.some((digit) => !digit)}
                     >
                       Verify OTP
                     </button>
@@ -219,15 +271,81 @@ function LoginScreen() {
 
                 <div className="text-center">
                   <p className="mb-0">Didn't receive OTP?</p>
-                  <button 
-                    className="btn btn-text-primary waves-effect waves-light p-0" 
-                    onClick={() => {
-                      console.log('Resending OTP to:', mobileNumber);
-                      // Add your resend OTP logic here
-                    }}
+                  <button
+                    className="btn btn-text-primary waves-effect waves-light p-0"
+                    onClick={handleResendOtp}
+                    disabled={resendDisabled}
                   >
-                    Resend OTP
+                    {resendDisabled 
+                      ? `Resend OTP in ${countdown}s` 
+                      : "Resend OTP"}
                   </button>
+                </div>
+
+                <div className="d-flex justify-content-center gap-2">
+                  <a
+                    href="https://www.facebook.com/share/x5wymXr6w7W49vaQ/?mibextid=qi2Omg"
+                    className="btn btn-icon btn-lg rounded-pill btn-text-facebook waves-effect waves-light"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <i className="fa-brands fa-facebook" />
+                  </a>
+                  <a
+                    href="https://www.linkedin.com/company/102429337/admin/dashboard/"
+                    className="btn btn-icon btn-lg rounded-pill btn-text-linkedin waves-effect waves-light"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <i className="fa-brands fa-linkedin" />
+                  </a>
+                  <a
+                    href="https://www.youtube.com/@menumitra"
+                    className="btn btn-icon btn-lg rounded-pill btn-text-youtube waves-effect waves-light"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <i className="fa-brands fa-youtube" />
+                  </a>
+                  <a
+                    href="https://t.me/MenuMitra"
+                    className="btn btn-icon btn-lg rounded-pill btn-text-telegram waves-effect waves-light"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <i className="fa-brands fa-telegram" />
+                  </a>
+                  <a
+                    href="https://www.instagram.com/menumitra/"
+                    className="btn btn-icon btn-lg rounded-pill btn-text-instagram waves-effect waves-light"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <i className="fa-brands fa-instagram" />
+                  </a>
+                </div>
+
+                <div className="mt-4 text-center">
+                  <p className="text-muted mb-0">
+                    <small>
+                      <span>
+                        <i className="fa-solid fa-bolt text-primary me-1"></i>{" "}
+                        Powered by
+                      </span>
+                      <br />
+                      <Link
+                        to="https://shekruweb.com/"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <span className="text-primary">
+                          Shekru Labs India Pvt. Ltd.
+                        </span>
+                        <br />
+                      </Link>
+                      <span className="text-muted">version 1.0.0</span>
+                    </small>
+                  </p>
                 </div>
               </>
             )}
@@ -237,23 +355,23 @@ function LoginScreen() {
       </div>
 
       {/* Decorative illustrations */}
-      <img 
-        src={tree3} 
-        alt="auth-tree" 
-        className="authentication-image-object-left d-none d-lg-block" 
+      <img
+        src={tree3}
+        alt="auth-tree"
+        className="authentication-image-object-left d-none d-lg-block"
       />
-      <img 
-        src={authMaskLight} 
-        className="authentication-image d-none d-lg-block" 
+      <img
+        src={authMaskLight}
+        className="authentication-image d-none d-lg-block"
         height="172"
-        alt="triangle-bg" 
-        data-app-light-img="illustrations/auth-basic-mask-light.png" 
-        data-app-dark-img="illustrations/auth-basic-mask-dark.png" 
+        alt="triangle-bg"
+        data-app-light-img="illustrations/auth-basic-mask-light.png"
+        data-app-dark-img="illustrations/auth-basic-mask-dark.png"
       />
-      <img 
-        src={tree} 
-        alt="auth-tree" 
-        className="authentication-image-object-right d-none d-lg-block" 
+      <img
+        src={tree}
+        alt="auth-tree"
+        className="authentication-image-object-right d-none d-lg-block"
       />
     </div>
   );
