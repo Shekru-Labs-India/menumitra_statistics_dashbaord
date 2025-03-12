@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import 'remixicon/fonts/remixicon.css';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 const orderTypes = [
    
@@ -50,24 +52,39 @@ const orderTypes = [
 const OrderType = () => {
   const [dateRange, setDateRange] = useState('Today');
   const [loading, setLoading] = useState(false);
+  const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
+    const [showDatePicker, setShowDatePicker] = useState(false);
 
-  const handleDateRangeChange = (range) => {
-    setDateRange(range);
-    handleReload();
-  };
+    const handleDateRangeChange = (range) => {
+        setDateRange(range);
+        setShowDatePicker(range === 'Custom Range');
+        if (range !== 'Custom Range') {
+            fetchData(range);
+        }
+    };
 
-  const handleReload = async () => {
-    setIsLoading(true);
-    try {
-      // Add your data fetching logic here
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulated delay
-      // Update your data here
-    } catch (error) {
-      console.error('Error reloading data:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    const handleReload = () => {
+        setLoading(true);
+        fetchData(dateRange);
+        setTimeout(() => setLoading(false), 1000);
+    };
+
+    const fetchData = (range) => {
+        if (range === 'Custom Range' && startDate && endDate) {
+            console.log('Fetching data for custom range:', startDate, endDate);
+        } else {
+            console.log('Fetching data for range:', range);
+        }
+    };
+
+    const handleCustomDateSelect = () => {
+        if (startDate && endDate) {
+            setDateRange(`${startDate.toDateString()} - ${endDate.toDateString()}`);
+            setShowDatePicker(false);
+            fetchData('Custom Range');
+        }
+    };
 
   return (
     <div className="card">
@@ -85,50 +102,24 @@ const OrderType = () => {
               {dateRange}
             </button>
             <ul className="dropdown-menu dropdown-menu-end">
-              <li>
-                <a href="javascript:void(0);" 
-                   className="dropdown-item d-flex align-items-center"
-                   onClick={() => handleDateRangeChange('Today')}>
-                    Today
-                </a>
-              </li>
-              <li>
-                <a href="javascript:void(0);" 
-                   className="dropdown-item d-flex align-items-center"
-                   onClick={() => handleDateRangeChange('Yesterday')}>
-                    Yesterday
-                </a>
-              </li>
-              <li>
-                <a href="javascript:void(0);" 
-                   className="dropdown-item d-flex align-items-center"
-                   onClick={() => handleDateRangeChange('Last 7 Days')}>
-                    Last 7 Days
-                </a>
-              </li>
-              <li>
-                <a href="javascript:void(0);" 
-                   className="dropdown-item d-flex align-items-center"
-                   onClick={() => handleDateRangeChange('Last 30 Days')}>
-                    Last 30 Days
-                </a>
-              </li>
-              <li><hr className="dropdown-divider" /></li>
-              <li>
-                <a href="javascript:void(0);" 
-                   className="dropdown-item d-flex align-items-center"
-                   onClick={() => handleDateRangeChange('Current Month')}>
-                    Current Month
-                </a>
-              </li>
-              <li>
-                <a href="javascript:void(0);" 
-                   className="dropdown-item d-flex align-items-center"
-                   onClick={() => handleDateRangeChange('Last Month')}>
-                    Last Month
-                </a>
-              </li>
-            </ul>
+                            {['Today', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Current Month', 'Last Month'].map((range) => (
+                                <li key={range}>
+                                    <a href="javascript:void(0);"
+                                        className="dropdown-item d-flex align-items-center"
+                                        onClick={() => handleDateRangeChange(range)}>
+                                        {range}
+                                    </a>
+                                </li>
+                            ))}
+                            <li><hr className="dropdown-divider" /></li>
+                            <li>
+                                <a href="javascript:void(0);"
+                                    className="dropdown-item d-flex align-items-center"
+                                    onClick={() => handleDateRangeChange('Custom Range')}>
+                                    Custom Range
+                                </a>
+                            </li>
+                        </ul>
           </div>
           <button 
             type="button" 
@@ -140,6 +131,42 @@ const OrderType = () => {
           </button>
         </div>
       </div>
+
+      {showDatePicker && (
+                <div className="card-body">
+                    <div className="d-flex flex-column gap-2">
+                        <label>Select Date Range:</label>
+                        <div className="d-flex gap-2">
+                            <DatePicker
+                                selected={startDate}
+                                onChange={(date) => setStartDate(date)}
+                                selectsStart
+                                startDate={startDate}
+                                endDate={endDate}
+                                maxDate={new Date()}
+                                placeholderText="From"
+                                className="form-control"
+                            />
+                            <DatePicker
+                                selected={endDate}
+                                onChange={(date) => setEndDate(date)}
+                                selectsEnd
+                                startDate={startDate}
+                                endDate={endDate}
+                                minDate={startDate}
+                                maxDate={new Date()}
+                                placeholderText="To"
+                                className="form-control"
+                            />
+                        </div>
+                        <button className="btn btn-primary mt-2" onClick={handleCustomDateSelect} disabled={!startDate || !endDate}>
+                            Apply
+                        </button>
+                    </div>
+                </div>
+            )}
+
+
       <div className="card-body">
         <div className="row g-3">
           {orderTypes.map((order, index) => (
