@@ -40,7 +40,7 @@ const OrderAnalytics = () => {
   };
 
   return (
-    <div className="col-md-6 col-xxl-3 order-0 order-sm-4 order-xxl-0">
+    <div className="col-6 order-0 order-sm-4 order-xxl-0">
       <div className="card">
         <div className="card-header d-flex align-items-center justify-content-between">
           <h5 className="card-title m-0 me-2 text-nowrap">Order Analytics</h5>
