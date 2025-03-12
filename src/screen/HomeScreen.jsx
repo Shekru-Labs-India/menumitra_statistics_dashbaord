@@ -9,6 +9,7 @@ import TopSell from "../components/TopSell";
 import OrderStat from "../components/OrderStat";
 import FoodTypeGraph from "../components/FoodTypeGraph";
 import OrderType from "../components/OrderType";
+import Footer from "../components/Footer";
 
 function HomeScreen() {
   const [dateRange, setDateRange] = useState('Today');
@@ -16,6 +17,15 @@ function HomeScreen() {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
+
+  const formatDate = (date) => {
+    if (!date) return '';
+    const day = date.getDate().toString().padStart(2, '0');
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    return `${day} ${month} ${year}`;
+  };
 
   const handleDateRangeChange = (range) => {
     setDateRange(range);
@@ -41,7 +51,7 @@ const fetchData = (range) => {
 
 const handleCustomDateSelect = () => {
     if (startDate && endDate) {
-        setDateRange(`${startDate.toDateString()} - ${endDate.toDateString()}`);
+        setDateRange(`${formatDate(startDate)} - ${formatDate(endDate)}`);
         setShowDatePicker(false);
         fetchData('Custom Range');
     }
@@ -51,95 +61,99 @@ const handleCustomDateSelect = () => {
     <div className="layout-wrapper layout-content-navbar">
       <div className="layout-container">
         <VerticalSidebar />
-        <div className="layout-page">
+        <div className="layout-page d-flex flex-column min-vh-100">
           <Header />
-          <div className="content-wrapper">
+          <div className="content-wrapper flex-grow-1">
             <div className="container-xxl flex-grow-1 container-p-y">
-              <div className="row">
+              {/* Welcome Card Section */}
+              <div className="row mb-4">
                 <div className="col-12">
                   <div className="card">
-                    <div className="card-header d-flex justify-content-between align-items-md-center align-items-start">
+                    <div className="card-header d-flex justify-content-between align-items-md-center align-items-start p-4">
                       <h5 className="card-title mb-0">Welcome to MenuMitra Owner Dashboard</h5>
                       <div className="d-flex align-items-center gap-3">
-                      <div className="dropdown">
-                        <button
+                        <div className="dropdown">
+                          <button
                             type="button"
                             className="btn btn-outline-primary dropdown-toggle"
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
-                        >
+                          >
                             <i className="fas fa-calendar me-2"></i>
                             {dateRange}
-                        </button>
-                        <ul className="dropdown-menu dropdown-menu-end">
+                          </button>
+                          <ul className="dropdown-menu dropdown-menu-end">
                             {['Today', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Current Month', 'Last Month'].map((range) => (
-                                <li key={range}>
-                                    <a href="javascript:void(0);"
-                                        className="dropdown-item d-flex align-items-center"
-                                        onClick={() => handleDateRangeChange(range)}>
-                                        {range}
-                                    </a>
-                                </li>
+                              <li key={range}>
+                                <a href="javascript:void(0);"
+                                  className="dropdown-item d-flex align-items-center"
+                                  onClick={() => handleDateRangeChange(range)}>
+                                  {range}
+                                </a>
+                              </li>
                             ))}
                             <li><hr className="dropdown-divider" /></li>
                             <li>
-                                <a href="javascript:void(0);"
-                                    className="dropdown-item d-flex align-items-center"
-                                    onClick={() => handleDateRangeChange('Custom Range')}>
-                                    Custom Range
-                                </a>
+                              <a href="javascript:void(0);"
+                                className="dropdown-item d-flex align-items-center"
+                                onClick={() => handleDateRangeChange('Custom Range')}>
+                                Custom Range
+                              </a>
                             </li>
-                        </ul>
-                    </div>
-
-                    <button
-                        type="button"
-                        className={`btn btn-icon p-0 ${loading ? 'disabled' : ''}`}
-                        onClick={handleReload}
-                        disabled={loading}
-                    >
-                        <i className={`fas fa-sync-alt ${loading ? 'fa-spin' : ''}`}></i>
-                    </button>
-                </div>
-            </div>
-
-            {showDatePicker && (
-                <div className="card-body">
-                    <div className="d-flex flex-column gap-2">
-                        <label>Select Date Range:</label>
-                        <div className="d-flex gap-2">
-                            <DatePicker
-                                selected={startDate}
-                                onChange={(date) => setStartDate(date)}
-                                selectsStart
-                                startDate={startDate}
-                                endDate={endDate}
-                                maxDate={new Date()}
-                                placeholderText="From"
-                                className="form-control"
-                            />
-                            <DatePicker
-                                selected={endDate}
-                                onChange={(date) => setEndDate(date)}
-                                selectsEnd
-                                startDate={startDate}
-                                endDate={endDate}
-                                minDate={startDate}
-                                maxDate={new Date()}
-                                placeholderText="To"
-                                className="form-control"
-                            />
+                          </ul>
                         </div>
-                        <button className="btn btn-primary mt-2" onClick={handleCustomDateSelect} disabled={!startDate || !endDate}>
-                            Apply
+                        <button
+                          type="button"
+                          className={`btn btn-icon p-0 ${loading ? 'disabled' : ''}`}
+                          onClick={handleReload}
+                          disabled={loading}
+                        >
+                          <i className={`fas fa-sync-alt ${loading ? 'fa-spin' : ''}`}></i>
                         </button>
+                      </div>
                     </div>
-                </div>
-            )}
-                    <div className="card-body">
+
+                    {showDatePicker && (
+                      <div className="card-body px-4 py-3">
+                        <div className="d-flex flex-column gap-2">
+                          <label>Select Date Range:</label>
+                          <div className="d-flex gap-2 flex-wrap">
+                            <DatePicker
+                              selected={startDate}
+                              onChange={(date) => setStartDate(date)}
+                              selectsStart
+                              startDate={startDate}
+                              endDate={endDate}
+                              maxDate={new Date()}
+                              placeholderText="DD MMM YYYY"
+                              className="form-control"
+                              dateFormat="dd MMM yyyy"
+                            />
+                            <DatePicker
+                              selected={endDate}
+                              onChange={(date) => setEndDate(date)}
+                              selectsEnd
+                              startDate={startDate}
+                              endDate={endDate}
+                              minDate={startDate}
+                              maxDate={new Date()}
+                              placeholderText="DD MMM YYYY"
+                              className="form-control"
+                              dateFormat="dd MMM yyyy"
+                            />
+                          </div>
+                          <button className="btn btn-primary mt-2" onClick={handleCustomDateSelect} disabled={!startDate || !endDate}>
+                            Apply
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="card-body p-4">
                       <p className="mb-4">
                         Select an outlet from the search menu above to view detailed analytics and reports.
                       </p>
+                      {/* Stats Cards */}
                       <div className="row g-4">
                         <div className="col-md-6 col-lg-3">
                           <div className="card h-100">
@@ -307,37 +321,51 @@ const handleCustomDateSelect = () => {
                 </div>
               </div>
               
-              {/* Payment Methods Chart and Revenue Loss Widget */}
-              <div className="row mt-4">
-                <div className="col-md-6">
-                  <PaymentMethodsChart />
+              {/* Charts Section */}
+              <div className="row g-4 mb-4">
+                <div className="col-12 col-md-6 col-lg-6">
+                  <div className="h-100">
+                    <PaymentMethodsChart />
+                  </div>
                 </div>
-                <div className="col-md-6">
-                  <RevenueLossWidget />
+                <div className="col-12 col-md-6 col-lg-6">
+                  <div className="h-100">
+                    <RevenueLossWidget />
+                  </div>
                 </div>
-                <div className="row mt-4">
-                <div className="col-md-6">
-                  <TopSell />
+              </div>
+
+              {/* Sales Section */}
+              <div className="row g-4 mb-4">
+                <div className="col-12 col-md-6 col-lg-6">
+                  <div className="h-100">
+                    <TopSell />
+                  </div>
                 </div>
-                <div className="col-md-6">
-                  <OrderStat />
+                <div className="col-12 col-md-6 col-lg-6">
+                  <div className="h-100">
+                    <OrderStat />
+                  </div>
                 </div>
-                </div>
-                <div className="row mt-4">
-                  <div className="col-md-6">
+              </div>
+
+              {/* Analytics Section */}
+              <div className="row g-4">
+                <div className="col-12 col-md-6 col-lg-6">
+                  <div className="h-100">
                     <FoodTypeGraph />
                   </div>
-                  <div className="col-md-6">
+                </div>
+                <div className="col-12 col-md-6 col-lg-6">
+                  <div className="h-100">
                     <OrderType />
                   </div>
                 </div>
-                
-                
-                
               </div>
             </div>
+            <Footer />
           </div>
-        </div>
+        </div>        
       </div>
     </div>
   );

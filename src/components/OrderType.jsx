@@ -56,6 +56,15 @@ const OrderType = () => {
     const [endDate, setEndDate] = useState(null);
     const [showDatePicker, setShowDatePicker] = useState(false);
 
+    const formatDate = (date) => {
+        if (!date) return '';
+        const day = date.getDate().toString().padStart(2, '0');
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const month = months[date.getMonth()];
+        const year = date.getFullYear();
+        return `${day} ${month} ${year}`;
+    };
+
     const handleDateRangeChange = (range) => {
         setDateRange(range);
         setShowDatePicker(range === 'Custom Range');
@@ -80,7 +89,7 @@ const OrderType = () => {
 
     const handleCustomDateSelect = () => {
         if (startDate && endDate) {
-            setDateRange(`${startDate.toDateString()} - ${endDate.toDateString()}`);
+            setDateRange(`${formatDate(startDate)} - ${formatDate(endDate)}`);
             setShowDatePicker(false);
             fetchData('Custom Range');
         }
@@ -144,8 +153,9 @@ const OrderType = () => {
                                 startDate={startDate}
                                 endDate={endDate}
                                 maxDate={new Date()}
-                                placeholderText="From"
+                                placeholderText="DD MMM YYYY"
                                 className="form-control"
+                                dateFormat="dd MMM yyyy"
                             />
                             <DatePicker
                                 selected={endDate}
@@ -155,8 +165,9 @@ const OrderType = () => {
                                 endDate={endDate}
                                 minDate={startDate}
                                 maxDate={new Date()}
-                                placeholderText="To"
+                                placeholderText="DD MMM YYYY"
                                 className="form-control"
+                                dateFormat="dd MMM yyyy"
                             />
                         </div>
                         <button className="btn btn-primary mt-2" onClick={handleCustomDateSelect} disabled={!startDate || !endDate}>
