@@ -163,7 +163,7 @@ function VerticalSidebar() {
 
         {/* Pin Icon - Only shows when hovering over collapsed menu */}
         <i 
-          className="ri-pushpin-line menu-pin-icon" 
+          className="" 
           onClick={handlePinClick}
           title="Pin Menu"
         ></i>
@@ -190,7 +190,7 @@ function VerticalSidebar() {
             window.dispatchEvent(new Event('layout:toggle'));
           }
         }}>
-          <i className="ri-menu-fold-line align-middle"></i>
+          {/* <i className="ri-menu-fold-line align-middle"></i> */}
         </a>
       </div>
 
