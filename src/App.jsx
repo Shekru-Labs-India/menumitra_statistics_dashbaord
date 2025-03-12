@@ -3,6 +3,7 @@ import './App.css'
 import "./assets/css/demo.css";
 import "./assets/css/core.css";
 import "./assets/css/theme-default.css";
+import "./assets/css/menu.css";
 import HomeScreen from './screen/HomeScreen'
 import LoginScreen from './screen/LoginScreen'
 

@@ -34,6 +34,23 @@
   </head>
   <body>
     <div id="root"></div>
+    
+    <!-- Core JS -->
+    <script src="/src/assets/vendor/js/helpers.js"></script>
+    <script src="/src/assets/vendor/js/menu.js"></script>
+    
+    <!-- Main application script -->
     <script type="module" src="/src/main.jsx"></script>
+    
+    <script>
+      // Initialize theme and global configuration
+      document.addEventListener('DOMContentLoaded', function() {
+        // Config variables for the template
+        window.templateName = 'MenuMitra';
+        window.config = {
+          enableMenuLocalStorage: true // Enable storing menu state in localStorage
+        };
+      });
+    </script>
   </body>
 </html>

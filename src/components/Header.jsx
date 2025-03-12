@@ -10,7 +10,29 @@ function Header() {
   const [exitAnimation, setExitAnimation] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedOutlet, setSelectedOutlet] = useState('');
+  const [isMenuCollapsed, setIsMenuCollapsed] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check if menu is collapsed on initial load
+    if (window.Helpers) {
+      setIsMenuCollapsed(window.Helpers.isCollapsed());
+    }
+    
+    // Listen for menu state changes
+    const handleMenuToggle = () => {
+      if (window.Helpers) {
+        setIsMenuCollapsed(window.Helpers.isCollapsed());
+      }
+    };
+    
+    // Add listener for custom event
+    window.addEventListener('layout:toggle', handleMenuToggle);
+    
+    return () => {
+      window.removeEventListener('layout:toggle', handleMenuToggle);
+    };
+  }, []);
 
   const handleSearchClick = (e) => {
     e.preventDefault();
@@ -37,6 +59,30 @@ function Header() {
     navigate('/login');
   };
 
+  const toggleMenu = (e) => {
+    e.preventDefault();
+    if (window.Helpers) {
+      const newState = !window.Helpers.isCollapsed();
+      window.Helpers.toggleCollapsed();
+      
+      // Save state to localStorage if enabled
+      if (window.config && window.config.enableMenuLocalStorage) {
+        try {
+          localStorage.setItem(`templateCustomizer-${window.templateName}--LayoutCollapsed`, String(newState));
+          // Update data-menu-open attribute
+          document.documentElement.setAttribute('data-menu-open', String(!newState));
+        } catch (error) {
+          console.error('Error writing to localStorage:', error);
+        }
+      }
+      
+      // Trigger custom event for other components to listen
+      window.dispatchEvent(new Event('layout:toggle'));
+      
+      setIsMenuCollapsed(newState);
+    }
+  };
+
   useEffect(() => {
     const handleEsc = (event) => {
       if (event.keyCode === 27) {
@@ -61,8 +107,9 @@ function Header() {
             <a
               className="nav-item nav-link px-0 me-xl-6"
               href="javascript:void(0)"
+              onClick={toggleMenu}
             >
-              <i className="fas fa-bars" />
+              <i className={`fas fa-${isMenuCollapsed ? 'bars' : 'times'}`} />
             </a>
           </div>
           <div
