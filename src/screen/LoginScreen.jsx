@@ -162,6 +162,16 @@ function LoginScreen() {
             </a>
           </div>
 
+          <div className="mt-4 text-center">
+            <p className="text-muted mb-0">
+              <small>
+                <span><i className="fa-solid fa-bolt text-primary me-1"></i> Powered by</span><br />
+                <span className="text-primary">Shekru Labs India Pvt. Ltd.</span><br />
+                <span className="text-muted">version 1.0.0</span>
+              </small>
+            </p>
+          </div>
+
               </>
             ) : (
               <>
