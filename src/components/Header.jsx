@@ -9,6 +9,7 @@ function Header() {
   const [animation, setAnimation] = useState('animate__fadeIn animate__faster');
   const [exitAnimation, setExitAnimation] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedOutlet, setSelectedOutlet] = useState('');
   const navigate = useNavigate();
 
   const handleSearchClick = (e) => {
@@ -17,23 +18,25 @@ function Header() {
   };
 
   const handleCloseModal = () => {
-    // Get the exit animation by replacing "In" with "Out" in the current animation
     const exitAnim = animation.replace('In', 'Out');
     setExitAnimation(`animate__animated ${exitAnim}`);
     
-    // Reduced timeout from 500ms to 200ms for faster animation
     setTimeout(() => {
       setShowModal(false);
       setExitAnimation('');
+      setSearchTerm('');
     }, 100);
   };
 
+  const handleOutletSelect = (outletName) => {
+    setSelectedOutlet(outletName);
+    handleCloseModal();
+  };
+
   const handleLogout = () => {
-    // Add any logout logic here (e.g. clearing tokens, state, etc)
     navigate('/login');
   };
 
-  // Add event listener for ESC key
   useEffect(() => {
     const handleEsc = (event) => {
       if (event.keyCode === 27) {
@@ -54,106 +57,7 @@ function Header() {
         id="layout-navbar"
       >
         <div className="container-xxl">
-          <div className="navbar-brand app-brand demo d-none d-xl-flex py-0 me-6">
-            <a href="index.html" className="app-brand-link gap-2">
-              <span className="app-brand-logo demo">
-                <span style={{ color: "var(--bs-primary)" }}>
-                  <svg
-                    width={30}
-                    height={24}
-                    viewBox="0 0 250 196"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      clipRule="evenodd"
-                      d="M12.3002 1.25469L56.655 28.6432C59.0349 30.1128 60.4839 32.711 60.4839 35.5089V160.63C60.4839 163.468 58.9941 166.097 56.5603 167.553L12.2055 194.107C8.3836 196.395 3.43136 195.15 1.14435 191.327C0.395485 190.075 0 188.643 0 187.184V8.12039C0 3.66447 3.61061 0.0522461 8.06452 0.0522461C9.56056 0.0522461 11.0271 0.468577 12.3002 1.25469Z"
-                      fill="currentColor"
-                    />
-                    <path
-                      opacity="0.077704"
-                      fillRule="evenodd"
-                      clipRule="evenodd"
-                      d="M0 65.2656L60.4839 99.9629V133.979L0 65.2656Z"
-                      fill="black"
-                    />
-                    <path
-                      opacity="0.077704"
-                      fillRule="evenodd"
-                      clipRule="evenodd"
-                      d="M0 65.2656L60.4839 99.0795V119.859L0 65.2656Z"
-                      fill="black"
-                    />
-                    <path
-                      fillRule="evenodd"
-                      clipRule="evenodd"
-                      d="M237.71 1.22393L193.355 28.5207C190.97 29.9889 189.516 32.5905 189.516 35.3927V160.631C189.516 163.469 191.006 166.098 193.44 167.555L237.794 194.108C241.616 196.396 246.569 195.151 248.856 191.328C249.605 190.076 250 188.644 250 187.185V8.09597C250 3.64006 246.389 0.027832 241.935 0.027832C240.444 0.027832 238.981 0.441882 237.71 1.22393Z"
-                      fill="currentColor"
-                    />
-                    <path
-                      opacity="0.077704"
-                      fillRule="evenodd"
-                      clipRule="evenodd"
-                      d="M250 65.2656L189.516 99.8897V135.006L250 65.2656Z"
-                      fill="black"
-                    />
-                    <path
-                      opacity="0.077704"
-                      fillRule="evenodd"
-                      clipRule="evenodd"
-                      d="M250 65.2656L189.516 99.0497V120.886L250 65.2656Z"
-                      fill="black"
-                    />
-                    <path
-                      fillRule="evenodd"
-                      clipRule="evenodd"
-                      d="M12.2787 1.18923L125 70.3075V136.87L0 65.2465V8.06814C0 3.61223 3.61061 0 8.06452 0C9.552 0 11.0105 0.411583 12.2787 1.18923Z"
-                      fill="currentColor"
-                    />
-                    <path
-                      fillRule="evenodd"
-                      clipRule="evenodd"
-                      d="M12.2787 1.18923L125 70.3075V136.87L0 65.2465V8.06814C0 3.61223 3.61061 0 8.06452 0C9.552 0 11.0105 0.411583 12.2787 1.18923Z"
-                      fill="white"
-                      fillOpacity="0.15"
-                    />
-                    <path
-                      fillRule="evenodd"
-                      clipRule="evenodd"
-                      d="M237.721 1.18923L125 70.3075V136.87L250 65.2465V8.06814C250 3.61223 246.389 0 241.935 0C240.448 0 238.99 0.411583 237.721 1.18923Z"
-                      fill="currentColor"
-                    />
-                    <path
-                      fillRule="evenodd"
-                      clipRule="evenodd"
-                      d="M237.721 1.18923L125 70.3075V136.87L250 65.2465V8.06814C250 3.61223 246.389 0 241.935 0C240.448 0 238.99 0.411583 237.721 1.18923Z"
-                      fill="white"
-                      fillOpacity="0.3"
-                    />
-                  </svg>
-                </span>
-              </span>
-              <span className="app-brand-text demo menu-text fw-semibold ms-1">
-                Materio
-              </span>
-            </a>
-            <a
-              href="javascript:void(0);"
-              className="layout-menu-toggle menu-link text-large ms-auto d-xl-none"
-            >
-              <i className="fas fa-times" />
-            </a>
-          </div>
-          {/* <button
-            type="button"
-            class="btn btn-label-primary dropdown-toggle waves-effect"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            Primary
-          </button> */}
-          <div className="layout-menu-toggle navbar-nav align-items-xl-center me-4 me-xl-0  d-xl-none  ">
+          <div className="layout-menu-toggle navbar-nav align-items-xl-center me-4 me-xl-0 d-xl-none">
             <a
               className="nav-item nav-link px-0 me-xl-6"
               href="javascript:void(0)"
@@ -174,6 +78,7 @@ function Header() {
                       type="text"
                       className="form-control search-input rounded-pill bg-light border-0 px-4"
                       placeholder="Search Outlet.."
+                      value={selectedOutlet || ''}
                       style={{ width: '250px', height: '40px' }}
                       onClick={handleSearchClick}
                       readOnly
@@ -393,52 +298,85 @@ function Header() {
 
                   {/* Quick Select Buttons */}
                   <div className="d-flex gap-2 flex-wrap mb-4">
-                    <button className="btn btn-outline-primary btn-sm">
+                    <button 
+                      className="btn btn-outline-primary btn-sm"
+                      onClick={() => handleOutletSelect('Delhi-Petpooja-Demo')}
+                    >
                       Delhi-Petpooja-Demo
                     </button>
-                    <button className="btn btn-outline-primary btn-sm">
+                    <button 
+                      className="btn btn-outline-primary btn-sm"
+                      onClick={() => handleOutletSelect('Ahmedabad-Central kitchen-Demo')}
+                    >
                       Ahmedabad-Central kitchen-Demo
                     </button>
-                    <button className="btn btn-outline-primary btn-sm">
+                    <button 
+                      className="btn btn-outline-primary btn-sm"
+                      onClick={() => handleOutletSelect('Chennai-Petpooja-Demo')}
+                    >
                       Chennai-Petpooja-Demo
                     </button>
-                    <button className="btn btn-outline-primary btn-sm">
+                    <button 
+                      className="btn btn-outline-primary btn-sm"
+                      onClick={() => handleOutletSelect('Pune-Petpooja-Demo')}
+                    >
                       Pune-Petpooja-Demo
                     </button>
                   </div>
 
                   {/* Outlet List */}
                   <div className="list-group">
-                    <button className="list-group-item list-group-item-action d-flex align-items-center">
+                    <button 
+                      className="list-group-item list-group-item-action d-flex align-items-center"
+                      onClick={() => handleOutletSelect('All Outlet')}
+                    >
                       <i className="fas fa-building me-3"></i>
                       <div className="flex-grow-1">All Outlet</div>
                     </button>
-                    <button className="list-group-item list-group-item-action d-flex align-items-center">
+                    <button 
+                      className="list-group-item list-group-item-action d-flex align-items-center"
+                      onClick={() => handleOutletSelect('Ahmedabad-NewHeadoffice-Demo')}
+                    >
                       <i className="fas fa-store me-3"></i>
                       <div className="flex-grow-1">Ahmedabad-NewHeadoffice-Demo</div>
                       <small className="text-muted">[ id: 25084 ]</small>
                     </button>
-                    <button className="list-group-item list-group-item-action d-flex align-items-center">
+                    <button 
+                      className="list-group-item list-group-item-action d-flex align-items-center"
+                      onClick={() => handleOutletSelect('Chennai-Petpooja-Demo')}
+                    >
                       <i className="fas fa-store me-3"></i>
                       <div className="flex-grow-1">Chennai-Petpooja-Demo</div>
                       <small className="text-muted">[ id: 2054 ]</small>
                     </button>
-                    <button className="list-group-item list-group-item-action d-flex align-items-center">
+                    <button 
+                      className="list-group-item list-group-item-action d-flex align-items-center"
+                      onClick={() => handleOutletSelect('Pune-Petpooja-Demo')}
+                    >
                       <i className="fas fa-store me-3"></i>
                       <div className="flex-grow-1">Pune-Petpooja-Demo</div>
                       <small className="text-muted">[ id: 8 ]</small>
                     </button>
-                    <button className="list-group-item list-group-item-action d-flex align-items-center">
+                    <button 
+                      className="list-group-item list-group-item-action d-flex align-items-center"
+                      onClick={() => handleOutletSelect('Ahmedabad-Central kitchen-Demo')}
+                    >
                       <i className="fas fa-utensils me-3"></i>
                       <div className="flex-grow-1">Ahmedabad-Central kitchen-Demo</div>
                       <small className="text-muted">[ id: 15344 ]</small>
                     </button>
-                    <button className="list-group-item list-group-item-action d-flex align-items-center">
+                    <button 
+                      className="list-group-item list-group-item-action d-flex align-items-center"
+                      onClick={() => handleOutletSelect('Delhi-Petpooja-Demo')}
+                    >
                       <i className="fas fa-store me-3"></i>
                       <div className="flex-grow-1">Delhi-Petpooja-Demo</div>
                       <small className="text-muted">[ id: 18789 ]</small>
                     </button>
-                    <button className="list-group-item list-group-item-action d-flex align-items-center">
+                    <button 
+                      className="list-group-item list-group-item-action d-flex align-items-center"
+                      onClick={() => handleOutletSelect('Goa-Petpooja-Demo')}
+                    >
                       <i className="fas fa-store me-3"></i>
                       <div className="flex-grow-1">Goa-Petpooja-Demo</div>
                       <small className="text-muted">[ id: 6248 ]</small>

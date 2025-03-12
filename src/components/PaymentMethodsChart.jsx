@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import ReactApexChart from 'react-apexcharts';
 
 const PaymentMethodsChart = () => {
-  const [dateRange, setDateRange] = useState('1st Jan to 31st Jan');
+  const [dateRange, setDateRange] = useState('Today');
   const [loading, setLoading] = useState(false);
 
   const handleDateRangeChange = (range) => {

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 
 const OrderStat = () => {
-    const [dateRange, setDateRange] = useState('7th Mar');
+    const [dateRange, setDateRange] = useState('Today');
     const [loading, setLoading] = useState(false);
   
     const handleDateRangeChange = (range) => {

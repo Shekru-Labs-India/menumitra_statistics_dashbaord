@@ -178,7 +178,7 @@ function HomeScreen() {
                                 <div className="content-left">
                                   <span className="fw-medium d-block mb-1">Average Order Value</span>
                                   <div className="d-flex align-items-center">
-                                    <h4 className="mb-0 me-2">₹1450</h4>
+                                    <h4 className="mb-0 me-2">₹145</h4>
                                     <span className="text-success">(+10%)</span>
                                   </div>
                                 </div>

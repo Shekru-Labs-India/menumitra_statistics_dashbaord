@@ -11,8 +11,8 @@ function VerticalSidebar() {
 
   return (
     <aside id="layout-menu" className="layout-menu menu-vertical menu bg-menu-theme">
-      <div className="app-brand demo">
-        <a href="/" className="app-brand-link">
+      <div className="app-brand demo py-3 px-4">
+        <Link to="/" className="app-brand-link gap-2">
           <span className="app-brand-logo demo">
             <span style={{ color: "var(--bs-primary)" }}>
               <svg width="30" height="24" viewBox="0 0 250 196" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -21,8 +21,8 @@ function VerticalSidebar() {
               </svg>
             </span>
           </span>
-          <span className="app-brand-text demo menu-text fw-bold ms-2">Materio</span>
-        </a>
+          <span className="app-brand-text demo menu-text fw-bold ms-2">MenuMitra</span>
+        </Link>
 
         <a href="javascript:void(0);" className="layout-menu-toggle menu-link text-large ms-auto">
           <i className="ri-menu-line align-middle"></i>
@@ -32,185 +32,79 @@ function VerticalSidebar() {
       <div className="menu-inner-shadow"></div>
 
       <ul className="menu-inner py-1">
-        {/* Dashboards */}
+        {/* Dashboard */}
         <li className={`menu-item ${isActive('/dashboard') ? 'active' : ''}`}>
-          <a href="javascript:void(0)" className="menu-link menu-toggle">
-            <i className="menu-icon tf-icons ri-home-smile-line"></i>
-            <div>Dashboards</div>
-          </a>
-          <ul className="menu-sub">
-            <li className="menu-item">
-              <Link to="/dashboard/crm" className="menu-link">
-                <i className="menu-icon tf-icons ri-computer-line"></i>
-                <div>CRM</div>
-              </Link>
-            </li>
-            <li className="menu-item">
-              <Link to="/dashboard/analytics" className="menu-link">
-                <i className="menu-icon tf-icons ri-bar-chart-line"></i>
-                <div>Analytics</div>
-              </Link>
-            </li>
-            <li className="menu-item">
-              <Link to="/dashboard/ecommerce" className="menu-link">
-                <i className="menu-icon tf-icons ri-shopping-cart-2-line"></i>
-                <div>eCommerce</div>
-              </Link>
-            </li>
-            <li className="menu-item">
-              <Link to="/dashboard/logistics" className="menu-link">
-                <i className="menu-icon tf-icons ri-truck-line"></i>
-                <div>Logistics</div>
-              </Link>
-            </li>
-            <li className="menu-item">
-              <Link to="/dashboard/academy" className="menu-link">
-                <i className="menu-icon tf-icons ri-book-open-line"></i>
-                <div>Academy</div>
-              </Link>
-            </li>
-          </ul>
+          <Link to="/dashboard" className="menu-link">
+            <i className="menu-icon tf-icons ri-dashboard-line"></i>
+            <div>Dashboard</div>
+            <div className="badge bg-label-primary rounded-pill ms-auto">New</div>
+          </Link>
         </li>
 
-        {/* Layouts */}
-        <li className="menu-item">
-          <a href="javascript:void(0)" className="menu-link menu-toggle">
-            <i className="menu-icon tf-icons ri-layout-2-line"></i>
-            <div>Layouts</div>
-          </a>
-          <ul className="menu-sub">
-            <li className="menu-item">
-              <Link to="/layouts/without-menu" className="menu-link">
-                <i className="menu-icon tf-icons ri-layout-4-line"></i>
-                <div>Without menu</div>
-              </Link>
-            </li>
-            <li className="menu-item">
-              <Link to="/layouts/vertical" className="menu-link">
-                <i className="menu-icon tf-icons ri-layout-left-line"></i>
-                <div>Vertical</div>
-              </Link>
-            </li>
-            <li className="menu-item">
-              <Link to="/layouts/fluid" className="menu-link">
-                <i className="menu-icon tf-icons ri-layout-top-line"></i>
-                <div>Fluid</div>
-              </Link>
-            </li>
-            <li className="menu-item">
-              <Link to="/layouts/container" className="menu-link">
-                <i className="menu-icon tf-icons ri-layout-top-2-line"></i>
-                <div>Container</div>
-              </Link>
-            </li>
-            <li className="menu-item">
-              <Link to="/layouts/blank" className="menu-link">
-                <i className="menu-icon tf-icons ri-square-line"></i>
-                <div>Blank</div>
-              </Link>
-            </li>
-          </ul>
-        </li>
-
-        {/* Apps & Pages Header */}
+        {/* Analytics Header */}
         <li className="menu-header small text-uppercase">
-          <span className="menu-header-text">Apps & Pages</span>
+          <span className="menu-header-text">Analytics</span>
         </li>
 
-        {/* Apps */}
+        {/* Sales Analytics */}
         <li className="menu-item">
           <a href="javascript:void(0)" className="menu-link menu-toggle">
-            <i className="menu-icon tf-icons ri-mail-open-line"></i>
-            <div>Apps</div>
+            <i className="menu-icon tf-icons ri-line-chart-line"></i>
+            <div>Sales Analytics</div>
           </a>
           <ul className="menu-sub">
             <li className="menu-item">
-              <Link to="/app/email" className="menu-link">
-                <i className="menu-icon tf-icons ri-mail-line"></i>
-                <div>Email</div>
+              <Link to="/analytics/revenue" className="menu-link">
+                <i className="menu-icon tf-icons ri-money-dollar-circle-line"></i>
+                <div>Revenue</div>
               </Link>
             </li>
             <li className="menu-item">
-              <Link to="/app/chat" className="menu-link">
-                <i className="menu-icon tf-icons ri-message-line"></i>
-                <div>Chat</div>
+              <Link to="/analytics/orders" className="menu-link">
+                <i className="menu-icon tf-icons ri-shopping-bag-3-line"></i>
+                <div>Orders</div>
               </Link>
             </li>
             <li className="menu-item">
-              <Link to="/app/calendar" className="menu-link">
-                <i className="menu-icon tf-icons ri-calendar-line"></i>
-                <div>Calendar</div>
-              </Link>
-            </li>
-            <li className="menu-item">
-              <Link to="/app/kanban" className="menu-link">
-                <i className="menu-icon tf-icons ri-drag-drop-line"></i>
-                <div>Kanban</div>
+              <Link to="/analytics/items" className="menu-link">
+                <i className="menu-icon tf-icons ri-restaurant-2-line"></i>
+                <div>Top Items</div>
               </Link>
             </li>
           </ul>
         </li>
 
-        {/* Pages */}
-        <li className="menu-item">
-          <a href="javascript:void(0)" className="menu-link menu-toggle">
-            <i className="menu-icon tf-icons ri-article-line"></i>
-            <div>Pages</div>
-          </a>
-          <ul className="menu-sub">
-            <li className="menu-item">
-              <Link to="/pages/user-profile" className="menu-link">
-                <i className="menu-icon tf-icons ri-user-line"></i>
-                <div>User Profile</div>
-              </Link>
-            </li>
-            <li className="menu-item">
-              <Link to="/pages/account-settings" className="menu-link">
-                <i className="menu-icon tf-icons ri-settings-2-line"></i>
-                <div>Account Settings</div>
-              </Link>
-            </li>
-          </ul>
-        </li>
-
-        {/* Components Header */}
+        {/* Restaurant Management */}
         <li className="menu-header small text-uppercase">
-          <span className="menu-header-text">Components</span>
+          <span className="menu-header-text">Restaurant</span>
         </li>
 
-        {/* UI Elements */}
+        {/* Menu Management */}
+        <li className="menu-item">
+          <Link to="/menu" className="menu-link">
+            <i className="menu-icon tf-icons ri-book-2-line"></i>
+            <div>Menu Management</div>
+          </Link>
+        </li>
+
+        {/* Orders */}
         <li className="menu-item">
           <a href="javascript:void(0)" className="menu-link menu-toggle">
-            <i className="menu-icon tf-icons ri-pantone-line"></i>
-            <div>UI Elements</div>
+            <i className="menu-icon tf-icons ri-shopping-cart-2-line"></i>
+            <div>Orders</div>
+            <div className="badge bg-label-danger rounded-pill ms-auto">Hot</div>
           </a>
           <ul className="menu-sub">
             <li className="menu-item">
-              <Link to="/ui/buttons" className="menu-link">
-                <i className="menu-icon tf-icons ri-circle-line"></i>
-                <div>Buttons</div>
+              <Link to="/orders/active" className="menu-link">
+                <i className="menu-icon tf-icons ri-timer-line"></i>
+                <div>Active Orders</div>
               </Link>
             </li>
             <li className="menu-item">
-              <Link to="/ui/cards" className="menu-link">
-                <i className="menu-icon tf-icons ri-circle-line"></i>
-                <div>Cards</div>
-              </Link>
-            </li>
-          </ul>
-        </li>
-
-        {/* Forms */}
-        <li className="menu-item">
-          <a href="javascript:void(0)" className="menu-link menu-toggle">
-            <i className="menu-icon tf-icons ri-pages-line"></i>
-            <div>Forms</div>
-          </a>
-          <ul className="menu-sub">
-            <li className="menu-item">
-              <Link to="/forms/basic" className="menu-link">
-                <i className="menu-icon tf-icons ri-circle-line"></i>
-                <div>Basic Forms</div>
+              <Link to="/orders/history" className="menu-link">
+                <i className="menu-icon tf-icons ri-history-line"></i>
+                <div>Order History</div>
               </Link>
             </li>
           </ul>
@@ -218,18 +112,71 @@ function VerticalSidebar() {
 
         {/* Tables */}
         <li className="menu-item">
+          <Link to="/tables" className="menu-link">
+            <i className="menu-icon tf-icons ri-layout-grid-line"></i>
+            <div>Table Management</div>
+          </Link>
+        </li>
+
+        {/* Kitchen */}
+        <li className="menu-item">
+          <Link to="/kitchen" className="menu-link">
+            <i className="menu-icon tf-icons ri-restaurant-line"></i>
+            <div>Kitchen Display</div>
+          </Link>
+        </li>
+
+        {/* Settings & Configuration */}
+        <li className="menu-header small text-uppercase">
+          <span className="menu-header-text">Settings</span>
+        </li>
+
+        {/* Restaurant Settings */}
+        <li className="menu-item">
           <a href="javascript:void(0)" className="menu-link menu-toggle">
-            <i className="menu-icon tf-icons ri-table-line"></i>
-            <div>Tables</div>
+            <i className="menu-icon tf-icons ri-settings-4-line"></i>
+            <div>Settings</div>
           </a>
           <ul className="menu-sub">
             <li className="menu-item">
-              <Link to="/tables/basic" className="menu-link">
-                <i className="menu-icon tf-icons ri-circle-line"></i>
-                <div>Basic Tables</div>
+              <Link to="/settings/profile" className="menu-link">
+                <i className="menu-icon tf-icons ri-store-2-line"></i>
+                <div>Restaurant Profile</div>
+              </Link>
+            </li>
+            <li className="menu-item">
+              <Link to="/settings/staff" className="menu-link">
+                <i className="menu-icon tf-icons ri-team-line"></i>
+                <div>Staff Management</div>
+              </Link>
+            </li>
+            <li className="menu-item">
+              <Link to="/settings/payment" className="menu-link">
+                <i className="menu-icon tf-icons ri-bank-card-line"></i>
+                <div>Payment Methods</div>
               </Link>
             </li>
           </ul>
+        </li>
+
+        {/* Support */}
+        <li className="menu-header small text-uppercase">
+          <span className="menu-header-text">Support</span>
+        </li>
+
+        {/* Help & Documentation */}
+        <li className="menu-item">
+          <Link to="/help" className="menu-link">
+            <i className="menu-icon tf-icons ri-question-line"></i>
+            <div>Help Center</div>
+          </Link>
+        </li>
+
+        <li className="menu-item">
+          <Link to="/support" className="menu-link">
+            <i className="menu-icon tf-icons ri-customer-service-2-line"></i>
+            <div>Contact Support</div>
+          </Link>
         </li>
       </ul>
     </aside>
