@@ -7,6 +7,8 @@ import tree from '../assets/img/illustrations/tree.png';
 // Import the auth CSS
 import '../assets/css/page-auth.css';
 import logo from "../assets/img/company/MenuMitra_logo.png";
+// Import configuration
+import { menuMitraCompanyInfo, menuMitraSocialLinks, menuMitraAppInfo } from '../config/menuMitraConfig';
 
 function LoginScreen() {
   const [mobileNumber, setMobileNumber] = useState('');
@@ -95,13 +97,13 @@ function LoginScreen() {
                 <span style={{ color: "var(--bs-primary)" }}>
                   <img
                     src={logo}
-                    alt="MenuMitra Logo"
-                    style={{ width: "60px", height: "60px" }}
+                    alt={`${menuMitraAppInfo.name} Logo`}
+                    style={{ width: menuMitraAppInfo.logo.width, height: menuMitraAppInfo.logo.height }}
                   />
                 </span>
               </span>
               <span className="app-brand-text demo text-heading fw-bold">
-                MenuMitra
+                {menuMitraAppInfo.name}
               </span>
             </div>
           </div>
@@ -110,7 +112,7 @@ function LoginScreen() {
             {!showOtpForm ? (
               <>
                 <h4 className="mb-2 text-center fs-5">
-                  Welcome to MenuMitra Statistics Dashboard
+                  Welcome to {menuMitraAppInfo.title}
                 </h4>
                 <p className="mb-4 text-center">
                   Please enter your mobile number to login
@@ -154,46 +156,17 @@ function LoginScreen() {
                   </a>
                 </p> */}
                 <div className="d-flex justify-content-center gap-2">
-                  <a
-                    href="https://www.facebook.com/share/x5wymXr6w7W49vaQ/?mibextid=qi2Omg"
-                    className="btn btn-icon btn-lg rounded-pill btn-text-facebook waves-effect waves-light"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <i className="fa-brands fa-facebook" />
-                  </a>
-                  <a
-                    href="https://www.linkedin.com/company/102429337/admin/dashboard/"
-                    className="btn btn-icon btn-lg rounded-pill btn-text-linkedin waves-effect waves-light"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <i className="fa-brands fa-linkedin" />
-                  </a>
-                  <a
-                    href="https://www.youtube.com/@menumitra"
-                    className="btn btn-icon btn-lg rounded-pill btn-text-youtube waves-effect waves-light"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <i className="fa-brands fa-youtube" />
-                  </a>
-                  <a
-                    href="https://t.me/MenuMitra"
-                    className="btn btn-icon btn-lg rounded-pill btn-text-telegram waves-effect waves-light"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <i className="fa-brands fa-telegram" />
-                  </a>
-                  <a
-                    href="https://www.instagram.com/menumitra/"
-                    className="btn btn-icon btn-lg rounded-pill btn-text-instagram waves-effect waves-light"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <i className="fa-brands fa-instagram" />
-                  </a>
+                  {menuMitraSocialLinks.map((social) => (
+                    <a
+                      key={social.name}
+                      href={social.url}
+                      className={`btn btn-icon btn-lg rounded-pill ${social.btnClass} waves-effect waves-light`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <i className={social.icon} />
+                    </a>
+                  ))}
                 </div>
 
                 <div className="mt-4 text-center">
@@ -205,16 +178,16 @@ function LoginScreen() {
                       </span>
                       <br />
                       <Link
-                        to="https://shekruweb.com/"
+                        to={menuMitraCompanyInfo.website}
                         target="_blank"
                         rel="noreferrer"
                       >
                         <span className="text-primary">
-                          Shekru Labs India Pvt. Ltd.
+                          {menuMitraCompanyInfo.name}
                         </span>
                         <br />
                       </Link>
-                      <span className="text-muted">version 1.0.0</span>
+                      {/* <span className="text-muted">version {menuMitraCompanyInfo.version}</span> */}
                     </small>
                   </p>
                 </div>
@@ -283,46 +256,17 @@ function LoginScreen() {
                 </div>
 
                 <div className="d-flex justify-content-center gap-2">
-                  <a
-                    href="https://www.facebook.com/share/x5wymXr6w7W49vaQ/?mibextid=qi2Omg"
-                    className="btn btn-icon btn-lg rounded-pill btn-text-facebook waves-effect waves-light"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <i className="fa-brands fa-facebook" />
-                  </a>
-                  <a
-                    href="https://www.linkedin.com/company/102429337/admin/dashboard/"
-                    className="btn btn-icon btn-lg rounded-pill btn-text-linkedin waves-effect waves-light"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <i className="fa-brands fa-linkedin" />
-                  </a>
-                  <a
-                    href="https://www.youtube.com/@menumitra"
-                    className="btn btn-icon btn-lg rounded-pill btn-text-youtube waves-effect waves-light"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <i className="fa-brands fa-youtube" />
-                  </a>
-                  <a
-                    href="https://t.me/MenuMitra"
-                    className="btn btn-icon btn-lg rounded-pill btn-text-telegram waves-effect waves-light"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <i className="fa-brands fa-telegram" />
-                  </a>
-                  <a
-                    href="https://www.instagram.com/menumitra/"
-                    className="btn btn-icon btn-lg rounded-pill btn-text-instagram waves-effect waves-light"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <i className="fa-brands fa-instagram" />
-                  </a>
+                  {menuMitraSocialLinks.map((social) => (
+                    <a
+                      key={social.name}
+                      href={social.url}
+                      className={`btn btn-icon btn-lg rounded-pill ${social.btnClass} waves-effect waves-light`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <i className={social.icon} />
+                    </a>
+                  ))}
                 </div>
 
                 <div className="mt-4 text-center">
@@ -334,16 +278,16 @@ function LoginScreen() {
                       </span>
                       <br />
                       <Link
-                        to="https://shekruweb.com/"
+                        to={menuMitraCompanyInfo.website}
                         target="_blank"
                         rel="noreferrer"
                       >
                         <span className="text-primary">
-                          Shekru Labs India Pvt. Ltd.
+                          {menuMitraCompanyInfo.name}
                         </span>
                         <br />
                       </Link>
-                      <span className="text-muted">version 1.0.0</span>
+                      {/* <span className="text-muted">version {menuMitraCompanyInfo.version}</span> */}
                     </small>
                   </p>
                 </div>
