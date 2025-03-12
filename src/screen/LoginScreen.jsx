@@ -6,6 +6,7 @@ import authMaskLight from '../assets/img/illustrations/auth-basic-mask-light.png
 import tree from '../assets/img/illustrations/tree.png';
 // Import the auth CSS
 import '../assets/css/page-auth.css';
+import logo from "../assets/img/company/MenuMitra_logo.png";
 
 function LoginScreen() {
   const [mobileNumber, setMobileNumber] = useState('');
@@ -65,22 +66,21 @@ function LoginScreen() {
         <div className="card">
           {/* Logo */}
           <div className="app-brand justify-content-center mt-5">
-            <span className="app-brand-logo demo">
-              <span style={{ color: "var(--bs-primary)" }}>
-                <svg width="30" height="24" viewBox="0 0 250 196" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path fillRule="evenodd" clipRule="evenodd" d="M12.3002 1.25469L56.655 28.6432C59.0349 30.1128 60.4839 32.711 60.4839 35.5089V160.63C60.4839 163.468 58.9941 166.097 56.5603 167.553L12.2055 194.107C8.3836 196.395 3.43136 195.15 1.14435 191.327C0.395485 190.075 0 188.643 0 187.184V8.12039C0 3.66447 3.61061 0.0522461 8.06452 0.0522461C9.56056 0.0522461 11.0271 0.468577 12.3002 1.25469Z" fill="currentColor" />
-                  <path fillRule="evenodd" clipRule="evenodd" d="M237.721 1.18923L125 70.3075V136.87L250 65.2465V8.06814C250 3.61223 246.389 0 241.935 0C240.448 0 238.99 0.411583 237.721 1.18923Z" fill="currentColor" />
-                </svg>
+            <div className="d-flex flex-column align-items-center">
+              <span className="app-brand-logo demo mb-2">
+                <span style={{ color: "var(--bs-primary)" }}>
+                  <img src={logo} alt="MenuMitra Logo" style={{ width: "60px", height: "60px" }} />
+                </span>
               </span>
-            </span>
-            <span className="app-brand-text demo text-heading fw-bold">Materio</span>
+              <span className="app-brand-text demo text-heading fw-bold">MenuMitra</span>
+            </div>
           </div>
 
-          <div className="card-body mt-2">
+          <div className="card-body mt-1">
             {!showOtpForm ? (
               <>
-                <h4 className="mb-2">Welcome to Materio! 👋</h4>
-                <p className="mb-4">Please enter your mobile number to login</p>
+                <h4 className="mb-2 text-center fs-5">Welcome to MenuMitra Statistics Dashboard</h4>
+                <p className="mb-4 text-center">Please enter your mobile number to login</p>
 
                 <form className="mb-3" onSubmit={handleMobileSubmit}>
                   <div className="form-floating form-floating-outline mb-3">
@@ -112,48 +112,60 @@ function LoginScreen() {
                     </button>
                   </div>
                 </form>
-
+{/* 
                 <p className="text-center">
                   <span>New on our platform?</span>
                   <a href="/register">
                     <span> Create an account</span>
                   </a>
-                </p>
+                </p> */}
                 <div className="d-flex justify-content-center gap-2">
             <a
-              href="#"
+              href="https://www.facebook.com/share/x5wymXr6w7W49vaQ/?mibextid=qi2Omg"
               className="btn btn-icon btn-lg rounded-pill btn-text-facebook waves-effect waves-light"
-              onClick={(e) => e.preventDefault()}
+              target="_blank"
+              rel="noreferrer"
             >
-              <i className="bx bxl-facebook" />
+              <i className="fa-brands fa-facebook" />
             </a>
             <a
-              href="#"
-              className="btn btn-icon btn-lg rounded-pill btn-text-twitter waves-effect waves-light"
-              onClick={(e) => e.preventDefault()}
+              href="https://www.linkedin.com/company/102429337/admin/dashboard/"
+              className="btn btn-icon btn-lg rounded-pill btn-text-linkedin waves-effect waves-light"
+              target="_blank"
+              rel="noreferrer"
             >
-              <i className="bx bxl-twitter" />
+              <i className="fa-brands fa-linkedin" />
             </a>
             <a
-              href="#"
-              className="btn btn-icon btn-lg rounded-pill btn-text-github waves-effect waves-light"
-              onClick={(e) => e.preventDefault()}
+              href="https://www.youtube.com/@menumitra"
+              className="btn btn-icon btn-lg rounded-pill btn-text-youtube waves-effect waves-light"
+              target="_blank"
+              rel="noreferrer"
             >
-              <i className="bx bxl-instagram-alt" />
+              <i className="fa-brands fa-youtube" />
             </a>
             <a
-              href="#"
-              className="btn btn-icon btn-lg rounded-pill btn-text-google-plus waves-effect waves-light"
-              onClick={(e) => e.preventDefault()}
+              href="https://t.me/MenuMitra"
+              className="btn btn-icon btn-lg rounded-pill btn-text-telegram waves-effect waves-light"
+              target="_blank"
+              rel="noreferrer"
             >
-              <i className="bx bxl-linkedin-square" />
+              <i className="fa-brands fa-telegram" />
+            </a>
+            <a
+              href="https://www.instagram.com/menumitra/"
+              className="btn btn-icon btn-lg rounded-pill btn-text-instagram waves-effect waves-light"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <i className="fa-brands fa-instagram" />
             </a>
           </div>
 
               </>
             ) : (
               <>
-                <div className="d-flex align-items-center mb-2">
+                <div className="d-flex align-items-center justify-content-center mb-2">
                   <button 
                     className="btn btn-icon btn-text-secondary rounded-pill btn-sm me-2"
                     onClick={handleBack}
@@ -163,7 +175,7 @@ function LoginScreen() {
                   </button>
                   <h4 className="mb-0">Verify OTP</h4>
                 </div>
-                <p className="mb-4">Please enter the OTP sent to {mobileNumber}</p>
+                <p className="mb-4 text-center">Please enter the OTP sent to {mobileNumber}</p>
 
                 <form onSubmit={handleVerifyOtp}>
                   <div className="d-flex gap-2 justify-content-center mb-4">
@@ -184,10 +196,10 @@ function LoginScreen() {
                     ))}
                   </div>
 
-                  <div className="mb-3">
+                  <div className="mb-3 d-flex justify-content-center">
                     <button 
                       type="submit" 
-                      className="btn btn-primary d-grid w-100"
+                      className="btn btn-primary w-100"
                       disabled={otp.some(digit => !digit)}
                     >
                       Verify OTP
@@ -198,7 +210,7 @@ function LoginScreen() {
                 <div className="text-center">
                   <p className="mb-0">Didn't receive OTP?</p>
                   <button 
-                    className="btn btn-link p-0" 
+                    className="btn btn-text-primary waves-effect waves-light p-0" 
                     onClick={() => {
                       console.log('Resending OTP to:', mobileNumber);
                       // Add your resend OTP logic here
