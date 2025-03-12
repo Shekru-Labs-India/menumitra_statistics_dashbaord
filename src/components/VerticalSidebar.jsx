@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import logo from "../assets/img/company/MenuMitra_logo.png";
 
 function VerticalSidebar() {
   const location = useLocation()
@@ -140,10 +141,7 @@ function VerticalSidebar() {
         <Link to="/" className="app-brand-link gap-2">
           <span className="app-brand-logo demo">
             <span style={{ color: "var(--bs-primary)" }}>
-              <svg width="30" height="24" viewBox="0 0 250 196" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path fillRule="evenodd" clipRule="evenodd" d="M12.3002 1.25469L56.655 28.6432C59.0349 30.1128 60.4839 32.711 60.4839 35.5089V160.63C60.4839 163.468 58.9941 166.097 56.5603 167.553L12.2055 194.107C8.3836 196.395 3.43136 195.15 1.14435 191.327C0.395485 190.075 0 188.643 0 187.184V8.12039C0 3.66447 3.61061 0.0522461 8.06452 0.0522461C9.56056 0.0522461 11.0271 0.468577 12.3002 1.25469Z" fill="currentColor" />
-                <path fillRule="evenodd" clipRule="evenodd" d="M237.721 1.18923L125 70.3075V136.87L250 65.2465V8.06814C250 3.61223 246.389 0 241.935 0C240.448 0 238.99 0.411583 237.721 1.18923Z" fill="currentColor" />
-              </svg>
+              <img src={logo} alt="MenuMitra Logo" style={{ width: "50px", height: "50px" }} />
             </span>
           </span>
           <span className="app-brand-text demo menu-text fw-bold ms-2">MenuMitra</span>
