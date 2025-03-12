@@ -126,7 +126,7 @@ function Header() {
                     className="form-control search-input rounded-pill bg-light border-0 px-4"
                     placeholder="Search Outlet.."
                       value={selectedOutlet || ''}
-                    style={{ width: '250px', height: '40px' }}
+                    style={{ width: '400px', height: '40px' }}
                     onClick={handleSearchClick}
                     readOnly
                   />

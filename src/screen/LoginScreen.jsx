@@ -1,17 +1,35 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 // Import the images at the top of the file
 import tree3 from '../assets/img/illustrations/tree-3.png';
 import authMaskLight from '../assets/img/illustrations/auth-basic-mask-light.png';
 import tree from '../assets/img/illustrations/tree.png';
 // Import the auth CSS
 import '../assets/css/page-auth.css';
+import logo from "../assets/img/company/MenuMitra_logo.png";
+// Import configuration
+import { menuMitraCompanyInfo, menuMitraSocialLinks, menuMitraAppInfo } from '../config/menuMitraConfig';
 
 function LoginScreen() {
   const [mobileNumber, setMobileNumber] = useState('');
   const [showOtpForm, setShowOtpForm] = useState(false);
   const [otp, setOtp] = useState(['', '', '', '']);
+  const [countdown, setCountdown] = useState(15);
+  const [resendDisabled, setResendDisabled] = useState(true);
   const navigate = useNavigate();
+
+  // Start countdown timer when OTP form is shown
+  useEffect(() => {
+    let timer;
+    if (showOtpForm && countdown > 0) {
+      timer = setTimeout(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+    } else if (countdown === 0) {
+      setResendDisabled(false);
+    }
+    return () => clearTimeout(timer);
+  }, [showOtpForm, countdown]);
 
   const handleMobileSubmit = (e) => {
     e.preventDefault();
@@ -19,6 +37,8 @@ function LoginScreen() {
       // Here you would typically make an API call to send OTP
       console.log('Sending OTP to:', mobileNumber);
       setShowOtpForm(true);
+      setCountdown(15);
+      setResendDisabled(true);
     }
   };
 
@@ -58,6 +78,13 @@ function LoginScreen() {
     setOtp(['', '', '', '']);
   };
 
+  const handleResendOtp = () => {
+    console.log('Resending OTP to:', mobileNumber);
+    // Add your resend OTP logic here
+    setCountdown(15);
+    setResendDisabled(true);
+  };
+
   return (
     <div className="authentication-wrapper authentication-basic container-p-y">
       <div className="authentication-inner">
@@ -65,22 +92,34 @@ function LoginScreen() {
         <div className="card">
           {/* Logo */}
           <div className="app-brand justify-content-center mt-5">
-            <span className="app-brand-logo demo">
-              <span style={{ color: "var(--bs-primary)" }}>
-                <svg width="30" height="24" viewBox="0 0 250 196" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path fillRule="evenodd" clipRule="evenodd" d="M12.3002 1.25469L56.655 28.6432C59.0349 30.1128 60.4839 32.711 60.4839 35.5089V160.63C60.4839 163.468 58.9941 166.097 56.5603 167.553L12.2055 194.107C8.3836 196.395 3.43136 195.15 1.14435 191.327C0.395485 190.075 0 188.643 0 187.184V8.12039C0 3.66447 3.61061 0.0522461 8.06452 0.0522461C9.56056 0.0522461 11.0271 0.468577 12.3002 1.25469Z" fill="currentColor" />
-                  <path fillRule="evenodd" clipRule="evenodd" d="M237.721 1.18923L125 70.3075V136.87L250 65.2465V8.06814C250 3.61223 246.389 0 241.935 0C240.448 0 238.99 0.411583 237.721 1.18923Z" fill="currentColor" />
-                </svg>
+            <div className="d-flex flex-column align-items-center">
+              <span className="app-brand-logo demo mb-2">
+                <span style={{ color: "var(--bs-primary)" }}>
+                  <img
+                    src={logo}
+                    alt={`${menuMitraAppInfo.name} Logo`}
+                    style={{
+                      width: menuMitraAppInfo.logo.width,
+                      height: menuMitraAppInfo.logo.height,
+                    }}
+                  />
+                </span>
               </span>
-            </span>
-            <span className="app-brand-text demo text-heading fw-bold">Materio</span>
+              <span className="app-brand-text demo text-heading fw-bold">
+                {menuMitraAppInfo.name}
+              </span>
+            </div>
           </div>
 
-          <div className="card-body mt-2">
+          <div className="card-body mt-1">
             {!showOtpForm ? (
               <>
-                <h4 className="mb-2">Welcome to Materio! 👋</h4>
-                <p className="mb-4">Please enter your mobile number to login</p>
+                <h4 className="mb-2 text-center fs-5">
+                  Welcome to {menuMitraAppInfo.title}
+                </h4>
+                <p className="mb-4 text-center">
+                  Please enter your mobile number to login
+                </p>
 
                 <form className="mb-3" onSubmit={handleMobileSubmit}>
                   <div className="form-floating form-floating-outline mb-3">
@@ -92,7 +131,7 @@ function LoginScreen() {
                       placeholder="Enter your mobile number"
                       value={mobileNumber}
                       onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, '');
+                        const value = e.target.value.replace(/\D/g, "");
                         if (value.length <= 10) setMobileNumber(value);
                       }}
                       autoFocus
@@ -103,8 +142,8 @@ function LoginScreen() {
                   </div>
 
                   <div className="mb-3">
-                    <button 
-                      className="btn btn-primary d-grid w-100" 
+                    <button
+                      className="btn btn-primary d-grid w-100"
                       type="submit"
                       disabled={mobileNumber.length !== 10}
                     >
@@ -112,49 +151,54 @@ function LoginScreen() {
                     </button>
                   </div>
                 </form>
-
+                {/* 
                 <p className="text-center">
                   <span>New on our platform?</span>
                   <a href="/register">
                     <span> Create an account</span>
                   </a>
-                </p>
+                </p> */}
                 <div className="d-flex justify-content-center gap-2">
-            <a
-              href="#"
-              className="btn btn-icon btn-lg rounded-pill btn-text-facebook waves-effect waves-light"
-              onClick={(e) => e.preventDefault()}
-            >
-              <i className="bx bxl-facebook" />
-            </a>
-            <a
-              href="#"
-              className="btn btn-icon btn-lg rounded-pill btn-text-twitter waves-effect waves-light"
-              onClick={(e) => e.preventDefault()}
-            >
-              <i className="bx bxl-twitter" />
-            </a>
-            <a
-              href="#"
-              className="btn btn-icon btn-lg rounded-pill btn-text-github waves-effect waves-light"
-              onClick={(e) => e.preventDefault()}
-            >
-              <i className="bx bxl-instagram-alt" />
-            </a>
-            <a
-              href="#"
-              className="btn btn-icon btn-lg rounded-pill btn-text-google-plus waves-effect waves-light"
-              onClick={(e) => e.preventDefault()}
-            >
-              <i className="bx bxl-linkedin-square" />
-            </a>
-          </div>
+                  {menuMitraSocialLinks.map((social) => (
+                    <a
+                      key={social.name}
+                      href={social.url}
+                      className={`btn btn-icon btn-lg rounded-pill ${social.btnClass} waves-effect waves-light`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <i className={social.icon} />
+                    </a>
+                  ))}
+                </div>
 
+                <div className="mt-4 text-center">
+                  <p className="text-muted mb-0">
+                    <small>
+                      <span>
+                        <i className="fa-solid fa-bolt text-primary me-1"></i>{" "}
+                        Powered by
+                      </span>
+                      <br />
+                      <Link
+                        to={menuMitraCompanyInfo.website}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <span className="text-primary">
+                          {menuMitraCompanyInfo.name}
+                        </span>
+                        <br />
+                      </Link>
+                      {/* <span className="text-muted">version {menuMitraCompanyInfo.version}</span> */}
+                    </small>
+                  </p>
+                </div>
               </>
             ) : (
               <>
-                <div className="d-flex align-items-center mb-2">
-                  <button 
+                <div className="d-flex align-items-center justify-content-center mb-2">
+                  <button
                     className="btn btn-icon btn-text-secondary rounded-pill btn-sm me-2"
                     onClick={handleBack}
                     type="button"
@@ -163,7 +207,9 @@ function LoginScreen() {
                   </button>
                   <h4 className="mb-0">Verify OTP</h4>
                 </div>
-                <p className="mb-4">Please enter the OTP sent to {mobileNumber}</p>
+                <p className="mb-4 text-center">
+                  Please enter the OTP sent to <b>{mobileNumber}</b>
+                </p>
 
                 <form onSubmit={handleVerifyOtp}>
                   <div className="d-flex gap-2 justify-content-center mb-4">
@@ -173,7 +219,11 @@ function LoginScreen() {
                         id={`otp-${index}`}
                         type="text"
                         className="form-control text-center"
-                        style={{ width: '60px', height: '60px', fontSize: '24px' }}
+                        style={{
+                          width: "60px",
+                          height: "60px",
+                          fontSize: "24px",
+                        }}
                         maxLength={1}
                         value={otp[index]}
                         onChange={(e) => handleOtpChange(e.target.value, index)}
@@ -184,11 +234,11 @@ function LoginScreen() {
                     ))}
                   </div>
 
-                  <div className="mb-3">
-                    <button 
-                      type="submit" 
-                      className="btn btn-primary d-grid w-100"
-                      disabled={otp.some(digit => !digit)}
+                  <div className="mb-3 d-flex justify-content-center">
+                    <button
+                      type="submit"
+                      className="btn btn-primary w-100"
+                      disabled={otp.some((digit) => !digit)}
                     >
                       Verify OTP
                     </button>
@@ -197,15 +247,52 @@ function LoginScreen() {
 
                 <div className="text-center">
                   <p className="mb-0">Didn't receive OTP?</p>
-                  <button 
-                    className="btn btn-link p-0" 
-                    onClick={() => {
-                      console.log('Resending OTP to:', mobileNumber);
-                      // Add your resend OTP logic here
-                    }}
+                  <button
+                    className="btn btn-text-primary waves-effect waves-light p-0"
+                    onClick={handleResendOtp}
+                    disabled={resendDisabled}
                   >
-                    Resend OTP
+                    {resendDisabled
+                      ? `Resend OTP in ${countdown}s`
+                      : "Resend OTP"}
                   </button>
+                </div>
+
+                <div className="d-flex justify-content-center gap-2">
+                  {menuMitraSocialLinks.map((social) => (
+                    <a
+                      key={social.name}
+                      href={social.url}
+                      className={`btn btn-icon btn-lg rounded-pill ${social.btnClass} waves-effect waves-light`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <i className={social.icon} />
+                    </a>
+                  ))}
+                </div>
+
+                <div className="mt-4 text-center">
+                  <p className="text-muted mb-0">
+                    <small>
+                      <span>
+                        <i className="fa-solid fa-bolt text-primary me-1"></i>{" "}
+                        Powered by
+                      </span>
+                      <br />
+                      <Link
+                        to={menuMitraCompanyInfo.website}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <span className="text-primary">
+                          {menuMitraCompanyInfo.name}
+                        </span>
+                        <br />
+                      </Link>
+                      {/* <span className="text-muted">version {menuMitraCompanyInfo.version}</span> */}
+                    </small>
+                  </p>
                 </div>
               </>
             )}
@@ -215,23 +302,23 @@ function LoginScreen() {
       </div>
 
       {/* Decorative illustrations */}
-      <img 
-        src={tree3} 
-        alt="auth-tree" 
-        className="authentication-image-object-left d-none d-lg-block" 
+      <img
+        src={tree3}
+        alt="auth-tree"
+        className="authentication-image-object-left d-none d-lg-block"
       />
-      <img 
-        src={authMaskLight} 
-        className="authentication-image d-none d-lg-block" 
+      <img
+        src={authMaskLight}
+        className="authentication-image d-none d-lg-block"
         height="172"
-        alt="triangle-bg" 
-        data-app-light-img="illustrations/auth-basic-mask-light.png" 
-        data-app-dark-img="illustrations/auth-basic-mask-dark.png" 
+        alt="triangle-bg"
+        data-app-light-img="illustrations/auth-basic-mask-light.png"
+        data-app-dark-img="illustrations/auth-basic-mask-dark.png"
       />
-      <img 
-        src={tree} 
-        alt="auth-tree" 
-        className="authentication-image-object-right d-none d-lg-block" 
+      <img
+        src={tree}
+        alt="auth-tree"
+        className="authentication-image-object-right d-none d-lg-block"
       />
     </div>
   );

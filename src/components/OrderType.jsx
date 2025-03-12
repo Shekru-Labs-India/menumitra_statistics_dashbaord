@@ -174,7 +174,7 @@ const OrderType = () => {
               <div className={`card shadow-none bg-label-${order.color} h-100`}>
                 <div className="card-body">
                   <div className="d-flex align-items-center mb-2">
-                    <div className={`avatar avatar-sm me-2 bg-${order.color} d-flex align-items-center justify-content-center`} style={{ width: '35px', height: '35px' }}>
+                    <div className={`rounded-2 avatar avatar-sm me-2 bg-${order.color} d-flex align-items-center justify-content-center`} style={{ width: '35px', height: '35px' }}>
                       <i className={`${order.icon} text-white`} style={{ fontSize: '1rem' }}></i>
                     </div>
                     <span className="fw-semibold">{order.name}</span>
