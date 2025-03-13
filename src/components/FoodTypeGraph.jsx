@@ -153,7 +153,7 @@ const FoodTypeGraph = () => {
                         <Legend />
                         <Bar dataKey="Veg" stackId="a" fill="#2e7d32" radius={[4, 4, 0, 0]} />
                         <Bar dataKey="Non-Veg" stackId="a" fill="#d32f2f" radius={[4, 4, 0, 0]} />
-                        <Bar dataKey="Vegan" stackId="a" fill="#gffa500" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="Vegan" stackId="a" fill="#FFBF00" radius={[4, 4, 0, 0]} />
                         <Bar dataKey="Eggs" stackId="a" fill="#9e9e9e" radius={[4, 4, 0, 0]} />
                     </BarChart>
                 </ResponsiveContainer>
