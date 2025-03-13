@@ -15,6 +15,7 @@ import Footer from "../components/Footer";
 // Import both GIFs - static and animated
 import aiAnimationGif from '../assets/img/gif/AI-animation-unscreen.gif';
 import aiAnimationStillFrame from '../assets/img/gif/AI-animation-unscreen-still-frame.gif';
+import { apiEndpoint } from '../config/menuMitraConfig';
 
 function HomeScreen() {
   const [dateRange, setDateRange] = useState('Today');
@@ -23,6 +24,7 @@ function HomeScreen() {
   const [endDate, setEndDate] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isGifPlaying, setIsGifPlaying] = useState(false);
+  const [error, setError] = useState('');
   const [statistics, setStatistics] = useState({
     total_orders: 0,
     average_order_value: 0,
@@ -33,23 +35,23 @@ function HomeScreen() {
   
   // Create axios instance
   const axiosInstance = axios.create({
-    baseURL: 'https://men4u.xyz',
+    baseURL: apiEndpoint,
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json'
     }
   });
 
-  // Add request interceptor to add outlet_id to all requests
+  // Add request interceptor
   axiosInstance.interceptors.request.use(
     (config) => {
-      const outletId = localStorage.getItem('selectedOutletId');
+      const outletId = localStorage.getItem('outlet_id');
       if (outletId) {
-        // If it's a GET request with existing params, append to them
         if (config.method === 'get' && config.params) {
           config.params = { ...config.params, outlet_id: outletId };
+        } else if (config.method === 'post' && config.data) {
+          config.data = { ...config.data, outlet_id: outletId };
         } else {
-          // If no params exist, create new params object
           config.params = { outlet_id: outletId };
         }
       }
@@ -60,12 +62,11 @@ function HomeScreen() {
     }
   );
 
-  // Add response interceptor for error handling
+  // Add response interceptor
   axiosInstance.interceptors.response.use(
     (response) => response,
     (error) => {
       if (error.response) {
-        // Handle specific error cases
         switch (error.response.status) {
           case 401:
             console.error('Unauthorized access');
@@ -111,7 +112,7 @@ function HomeScreen() {
   };
 
   useEffect(() => {
-    const outletId = localStorage.getItem('selectedOutletId');
+    const outletId = localStorage.getItem('outlet_id');
     if (!outletId) {
       console.error('No outlet ID found in localStorage');
       return;
@@ -122,24 +123,27 @@ function HomeScreen() {
   const fetchStatistics = async (range) => {
     try {
       setLoading(true);
+      setError('');
       
-      let params = {};
+      let requestData = {};
       if (range === 'Custom Range' && startDate && endDate) {
-        params = {
+        requestData = {
           start_date: startDate.toISOString().split('T')[0],
           end_date: endDate.toISOString().split('T')[0]
         };
-      } else {
-        params = { date_range: range };
+      } else if (range !== 'Custom Range') {
+        requestData = { date_range: range };
       }
 
-      const response = await axiosInstance.get('/outlet_statistics/analytics_reports', { params });
+      // Use POST method instead of GET
+      const response = await axiosInstance.post('analytics_reports', requestData);
       
       if (response.data) {
         setStatistics(response.data);
       }
     } catch (error) {
       console.error('Failed to fetch statistics:', error);
+      setError(error.response?.data?.message || 'Failed to fetch statistics. Please try again.');
       // Reset statistics on error
       setStatistics({
         total_orders: 0,
@@ -181,6 +185,11 @@ function HomeScreen() {
           <Header />
           <div className="content-wrapper flex-grow-1">
             <div className="container-xxl flex-grow-1 container-p-y">
+              {error && (
+                <div className="alert alert-danger mb-4" role="alert">
+                  {error}
+                </div>
+              )}
               {/* Welcome Card Section */}
               <div className="row mb-4">
                 <div className="col-12">
