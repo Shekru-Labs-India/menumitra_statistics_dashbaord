@@ -9,6 +9,15 @@ const OrderAnalytics = () => {
   const [endDate, setEndDate] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
 
+  const formatDate = (date) => {
+    if (!date) return '';
+    const day = date.getDate().toString().padStart(2, '0');
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    return `${day} ${month} ${year}`;
+  };
+
   const handleDateRangeChange = (range) => {
     setDateRange(range);
     setShowDatePicker(range === 'Custom Range');
@@ -33,7 +42,7 @@ const OrderAnalytics = () => {
 
   const handleCustomDateSelect = () => {
     if (startDate && endDate) {
-      setDateRange(`${startDate.toDateString()} - ${endDate.toDateString()}`);
+      setDateRange(`${formatDate(startDate)} - ${formatDate(endDate)}`);
       setShowDatePicker(false);
       fetchData('Custom Range');
     }
