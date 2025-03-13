@@ -2,8 +2,6 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
-// Import vendor scripts through our utilities bundle
-import { initializeHelpers } from './utils/vendor.js'
 
 // Initialize Helpers when available
 document.addEventListener('DOMContentLoaded', function() {
@@ -30,8 +28,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initialize Helpers if available
   if (window.Helpers) {
     window.Helpers.init();
-    // Initialize additional helpers
-    initializeHelpers();
   }
 });
 
