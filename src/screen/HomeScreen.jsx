@@ -161,7 +161,7 @@ const handleCustomDateSelect = () => {
                             <div className="card-body">
                               <div className="d-flex align-items-start justify-content-between">
                                 <div className="content-left">
-                                  <span className="fw-medium d-block mb-1">Orders</span>
+                                  <span className="fw-medium d-block mb-1">Totals Orders</span>
                                   <div className="d-flex align-items-center">
                                     <h4 className="mb-0 me-2">234</h4>
                                     <span className="text-success">(+32%)</span>
@@ -181,7 +181,7 @@ const handleCustomDateSelect = () => {
                             <div className="card-body">
                               <div className="d-flex align-items-start justify-content-between">
                                 <div className="content-left">
-                                  <span className="fw-medium d-block mb-1">Revenue</span>
+                                  <span className="fw-medium d-block mb-1">Total Revenue</span>
                                   <div className="d-flex align-items-center">
                                     <h4 className="mb-0 me-2">₹47600</h4>
                                     <span className="text-success">(+45%)</span>
@@ -201,7 +201,7 @@ const handleCustomDateSelect = () => {
                             <div className="card-body">
                               <div className="d-flex align-items-start justify-content-between">
                                 <div className="content-left">
-                                  <span className="fw-medium d-block mb-1">Customers</span>
+                                  <span className="fw-medium d-block mb-1">Customers count</span>
                                   <div className="d-flex align-items-center">
                                     <h4 className="mb-0 me-2">123</h4>
                                     <span className="text-success">(+13%)</span>
@@ -250,66 +250,6 @@ const handleCustomDateSelect = () => {
                                 <div className="avatar">
                                   <span className="avatar-initial rounded bg-label-danger">
                                     <i className="fas fa-chair"></i>
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col-md-6 col-lg-3">
-                          <div className="card h-100">
-                            <div className="card-body">
-                              <div className="d-flex align-items-start justify-content-between">
-                                <div className="content-left">
-                                  <span className="fw-medium d-block mb-1">Peak Hours</span>
-                                  <div className="d-flex align-items-center">
-                                    <h4 className="mb-0 me-2">10:00 AM - 11:00 PM</h4>
-                                    <span className="text-success">(+10%)</span>
-                                  </div>
-                                </div>
-                                <div className="avatar">
-                                  <span className="avatar-initial rounded bg-label-secondary">
-                                    <i className="fas fa-clock"></i>
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col-md-6 col-lg-3">
-                          <div className="card h-100">
-                            <div className="card-body">
-                              <div className="d-flex align-items-start justify-content-between">
-                                <div className="content-left">
-                                  <span className="fw-medium d-block mb-1">Popular Items</span>
-                                  <div className="d-flex align-items-center">
-                                    <h4 className="mb-0 me-2">Pizza</h4>
-                                    <span className="text-success">(+10%)</span>
-                                  </div>
-                                </div>
-                                <div className="avatar">
-                                  <span className="avatar-initial rounded bg-label-primary">
-                                    <i className="fas fa-utensils"></i>
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col-md-6 col-lg-3">
-                          <div className="card h-100">
-                            <div className="card-body">
-                              <div className="d-flex align-items-start justify-content-between">
-                                <div className="content-left">
-                                  <span className="fw-medium d-block mb-1">Customer Satisfaction</span>
-                                  <div className="d-flex align-items-center">
-                                    <h4 className="mb-0 me-2">95%</h4>
-                                    <span className="text-success">(+10%)</span>
-                                  </div>
-                                </div>
-                                <div className="avatar">
-                                  <span className="avatar-initial rounded bg-label-success">
-                                    <i className="fas fa-smile"></i>
                                   </span>
                                 </div>
                               </div>

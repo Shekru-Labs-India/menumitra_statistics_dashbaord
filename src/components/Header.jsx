@@ -148,7 +148,7 @@ function Header() {
           {/* Right aligned items */}
           <ul className="navbar-nav flex-row align-items-center ms-auto">
             {/* Theme Mode */}
-            <li className="nav-item dropdown-style-switcher dropdown me-3">
+            {/* <li className="nav-item dropdown-style-switcher dropdown me-3">
               <a
                   className="nav-link btn btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow"
                   href="javascript:void(0);"
@@ -194,7 +194,7 @@ function Header() {
               </a>
                   </li>
                 </ul>
-            </li>
+            </li> */}
 
             {/* User Profile */}
             <li className="nav-item navbar-dropdown dropdown-user dropdown">
@@ -203,7 +203,7 @@ function Header() {
                 href="javascript:void(0);"
                 data-bs-toggle="dropdown"
               >
-                <div className="avatar avatar-online">
+                <div className="avatar">
                   <img
                     src={img}
                     alt=""
@@ -219,7 +219,7 @@ function Header() {
                     >
                       <div className="d-flex align-items-center">
                         <div className="flex-shrink-0 me-2">
-                        <div className="avatar avatar-online">
+                        <div className="avatar">
                           <img
                               src="../../assets/img/avatars/1.png"
                             alt=""
