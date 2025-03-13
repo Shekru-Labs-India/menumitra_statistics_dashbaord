@@ -29,28 +29,28 @@ const Footer = () => {
             className="footer-link me-4"
             target="_blank"
           >
-            License
+            Terms & Conditions
           </a>
           <a
             href="https://themeselection.com/"
             target="_blank"
             className="footer-link me-4"
           >
-            More Themes
+            Privacy Policy
           </a>
           <a
             href="https://demos.themeselection.com/materio-bootstrap-html-admin-template/documentation/"
             target="_blank"
             className="footer-link me-4"
           >
-            Documentation
+            Help
           </a>
           <a
             href="https://themeselection.com/support/"
             target="_blank"
             className="footer-link d-none d-sm-inline-block"
           >
-            Support
+            Contact Us
           </a>
         </div>
       </div>
