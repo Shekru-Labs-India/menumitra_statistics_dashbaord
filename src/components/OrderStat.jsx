@@ -59,7 +59,7 @@ const OrderStat = () => {
         <div className="card">
             <div className="card-header d-flex justify-content-between align-items-md-center align-items-start">
                 <h5 className="card-title mb-0">Order Statistics</h5>
-                <div className="d-flex align-items-center gap-2">
+                <div className="d-flex align-items-center gap-2 ">
                     <div className="dropdown">
                         <button
                             type="button"

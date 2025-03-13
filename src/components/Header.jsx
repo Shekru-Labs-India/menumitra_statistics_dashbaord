@@ -257,7 +257,7 @@ function Header() {
                       className="dropdown-item"
                       href="pages-account-settings-billing.html"
                     >
-                      <span className="d-flex align-items-center align-middle">
+                      {/* <span className="d-flex align-items-center align-middle">
                         <i className="far fa-file-alt fa-lg me-2" />
                         <span className="flex-grow-1 align-middle">
                           Billing
@@ -265,7 +265,7 @@ function Header() {
                         <span className="flex-shrink-0 badge badge-center rounded-pill bg-danger h-px-20 d-flex align-items-center justify-content-center">
                           4
                         </span>
-                      </span>
+                      </span> */}
                     </a>
                 </li>
                 <li>
