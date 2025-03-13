@@ -189,7 +189,7 @@ function VerticalSidebar() {
   }
 
   return (
-    <aside id="layout-menu" className="layout-menu menu-vertical menu bg-menu-theme" style={{ position: 'sticky', top: 0, height: '100vh', overflowY: 'auto', overflowX: 'hidden' }} ref={sidebarRef}>
+    <aside id="layout-menu" className="layout-menu menu-vertical menu bg-menu-theme" style={{ position: 'sticky', top: 0, height: '100vh', overflowY: 'auto', overflowX: 'hidden', boxShadow: '0 0 50px 0 rgba(0, 0, 0, 0.1)' }} ref={sidebarRef}>
       <div className="app-brand demo py-3 px-4">
         <Link to="/" className="app-brand-link gap-2">
           <span className="app-brand-logo demo">
@@ -255,7 +255,7 @@ function VerticalSidebar() {
         {/* Dashboard */}
         <li className={`menu-item ${isActive('/dashboard') ? 'active' : ''}`}>
           <Link to="/dashboard" className="menu-link">
-            <i className="menu-icon tf-icons ri-dashboard-line"></i>
+            <i className="menu-icon tf-icons ri-dashboard-line text-white"></i>
             <div data-i18n="Dashboard">Home</div>
           </Link>
         </li>
