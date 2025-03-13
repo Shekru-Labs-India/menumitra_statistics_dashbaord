@@ -257,7 +257,6 @@ function VerticalSidebar() {
           <Link to="/dashboard" className="menu-link">
             <i className="menu-icon tf-icons ri-dashboard-line"></i>
             <div data-i18n="Dashboard">Home</div>
-            <div className="badge bg-label-primary rounded-pill ms-auto">New</div>
           </Link>
         </li>
 

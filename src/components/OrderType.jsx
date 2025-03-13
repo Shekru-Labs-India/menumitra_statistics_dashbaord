@@ -24,7 +24,7 @@ const orderTypes = [
     color: "info"
   },
   { 
-    name: "For Pickup", 
+    name: "Parcel", 
     icon: "fas fa-box",
     count: 124,
     trend: "-3.1%",
@@ -32,21 +32,14 @@ const orderTypes = [
     color: "success"
   },
   { 
-    name: "Online Orders", 
+    name: "Delivery", 
     icon: "fas fa-globe",
     count: 245,
     trend: "+15.7%",
     trendUp: true,
     color: "warning"
   },
-  { 
-    name: "Self Orders", 
-    icon: "fas fa-user",
-    count: 67,
-    trend: "+5.3%",
-    trendUp: true,
-    color: "danger"
-  }
+  
 ];
 
 const OrderType = () => {
