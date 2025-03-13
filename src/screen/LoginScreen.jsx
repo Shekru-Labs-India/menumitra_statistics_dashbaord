@@ -19,7 +19,6 @@ function LoginScreen() {
   const [resendDisabled, setResendDisabled] = useState(true);
   const [isLoading, setIsLoading] = useState(false); // Add loading state
   const [error, setError] = useState(''); // Add error state
-  const [receivedOtp, setReceivedOtp] = useState('1234'); // Default for testing
   const navigate = useNavigate();
 
   // Start countdown timer when OTP form is shown
@@ -53,12 +52,6 @@ function LoginScreen() {
           setShowOtpForm(true);
           setCountdown(15);
           setResendDisabled(true);
-          
-          // Store the OTP received from API
-          if (response.data.otp) {
-            console.log('OTP received:', response.data.otp);
-            setReceivedOtp(response.data.otp);
-          }
         }
       } catch (error) {
         console.error('API Error:', error);
@@ -89,7 +82,7 @@ function LoginScreen() {
     }
   };
 
-  const handleVerifyOtp = (e) => {
+  const handleVerifyOtp = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
@@ -97,21 +90,64 @@ function LoginScreen() {
     const enteredOtp = otp.join('');
     
     try {
-      // Compare with the OTP received from API
-      if (enteredOtp === receivedOtp) {
-        // Successfully verified
+      // Make API call to verify OTP
+      const response = await axios.post(`${apiEndpoint}verify_otp`, {
+        mobile: mobileNumber,
+        otp: parseInt(enteredOtp) // Convert string to number as per API requirement
+      });
+      
+      // Check if response is successful
+      if (response.status === 200) {
+        console.log('Verification Response:', response.data);
+        
+        // Extract data from response
+        const { outlet_id, owner_id } = response.data;
+        
+        // Extract user_id and user_name from owner_id string if it contains that format
+        let userId = '';
+        let userName = '';
+        
+        if (owner_id && typeof owner_id === 'string') {
+          // Parse "User Id: 2 | User name: Heenaaaa" format
+          const userIdMatch = owner_id.match(/User Id: (\d+)/);
+          const userNameMatch = owner_id.match(/User name: ([^|]+)$/);
+          
+          if (userIdMatch && userIdMatch[1]) {
+            userId = userIdMatch[1];
+          }
+          
+          if (userNameMatch && userNameMatch[1]) {
+            userName = userNameMatch[1].trim();
+          }
+        }
+        
+        // Store data in localStorage
+        localStorage.setItem('outlet_id', outlet_id);
+        localStorage.setItem('user_id', userId);
+        localStorage.setItem('user_name', userName);
+        localStorage.setItem('owner_id', owner_id);
+        
+        // Navigate to dashboard after a small delay for better UX
         setTimeout(() => {
           setIsLoading(false);
           navigate('/dashboard');
-        }, 1000); // Small delay for better UX
-      } else {
-        setIsLoading(false);
-        setError(`Invalid OTP! Please try again. (Hint: Use ${receivedOtp})`);
+        }, 1000);
       }
     } catch (error) {
-      console.error('Verification Error:', error);
+      console.error('OTP Verification Error:', error);
       setIsLoading(false);
-      setError('Error verifying OTP. Please try again.');
+      
+      // Handle different types of errors
+      if (error.response) {
+        // The request was made and the server responded with a status code outside of 2xx range
+        setError(error.response.data.message || 'Invalid OTP. Please try again.');
+      } else if (error.request) {
+        // The request was made but no response was received
+        setError('No response from server. Please check your internet connection and try again.');
+      } else {
+        // Something happened in setting up the request
+        setError('Error verifying OTP. Please try again.');
+      }
     }
   };
 
@@ -136,12 +172,6 @@ function LoginScreen() {
         console.log('API Response (Resend):', response.data);
         setCountdown(15);
         setResendDisabled(true);
-        
-        // Store the new OTP received from API
-        if (response.data.otp) {
-          console.log('New OTP received:', response.data.otp);
-          setReceivedOtp(response.data.otp);
-        }
       }
     } catch (error) {
       console.error('API Error (Resend):', error);
