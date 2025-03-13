@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+// Import both GIFs - static and animated
+import aiAnimationGif from '../assets/img/gif/AI-animation-unscreen.gif';
+import aiAnimationStillFrame from '../assets/img/gif/AI-animation-unscreen-still-frame.gif';
 
 const RevenueLossWidget = () => {
   const [dateRange, setDateRange] = useState('Yesterday');
@@ -8,6 +11,19 @@ const RevenueLossWidget = () => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [isGifPlaying, setIsGifPlaying] = useState(false);
+  
+  // Simplified effect to handle the animation timing
+  useEffect(() => {
+    if (isGifPlaying) {
+      // Set a timeout to stop playing after 3 seconds
+      const timer = setTimeout(() => {
+        setIsGifPlaying(false);
+      }, 3000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isGifPlaying]);
 
   const formatDate = (date) => {
     if (!date) return '';
@@ -99,6 +115,49 @@ const handleCustomDateSelect = () => {
             disabled={loading}
           >
             <i className={`fas fa-sync-alt ${loading ? 'fa-spin' : ''}`}></i>
+          </button>
+
+          <button
+            type="button"
+            className="btn btn-icon btn-sm p-0"
+            style={{ 
+              width: '40px', 
+              height: '40px', 
+              borderRadius: '50%', 
+              display: 'flex', 
+              justifyContent: 'center', 
+              alignItems: 'center',
+              overflow: 'hidden',
+              position: 'relative'
+            }}
+            onClick={() => setIsGifPlaying(true)}
+            title={isGifPlaying ? "Animation playing" : "Click to play animation"}
+          >
+            {/* Using two separate images - static frame and animated */}
+            {isGifPlaying ? (
+              // Show animated GIF when playing
+              <img 
+                src={aiAnimationGif} 
+                alt="AI Animation (Playing)"
+                style={{ 
+                  width: '24px', 
+                  height: '24px',
+                  objectFit: 'contain'
+                }}
+              />
+            ) : (
+              // Show static frame when not playing
+              <img 
+                src={aiAnimationStillFrame} 
+                alt="AI Animation (Click to play)"
+                style={{ 
+                  width: '24px', 
+                  height: '24px',
+                  objectFit: 'contain',
+                  opacity: 0.9
+                }}
+              />
+            )}
           </button>
         </div>
       </div>

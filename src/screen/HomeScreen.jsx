@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import VerticalSidebar from "../components/VerticalSidebar";
@@ -11,6 +11,9 @@ import FoodTypeGraph from "../components/FoodTypeGraph";
 import OrderType from "../components/OrderType";
 import OrderAnalytics from '../components/OrderAnalytics';
 import Footer from "../components/Footer";
+// Import both GIFs - static and animated
+import aiAnimationGif from '../assets/img/gif/AI-animation-unscreen.gif';
+import aiAnimationStillFrame from '../assets/img/gif/AI-animation-unscreen-still-frame.gif';
 
 function HomeScreen() {
   const [dateRange, setDateRange] = useState('Today');
@@ -18,6 +21,19 @@ function HomeScreen() {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [isGifPlaying, setIsGifPlaying] = useState(false);
+  
+  // Simplified effect to handle the animation timing
+  useEffect(() => {
+    if (isGifPlaying) {
+      // Set a timeout to stop playing after 3 seconds
+      const timer = setTimeout(() => {
+        setIsGifPlaying(false);
+      }, 3000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isGifPlaying]);
 
   const formatDate = (date) => {
     if (!date) return '';
@@ -71,7 +87,9 @@ const handleCustomDateSelect = () => {
                 <div className="col-12">
                   <div className="card">
                     <div className="card-header d-flex justify-content-between align-items-md-center align-items-start p-4">
-                      <h5 className="card-title mb-0">Welcome to MenuMitra Owner Dashboard</h5>
+                      <h5 className="card-title mb-0">
+                        Welcome to MenuMitra Owner Dashboard
+                      </h5>
                       <div className="d-flex align-items-center gap-3">
                         <div className="dropdown">
                           <button
@@ -84,20 +102,35 @@ const handleCustomDateSelect = () => {
                             {dateRange}
                           </button>
                           <ul className="dropdown-menu dropdown-menu-end">
-                            {['Today', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Current Month', 'Last Month'].map((range) => (
+                            {[
+                              "Today",
+                              "Yesterday",
+                              "Last 7 Days",
+                              "Last 30 Days",
+                              "Current Month",
+                              "Last Month",
+                            ].map((range) => (
                               <li key={range}>
-                                <a href="javascript:void(0);"
+                                <a
+                                  href="javascript:void(0);"
                                   className="dropdown-item d-flex align-items-center"
-                                  onClick={() => handleDateRangeChange(range)}>
+                                  onClick={() => handleDateRangeChange(range)}
+                                >
                                   {range}
                                 </a>
                               </li>
                             ))}
-                            <li><hr className="dropdown-divider" /></li>
                             <li>
-                              <a href="javascript:void(0);"
+                              <hr className="dropdown-divider" />
+                            </li>
+                            <li>
+                              <a
+                                href="javascript:void(0);"
                                 className="dropdown-item d-flex align-items-center"
-                                onClick={() => handleDateRangeChange('Custom Range')}>
+                                onClick={() =>
+                                  handleDateRangeChange("Custom Range")
+                                }
+                              >
                                 Custom Range
                               </a>
                             </li>
@@ -105,11 +138,63 @@ const handleCustomDateSelect = () => {
                         </div>
                         <button
                           type="button"
-                          className={`btn btn-icon p-0 ${loading ? 'disabled' : ''}`}
+                          className={`btn btn-icon p-0 ${
+                            loading ? "disabled" : ""
+                          }`}
                           onClick={handleReload}
                           disabled={loading}
                         >
-                          <i className={`fas fa-sync-alt ${loading ? 'fa-spin' : ''}`}></i>
+                          <i
+                            className={`fas fa-sync-alt ${
+                              loading ? "fa-spin" : ""
+                            }`}
+                          ></i>
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-icon btn-sm p-0"
+                          style={{
+                            width: "40px",
+                            height: "40px",
+                            borderRadius: "50%",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            overflow: "hidden",
+                            position: "relative",
+                          }}
+                          onClick={() => setIsGifPlaying(true)}
+                          title={
+                            isGifPlaying
+                              ? "Animation playing"
+                              : "Click to play animation"
+                          }
+                        >
+                          {/* Using two separate images - static frame and animated */}
+                          {isGifPlaying ? (
+                            // Show animated GIF when playing
+                            <img
+                              src={aiAnimationGif}
+                              alt="AI Animation (Playing)"
+                              style={{
+                                width: "24px",
+                                height: "24px",
+                                objectFit: "contain"
+                              }}
+                            />
+                          ) : (
+                            // Show static frame when not playing
+                            <img
+                              src={aiAnimationStillFrame}
+                              alt="AI Animation (Click to play)"
+                              style={{
+                                width: "24px",
+                                height: "24px",
+                                objectFit: "contain",
+                                opacity: 0.9
+                              }}
+                            />
+                          )}
                         </button>
                       </div>
                     </div>
@@ -143,7 +228,11 @@ const handleCustomDateSelect = () => {
                               dateFormat="dd MMM yyyy"
                             />
                           </div>
-                          <button className="btn btn-primary mt-2" onClick={handleCustomDateSelect} disabled={!startDate || !endDate}>
+                          <button
+                            className="btn btn-primary mt-2"
+                            onClick={handleCustomDateSelect}
+                            disabled={!startDate || !endDate}
+                          >
                             Apply
                           </button>
                         </div>
@@ -152,7 +241,8 @@ const handleCustomDateSelect = () => {
 
                     <div className="card-body p-4">
                       <p className="mb-4">
-                        Select an outlet from the search menu above to view detailed analytics and reports.
+                        Select an outlet from the search menu above to view
+                        detailed analytics and reports.
                       </p>
                       {/* Stats Cards */}
                       <div className="row g-4">
@@ -161,7 +251,9 @@ const handleCustomDateSelect = () => {
                             <div className="card-body">
                               <div className="d-flex align-items-start justify-content-between">
                                 <div className="content-left">
-                                  <span className="fw-medium d-block mb-1">Totals Orders</span>
+                                  <span className="fw-medium d-block mb-1">
+                                    Totals Orders
+                                  </span>
                                   <div className="d-flex align-items-center">
                                     <h4 className="mb-0 me-2">234</h4>
                                     <span className="text-success">(+32%)</span>
@@ -181,7 +273,9 @@ const handleCustomDateSelect = () => {
                             <div className="card-body">
                               <div className="d-flex align-items-start justify-content-between">
                                 <div className="content-left">
-                                  <span className="fw-medium d-block mb-1">Total Revenue</span>
+                                  <span className="fw-medium d-block mb-1">
+                                    Total Revenue
+                                  </span>
                                   <div className="d-flex align-items-center">
                                     <h4 className="mb-0 me-2">₹47600</h4>
                                     <span className="text-success">(+45%)</span>
@@ -201,7 +295,9 @@ const handleCustomDateSelect = () => {
                             <div className="card-body">
                               <div className="d-flex align-items-start justify-content-between">
                                 <div className="content-left">
-                                  <span className="fw-medium d-block mb-1">Customers count</span>
+                                  <span className="fw-medium d-block mb-1">
+                                    Customers count
+                                  </span>
                                   <div className="d-flex align-items-center">
                                     <h4 className="mb-0 me-2">123</h4>
                                     <span className="text-success">(+13%)</span>
@@ -221,7 +317,9 @@ const handleCustomDateSelect = () => {
                             <div className="card-body">
                               <div className="d-flex align-items-start justify-content-between">
                                 <div className="content-left">
-                                  <span className="fw-medium d-block mb-1">Average Order Value</span>
+                                  <span className="fw-medium d-block mb-1">
+                                    Average Order Value
+                                  </span>
                                   <div className="d-flex align-items-center">
                                     <h4 className="mb-0 me-2">₹145</h4>
                                     <span className="text-success">(+10%)</span>
@@ -241,7 +339,9 @@ const handleCustomDateSelect = () => {
                             <div className="card-body">
                               <div className="d-flex align-items-start justify-content-between">
                                 <div className="content-left">
-                                  <span className="fw-medium d-block mb-1">Table Turnover</span>
+                                  <span className="fw-medium d-block mb-1">
+                                    Table Turnover
+                                  </span>
                                   <div className="d-flex align-items-center">
                                     <h4 className="mb-0 me-2">10 min</h4>
                                     <span className="text-success">(+10%)</span>
@@ -261,7 +361,7 @@ const handleCustomDateSelect = () => {
                   </div>
                 </div>
               </div>
-              
+
               {/* Charts Section */}
               <div className="row g-4 mb-4">
                 <div className="col-12 col-md-6 col-lg-6">
@@ -309,7 +409,7 @@ const handleCustomDateSelect = () => {
             </div>
             <Footer />
           </div>
-        </div>        
+        </div>
       </div>
     </div>
   );
