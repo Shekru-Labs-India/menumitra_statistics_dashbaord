@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios'; // Import axios for API calls
 // Import the images at the top of the file
 import tree3 from '../assets/img/illustrations/tree-3.png';
 import authMaskLight from '../assets/img/illustrations/auth-basic-mask-light.png';
@@ -8,7 +9,7 @@ import tree from '../assets/img/illustrations/tree.png';
 import '../assets/css/page-auth.css';
 import logo from "../assets/img/company/MenuMitra_logo.png";
 // Import configuration
-import { menuMitraCompanyInfo, menuMitraSocialLinks, menuMitraAppInfo } from '../config/menuMitraConfig';
+import { menuMitraCompanyInfo, menuMitraSocialLinks, menuMitraAppInfo, apiEndpoint } from '../config/menuMitraConfig';
 
 function LoginScreen() {
   const [mobileNumber, setMobileNumber] = useState('');
@@ -16,6 +17,9 @@ function LoginScreen() {
   const [otp, setOtp] = useState(['', '', '', '']);
   const [countdown, setCountdown] = useState(15);
   const [resendDisabled, setResendDisabled] = useState(true);
+  const [isLoading, setIsLoading] = useState(false); // Add loading state
+  const [error, setError] = useState(''); // Add error state
+  const [receivedOtp, setReceivedOtp] = useState('1234'); // Default for testing
   const navigate = useNavigate();
 
   // Start countdown timer when OTP form is shown
@@ -31,14 +35,37 @@ function LoginScreen() {
     return () => clearTimeout(timer);
   }, [showOtpForm, countdown]);
 
-  const handleMobileSubmit = (e) => {
+  const handleMobileSubmit = async (e) => {
     e.preventDefault();
     if (mobileNumber.length === 10) {
-      // Here you would typically make an API call to send OTP
-      console.log('Sending OTP to:', mobileNumber);
-      setShowOtpForm(true);
-      setCountdown(15);
-      setResendDisabled(true);
+      setIsLoading(true);
+      setError('');
+      
+      try {
+        // Make API call to send OTP
+        const response = await axios.post(`${apiEndpoint}outlet_login`, {
+          mobile: mobileNumber
+        });
+        
+        // Check if response is successful
+        if (response.status === 200) {
+          console.log('API Response:', response.data);
+          setShowOtpForm(true);
+          setCountdown(15);
+          setResendDisabled(true);
+          
+          // Store the OTP received from API
+          if (response.data.otp) {
+            console.log('OTP received:', response.data.otp);
+            setReceivedOtp(response.data.otp);
+          }
+        }
+      } catch (error) {
+        console.error('API Error:', error);
+        setError(error.response?.data?.message || 'Failed to send OTP. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -64,25 +91,64 @@ function LoginScreen() {
 
   const handleVerifyOtp = (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
     const enteredOtp = otp.join('');
-    // For now, we're using 1234 as the hardcoded OTP
-    if (enteredOtp === '1234') {
-      navigate('/dashboard');
-    } else {
-      alert('Invalid OTP! (Hint: Use 1234)');
+    
+    try {
+      // Compare with the OTP received from API
+      if (enteredOtp === receivedOtp) {
+        // Successfully verified
+        setTimeout(() => {
+          setIsLoading(false);
+          navigate('/dashboard');
+        }, 1000); // Small delay for better UX
+      } else {
+        setIsLoading(false);
+        setError(`Invalid OTP! Please try again. (Hint: Use ${receivedOtp})`);
+      }
+    } catch (error) {
+      console.error('Verification Error:', error);
+      setIsLoading(false);
+      setError('Error verifying OTP. Please try again.');
     }
   };
 
   const handleBack = () => {
     setShowOtpForm(false);
     setOtp(['', '', '', '']);
+    setError('');
   };
 
-  const handleResendOtp = () => {
-    console.log('Resending OTP to:', mobileNumber);
-    // Add your resend OTP logic here
-    setCountdown(15);
-    setResendDisabled(true);
+  const handleResendOtp = async () => {
+    setIsLoading(true);
+    setError('');
+    
+    try {
+      // Make API call to resend OTP
+      const response = await axios.post(`${apiEndpoint}outlet_login`, {
+        mobile: mobileNumber
+      });
+      
+      // Check if response is successful
+      if (response.status === 200) {
+        console.log('API Response (Resend):', response.data);
+        setCountdown(15);
+        setResendDisabled(true);
+        
+        // Store the new OTP received from API
+        if (response.data.otp) {
+          console.log('New OTP received:', response.data.otp);
+          setReceivedOtp(response.data.otp);
+        }
+      }
+    } catch (error) {
+      console.error('API Error (Resend):', error);
+      setError(error.response?.data?.message || 'Failed to resend OTP. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -137,17 +203,31 @@ function LoginScreen() {
                       autoFocus
                       maxLength={10}
                       required
+                      disabled={isLoading}
                     />
                     <label htmlFor="mobile">Mobile Number</label>
                   </div>
+
+                  {error && (
+                    <div className="alert alert-danger mb-3" role="alert">
+                      {error}
+                    </div>
+                  )}
 
                   <div className="mb-3">
                     <button
                       className="btn btn-primary d-grid w-100"
                       type="submit"
-                      disabled={mobileNumber.length !== 10}
+                      disabled={mobileNumber.length !== 10 || isLoading}
                     >
-                      Send OTP
+                      {isLoading ? (
+                        <span>
+                          <i className="fas fa-circle-notch fa-spin me-2"></i>
+                          Sending OTP...
+                        </span>
+                      ) : (
+                        "Send OTP"
+                      )}
                     </button>
                   </div>
                 </form>
@@ -211,6 +291,12 @@ function LoginScreen() {
                   Please enter the OTP sent to <b>{mobileNumber}</b>
                 </p>
 
+                {error && (
+                  <div className="alert alert-danger mb-3" role="alert">
+                    {error}
+                  </div>
+                )}
+
                 <form onSubmit={handleVerifyOtp}>
                   <div className="d-flex gap-2 justify-content-center mb-4">
                     {[0, 1, 2, 3].map((index) => (
@@ -230,6 +316,7 @@ function LoginScreen() {
                         onKeyDown={(e) => handleOtpKeyDown(e, index)}
                         required
                         autoFocus={index === 0}
+                        disabled={isLoading}
                       />
                     ))}
                   </div>
@@ -238,9 +325,16 @@ function LoginScreen() {
                     <button
                       type="submit"
                       className="btn btn-primary w-100"
-                      disabled={otp.some((digit) => !digit)}
+                      disabled={otp.some((digit) => !digit) || isLoading}
                     >
-                      Verify OTP
+                      {isLoading ? (
+                        <span>
+                          <i className="fas fa-circle-notch fa-spin me-2"></i>
+                          Verifying...
+                        </span>
+                      ) : (
+                        "Verify OTP"
+                      )}
                     </button>
                   </div>
                 </form>
@@ -250,11 +344,18 @@ function LoginScreen() {
                   <button
                     className="btn btn-text-primary waves-effect waves-light p-0"
                     onClick={handleResendOtp}
-                    disabled={resendDisabled}
+                    disabled={resendDisabled || isLoading}
                   >
-                    {resendDisabled
-                      ? `Resend OTP in ${countdown}s`
-                      : "Resend OTP"}
+                    {isLoading && !resendDisabled ? (
+                      <span>
+                        <i className="fas fa-circle-notch fa-spin me-2"></i>
+                        Resending OTP...
+                      </span>
+                    ) : resendDisabled ? (
+                      `Resend OTP in ${countdown}s`
+                    ) : (
+                      "Resend OTP"
+                    )}
                   </button>
                 </div>
 
