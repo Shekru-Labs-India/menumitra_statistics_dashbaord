@@ -1,3 +1,6 @@
+const apiEndpoint = "https://men4u.xyz/outlet_statistics/";
+export { apiEndpoint };
+
 export const menuMitraCompanyInfo = {
   name: "Shekru Labs India Pvt. Ltd.",
   website: "https://shekruweb.com/",

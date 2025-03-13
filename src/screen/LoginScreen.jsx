@@ -8,7 +8,7 @@ import tree from '../assets/img/illustrations/tree.png';
 import '../assets/css/page-auth.css';
 import logo from "../assets/img/company/MenuMitra_logo.png";
 // Import configuration
-import { menuMitraCompanyInfo, menuMitraSocialLinks, menuMitraAppInfo } from '../config/menuMitraConfig';
+import { menuMitraCompanyInfo, menuMitraSocialLinks, menuMitraAppInfo,  } from '../config/menuMitraConfig';
 
 function LoginScreen() {
   const [mobileNumber, setMobileNumber] = useState('');
