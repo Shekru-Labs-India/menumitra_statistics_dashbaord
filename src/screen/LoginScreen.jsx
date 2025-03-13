@@ -101,7 +101,7 @@ function LoginScreen() {
         console.log('Verification Response:', response.data);
         
         // Extract data from response
-        const { outlet_id, owner_id } = response.data;
+        const { outlet_id, owner_id, role } = response.data;
         
         // Extract user_id and user_name from owner_id string if it contains that format
         let userId = '';
@@ -126,6 +126,8 @@ function LoginScreen() {
         localStorage.setItem('user_id', userId);
         localStorage.setItem('user_name', userName);
         localStorage.setItem('owner_id', owner_id);
+        localStorage.setItem('mobile_number', mobileNumber);
+        localStorage.setItem('role', role || "owner");
         
         // Navigate to dashboard after a small delay for better UX
         setTimeout(() => {

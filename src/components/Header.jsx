@@ -7,6 +7,9 @@ function Header() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedOutlet, setSelectedOutlet] = useState('');
   const [isMenuCollapsed, setIsMenuCollapsed] = useState(false);
+  const [userName, setUserName] = useState('User');
+  const [outletId, setOutletId] = useState('');
+  const [storedRole, setStoredRole] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,12 +33,38 @@ function Header() {
     };
   }, []);
 
+  // Load user data from localStorage
+  useEffect(() => {
+    const storedUserName = localStorage.getItem('user_name');
+    const storedOutletId = localStorage.getItem('outlet_id');
+    const storedRole = localStorage.getItem('role');
+
+    if (storedUserName) {
+      setUserName(storedUserName);
+    }
+    
+    if (storedOutletId) {
+      setOutletId(storedOutletId);
+    }
+    if (storedRole) {
+      setStoredRole(storedRole);
+    }
+  }, []);
+
   const handleOutletSelect = (outletName) => {
     const truncatedName = truncateText(outletName, 20);
     setSelectedOutlet(truncatedName);
   };
 
   const handleLogout = () => {
+    // Clear all localStorage data
+    localStorage.removeItem('outlet_id');
+    localStorage.removeItem('user_id');
+    localStorage.removeItem('user_name');
+    localStorage.removeItem('owner_id');
+    localStorage.removeItem('role');
+    
+    // Navigate to login page
     navigate('/login');
   };
 
@@ -86,69 +115,71 @@ function Header() {
 
   return (
     <div>
-    <nav
-      className="layout-navbar navbar navbar-expand-xl align-items-center bg-navbar-theme"
-      id="layout-navbar"
-    >
-      <div className="container-xxl">
+      <nav
+        className="layout-navbar navbar navbar-expand-xl align-items-center bg-navbar-theme"
+        id="layout-navbar"
+      >
+        <div className="container-xxl">
           <div className="layout-menu-toggle navbar-nav align-items-xl-center me-4 me-xl-0 d-xl-none">
             <a
               className="nav-item nav-link px-0 me-xl-6"
               href="javascript:void(0)"
               onClick={toggleMenu}
             >
-              <i className={`fas fa-${isMenuCollapsed ? 'bars' : 'times'}`} />
+              <i className={`fas fa-${isMenuCollapsed ? "bars" : "times"}`} />
             </a>
           </div>
-        <div
-          className="navbar-nav-right d-flex align-items-center"
-          id="navbar-collapse"
-        >
-          {/* Outlet Selector Dropdown */}
-          <div className="navbar-nav flex-row">
-            <li className="nav-item dropdown me-3">
-              <button
-                className="btn btn-outline-primary dropdown-toggle d-flex align-items-center"
-                type="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                <i className="fas fa-store me-2"></i>
-                {selectedOutlet || 'Select Outlet'}
-              </button>
-              <ul className="dropdown-menu">
-                <li>
-                  <div className="px-3 py-2">
-                    <input
-                      type="text"
-                      className="form-control form-control-sm"
-                      placeholder="Search outlets..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </div>
-                </li>
-                <li><hr className="dropdown-divider" /></li>
-                {outlets.map((outlet) => (
-                  <li key={outlet}>
-                    <a 
-                      className="dropdown-item d-flex align-items-center" 
-                      href="javascript:void(0);"
-                      onClick={() => handleOutletSelect(outlet)}
-                    >
-                      <i className="fas fa-store me-2"></i>
-                      {outlet}
-                    </a>
+          <div
+            className="navbar-nav-right d-flex align-items-center"
+            id="navbar-collapse"
+          >
+            {/* Outlet Selector Dropdown */}
+            <div className="navbar-nav flex-row">
+              <li className="nav-item dropdown me-3">
+                <button
+                  className="btn btn-outline-primary dropdown-toggle d-flex align-items-center"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  <i className="fas fa-store me-2"></i>
+                  {selectedOutlet || "Select Outlet"}
+                </button>
+                <ul className="dropdown-menu">
+                  <li>
+                    <div className="px-3 py-2">
+                      <input
+                        type="text"
+                        className="form-control form-control-sm"
+                        placeholder="Search outlets..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                      />
+                    </div>
                   </li>
-                ))}
-              </ul>
-            </li>
-          </div>
+                  <li>
+                    <hr className="dropdown-divider" />
+                  </li>
+                  {outlets.map((outlet) => (
+                    <li key={outlet}>
+                      <a
+                        className="dropdown-item d-flex align-items-center"
+                        href="javascript:void(0);"
+                        onClick={() => handleOutletSelect(outlet)}
+                      >
+                        <i className="fas fa-store me-2"></i>
+                        {outlet}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            </div>
 
-          {/* Right aligned items */}
-          <ul className="navbar-nav flex-row align-items-center ms-auto">
-            {/* Theme Mode */}
-            {/* <li className="nav-item dropdown-style-switcher dropdown me-3">
+            {/* Right aligned items */}
+            <ul className="navbar-nav flex-row align-items-center ms-auto">
+              {/* Theme Mode */}
+              {/* <li className="nav-item dropdown-style-switcher dropdown me-3">
               <a
                   className="nav-link btn btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow"
                   href="javascript:void(0);"
@@ -196,25 +227,27 @@ function Header() {
                 </ul>
             </li> */}
 
-            {/* User Profile */}
-            <li className="nav-item navbar-dropdown dropdown-user dropdown">
-              <a
-                className="nav-link dropdown-toggle hide-arrow d-flex align-items-center"
-                href="javascript:void(0);"
-                data-bs-toggle="dropdown"
-              >
-                <div className="flex-grow-1 me-3 text-end">
-                      <h6 className="mb-0 small">Rahul</h6>
-                      <small className="text-muted">Admin</small>
-                </div>
-                <div className="avatar ms-2">
-                  <img
-                    src={img}
-                    alt=""
-                    className="w-px-40 h-auto rounded-circle"
-                  />
-                </div>
-              </a>
+              {/* User Profile */}
+              <li className="nav-item navbar-dropdown dropdown-user dropdown">
+                <a
+                  className="nav-link dropdown-toggle hide-arrow d-flex align-items-center"
+                  href="javascript:void(0);"
+                  data-bs-toggle="dropdown"
+                >
+                  <div className="flex-grow-1 me-3 text-end">
+                    <h6 className="mb-0 small">{userName}</h6>
+                    <small className="text-muted">
+                      {storedRole.toUpperCase()}
+                    </small>
+                  </div>
+                  <div className="avatar ms-2">
+                    <img
+                      src={img}
+                      alt=""
+                      className="w-px-40 h-auto rounded-circle"
+                    />
+                  </div>
+                </a>
                 <ul className="dropdown-menu dropdown-menu-end mt-3 py-2">
                   <li>
                     <a
@@ -223,31 +256,33 @@ function Header() {
                     >
                       <div className="d-flex align-items-center">
                         <div className="flex-shrink-0 me-2">
-                        <div className="avatar">
-                          <img
-                              src="../../assets/img/avatars/1.png"
-                            alt=""
-                            className="w-px-40 h-auto rounded-circle"
-                          />
+                          <div className="avatar">
+                            <img
+                              src={img}
+                              alt=""
+                              className="w-px-40 h-auto rounded-circle"
+                            />
+                          </div>
+                        </div>
+                        <div className="flex-grow-1">
+                          <h6 className="mb-0 small">{userName}</h6>
+                          <small className="text-muted">
+                            {storedRole.toUpperCase()}
+                          </small>
                         </div>
                       </div>
-                      <div className="flex-grow-1">
-                          <h6 className="mb-0 small">Rahul S</h6>
-                        <small className="text-muted">Admin</small>
-                      </div>
-                    </div>
-                  </a>
-                </li>
-                <li>
-                  <div className="dropdown-divider" />
-                </li>
-                <li>
+                    </a>
+                  </li>
+                  <li>
+                    <div className="dropdown-divider" />
+                  </li>
+                  <li>
                     <a className="dropdown-item" href="pages-profile-user.html">
                       <i className="far fa-user fa-lg me-2" />
                       <span className="align-middle">My Profile</span>
                     </a>
-                </li>
-                <li>
+                  </li>
+                  <li>
                     <a
                       className="dropdown-item"
                       href="pages-account-settings-account.html"
@@ -255,13 +290,13 @@ function Header() {
                       <i className="fas fa-cog fa-lg me-2" />
                       <span className="align-middle">Settings</span>
                     </a>
-                </li>
-                <li>
+                  </li>
+                  {/* <li>
                     <a
                       className="dropdown-item"
                       href="pages-account-settings-billing.html"
                     >
-                      {/* <span className="d-flex align-items-center align-middle">
+                      <span className="d-flex align-items-center align-middle">
                         <i className="far fa-file-alt fa-lg me-2" />
                         <span className="flex-grow-1 align-middle">
                           Billing
@@ -269,13 +304,13 @@ function Header() {
                         <span className="flex-shrink-0 badge badge-center rounded-pill bg-danger h-px-20 d-flex align-items-center justify-content-center">
                           4
                         </span>
-                      </span> */}
+                      </span>
                     </a>
-                </li>
-                <li>
-                  <div className="dropdown-divider" />
-                </li>
-                
+                  </li> */}
+                  <li>
+                    <div className="dropdown-divider" />
+                  </li>
+
                   <li>
                     <div className="d-grid px-4 pt-2 pb-1">
                       <button
@@ -286,11 +321,11 @@ function Header() {
                         <i className="fas fa-sign-out-alt fa-sm ms-2" />
                       </button>
                     </div>
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </div>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
           {/* Search Small Screens */}
           <div className="navbar-search-wrapper search-input-wrapper container-xxl d-none">
             <input
