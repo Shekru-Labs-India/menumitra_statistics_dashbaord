@@ -281,7 +281,7 @@
     left: 0;
     bottom: 0;
     margin-left: -260px;
-    z-index: 1030;
+    z-index: 9999;
   }
 
   .layout-menu-expanded .layout-menu {
