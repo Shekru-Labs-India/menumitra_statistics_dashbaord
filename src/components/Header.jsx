@@ -199,11 +199,15 @@ function Header() {
             {/* User Profile */}
             <li className="nav-item navbar-dropdown dropdown-user dropdown">
               <a
-                className="nav-link dropdown-toggle hide-arrow"
+                className="nav-link dropdown-toggle hide-arrow d-flex align-items-center"
                 href="javascript:void(0);"
                 data-bs-toggle="dropdown"
               >
-                <div className="avatar">
+                <div className="flex-grow-1 me-3 text-end">
+                      <h6 className="mb-0 small">Rahul</h6>
+                      <small className="text-muted">Admin</small>
+                </div>
+                <div className="avatar ms-2">
                   <img
                     src={img}
                     alt=""
