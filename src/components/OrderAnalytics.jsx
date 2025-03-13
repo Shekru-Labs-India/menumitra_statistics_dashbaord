@@ -40,10 +40,10 @@ const OrderAnalytics = () => {
   };
 
   return (
-    <div className="col-6 order-0 order-sm-4 order-xxl-0">
+    <div className="col-12 col-md-6 col-lg-6 order-0 order-sm-4 order-xxl-0">
       <div className="card">
-        <div className="card-header d-flex align-items-center justify-content-between">
-          <h5 className="card-title m-0 me-2 text-nowrap">Order Analytics</h5>
+        <div className="card-header d-flex justify-content-between align-items-md-center align-items-start">
+          <h5 className="card-title mb-0 text-nowrap">Order Analytics</h5>
           <div className="d-flex align-items-center gap-2">
             <div className="dropdown">
               <button
@@ -91,7 +91,7 @@ const OrderAnalytics = () => {
           <div className="card-body">
             <div className="d-flex flex-column gap-2">
               <label>Select Date Range:</label>
-              <div className="d-flex gap-2">
+              <div className="d-flex flex-column flex-md-row gap-2">
                 <DatePicker
                   selected={startDate}
                   onChange={(date) => setStartDate(date)}
@@ -101,6 +101,7 @@ const OrderAnalytics = () => {
                   maxDate={new Date()}
                   placeholderText="From"
                   className="form-control"
+                  dateFormat="dd MMM yyyy"
                 />
                 <DatePicker
                   selected={endDate}
@@ -112,6 +113,7 @@ const OrderAnalytics = () => {
                   maxDate={new Date()}
                   placeholderText="To"
                   className="form-control"
+                  dateFormat="dd MMM yyyy"
                 />
               </div>
               <button className="btn btn-primary mt-2" onClick={handleCustomDateSelect} disabled={!startDate || !endDate}>
@@ -122,40 +124,53 @@ const OrderAnalytics = () => {
         )}
 
         <div className="card-body">
-          <div className="d-flex align-items-center mb-4 pt-1">
-            <div className="icon-bg bg-primary rounded-circle d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
-              <i className="ri-time-line ri-lg text-white"></i>
+          <div className="row g-4">
+            <div className="col-md-6">
+              <div className="d-flex align-items-center mb-4 pt-1">
+                <div className="icon-bg bg-primary rounded-circle d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
+                  <i className="ri-time-line ri-lg text-white"></i>
+                </div>
+                <div className="ms-4 d-flex flex-column">
+                  <h5 className="mb-0">Avg First Order Time</h5>
+                  <p className="mb-0">{Math.floor(Math.random() * 100)} mins</p>
+                </div>
+              </div>
             </div>
-            <div className="ms-4 d-flex flex-column">
-              <h5 className="mb-0">Avg First Order Time</h5>
-              <p className="mb-0">{Math.floor(Math.random() * 100)} mins</p>
+
+            <div className="col-md-6">
+              <div className="d-flex align-items-center mb-4">
+                <div className="icon-bg bg-success rounded-circle d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
+                  <i className="ri-timer-line ri-lg text-white"></i>
+                </div>
+                <div className="ms-4 d-flex flex-column">
+                  <h5 className="mb-0">Avg Last Order Time</h5>
+                  <p className="mb-0">{Math.floor(Math.random() * 100)} mins</p>
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="d-flex align-items-center mb-4">
-            <div className="icon-bg bg-success rounded-circle d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
-              <i className="ri-timer-line ri-lg text-white"></i>
+
+            <div className="col-md-6">
+              <div className="d-flex align-items-center mb-4 mb-md-0">
+                <div className="icon-bg bg-warning rounded-circle d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
+                  <i className="ri-dashboard-line ri-lg text-white"></i>
+                </div>
+                <div className="ms-4 d-flex flex-column">
+                  <h5 className="mb-0">Avg Order Time</h5>
+                  <p className="mb-0">{Math.floor(Math.random() * 100)} mins</p>
+                </div>
+              </div>
             </div>
-            <div className="ms-4 d-flex flex-column">
-              <h5 className="mb-0">Avg Last Order Time</h5>
-              <p className="mb-0">{Math.floor(Math.random() * 100)} mins</p>
-            </div>
-          </div>
-          <div className="d-flex align-items-center mb-4">
-            <div className="icon-bg bg-warning rounded-circle d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
-              <i className="ri-dashboard-line ri-lg text-white"></i>
-            </div>
-            <div className="ms-4 d-flex flex-column">
-              <h5 className="mb-0">Avg Order Time</h5>
-              <p className="mb-0">{Math.floor(Math.random() * 100)} mins</p>
-            </div>
-          </div>
-          <div className="d-flex align-items-center">
-            <div className="icon-bg bg-danger rounded-circle d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
-              <i className="ri-restaurant-line ri-lg text-white"></i>
-            </div>
-            <div className="ms-4 d-flex flex-column">
-              <h5 className="mb-0">Avg Cooking Time</h5>
-              <p className="mb-0">{Math.floor(Math.random() * 100)} mins</p>
+
+            <div className="col-md-6">
+              <div className="d-flex align-items-center">
+                <div className="icon-bg bg-danger rounded-circle d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
+                  <i className="ri-restaurant-line ri-lg text-white"></i>
+                </div>
+                <div className="ms-4 d-flex flex-column">
+                  <h5 className="mb-0">Avg Cooking Time</h5>
+                  <p className="mb-0">{Math.floor(Math.random() * 100)} mins</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
