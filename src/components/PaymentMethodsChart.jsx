@@ -52,11 +52,10 @@ const handleCustomDateSelect = () => {
   const data = [
     { method: 'Cash', value: Math.floor(Math.random() * 2000) },
     { method: 'Card', value: Math.floor(Math.random() * 2000) },
-    { method: 'Wallet', value: Math.floor(Math.random() * 2000) },
-    { method: 'Due Payment', value: Math.floor(Math.random() * 2000) },
-    { method: 'Other', value: Math.floor(Math.random() * 2000) },
-    { method: 'Online Paid', value: Math.floor(Math.random() * 2000) },
-    { method: 'Online COD', value: Math.floor(Math.random() * 2000) }
+    { method: 'UPI', value: Math.floor(Math.random() * 2000) },
+    { method: 'Complimentary', value: Math.floor(Math.random() * 2000) },
+    
+    
   ];
 
   const total = data.reduce((sum, item) => sum + item.value, 0);
