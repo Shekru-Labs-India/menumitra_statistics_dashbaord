@@ -119,6 +119,7 @@ const OrderAnalytics = () => {
               className={`btn btn-icon p-0 ${loading ? "disabled" : ""}`}
               onClick={handleReload}
               disabled={loading}
+              style={{ border: '1px solid var(--bs-primary)' }}
             >
               <i className={`fas fa-sync-alt ${loading ? "fa-spin" : ""}`}></i>
             </button>
@@ -135,6 +136,7 @@ const OrderAnalytics = () => {
                 alignItems: "center",
                 overflow: "hidden",
                 position: "relative",
+                border: '1px solid #e9ecef'
               }}
               onClick={() => setIsGifPlaying(true)}
               title={

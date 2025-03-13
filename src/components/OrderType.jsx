@@ -144,6 +144,7 @@ const OrderType = () => {
             className={`btn btn-icon p-0 ${loading ? 'disabled' : ''}`}
             onClick={handleReload}
             disabled={loading}
+            style={{ border: '1px solid var(--bs-primary)' }}
           >
             <i className={`fas fa-sync-alt ${loading ? 'fa-spin' : ''}`}></i>
           </button>
@@ -152,14 +153,15 @@ const OrderType = () => {
             type="button"
             className="btn btn-icon btn-sm p-0"
             style={{ 
-                width: '40px', 
-                height: '40px', 
-                borderRadius: '50%', 
-                display: 'flex', 
-                justifyContent: 'center', 
-                alignItems: 'center',
-                overflow: 'hidden',
-                position: 'relative'
+              width: '40px', 
+              height: '40px', 
+              borderRadius: '50%', 
+              display: 'flex', 
+              justifyContent: 'center', 
+              alignItems: 'center',
+              overflow: 'hidden',
+              position: 'relative',
+              border: '1px solid #e9ecef'
             }}
             onClick={() => setIsGifPlaying(true)}
             title={isGifPlaying ? "Animation playing" : "Click to play animation"}

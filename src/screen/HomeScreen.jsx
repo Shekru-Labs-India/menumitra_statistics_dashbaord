@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axios from 'axios';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import VerticalSidebar from "../components/VerticalSidebar";
@@ -22,7 +23,72 @@ function HomeScreen() {
   const [endDate, setEndDate] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isGifPlaying, setIsGifPlaying] = useState(false);
+  const [statistics, setStatistics] = useState({
+    total_orders: 0,
+    average_order_value: 0,
+    customer_count: 0,
+    total_revenue: 0,
+    average_turnover_time: "00:00 - 00:00"
+  });
   
+  // Create axios instance
+  const axiosInstance = axios.create({
+    baseURL: 'https://men4u.xyz',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+  });
+
+  // Add request interceptor to add outlet_id to all requests
+  axiosInstance.interceptors.request.use(
+    (config) => {
+      const outletId = localStorage.getItem('selectedOutletId');
+      if (outletId) {
+        // If it's a GET request with existing params, append to them
+        if (config.method === 'get' && config.params) {
+          config.params = { ...config.params, outlet_id: outletId };
+        } else {
+          // If no params exist, create new params object
+          config.params = { outlet_id: outletId };
+        }
+      }
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
+    }
+  );
+
+  // Add response interceptor for error handling
+  axiosInstance.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error.response) {
+        // Handle specific error cases
+        switch (error.response.status) {
+          case 401:
+            console.error('Unauthorized access');
+            // Handle unauthorized access (e.g., redirect to login)
+            break;
+          case 403:
+            console.error('Forbidden access');
+            break;
+          case 404:
+            console.error('Resource not found');
+            break;
+          default:
+            console.error('Server error:', error.response.data);
+        }
+      } else if (error.request) {
+        console.error('No response received:', error.request);
+      } else {
+        console.error('Error setting up request:', error.message);
+      }
+      return Promise.reject(error);
+    }
+  );
+
   // Simplified effect to handle the animation timing
   useEffect(() => {
     if (isGifPlaying) {
@@ -44,35 +110,68 @@ function HomeScreen() {
     return `${day} ${month} ${year}`;
   };
 
+  useEffect(() => {
+    const outletId = localStorage.getItem('selectedOutletId');
+    if (!outletId) {
+      console.error('No outlet ID found in localStorage');
+      return;
+    }
+    fetchStatistics(dateRange);
+  }, []);
+
+  const fetchStatistics = async (range) => {
+    try {
+      setLoading(true);
+      
+      let params = {};
+      if (range === 'Custom Range' && startDate && endDate) {
+        params = {
+          start_date: startDate.toISOString().split('T')[0],
+          end_date: endDate.toISOString().split('T')[0]
+        };
+      } else {
+        params = { date_range: range };
+      }
+
+      const response = await axiosInstance.get('/outlet_statistics/analytics_reports', { params });
+      
+      if (response.data) {
+        setStatistics(response.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch statistics:', error);
+      // Reset statistics on error
+      setStatistics({
+        total_orders: 0,
+        average_order_value: 0,
+        customer_count: 0,
+        total_revenue: 0,
+        average_turnover_time: "00:00 - 00:00"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleDateRangeChange = (range) => {
     setDateRange(range);
     setShowDatePicker(range === 'Custom Range');
     if (range !== 'Custom Range') {
-        fetchData(range);
+      fetchStatistics(range);
     }
-};
+  };
 
-const handleReload = () => {
-    setLoading(true);
-    fetchData(dateRange);
-    setTimeout(() => setLoading(false), 1000);
-};
+  const handleReload = () => {
+    fetchStatistics(dateRange);
+  };
 
-const fetchData = (range) => {
-    if (range === 'Custom Range' && startDate && endDate) {
-        console.log('Fetching data for custom range:', startDate, endDate);
-    } else {
-        console.log('Fetching data for range:', range);
-    }
-};
-
-const handleCustomDateSelect = () => {
+  const handleCustomDateSelect = () => {
     if (startDate && endDate) {
-        setDateRange(`${formatDate(startDate)} - ${formatDate(endDate)}`);
-        setShowDatePicker(false);
-        fetchData('Custom Range');
+      setDateRange(`${formatDate(startDate)} - ${formatDate(endDate)}`);
+      setShowDatePicker(false);
+      fetchStatistics('Custom Range');
     }
-};
+  };
 
   return (
     <div className="layout-wrapper layout-content-navbar">
@@ -143,6 +242,7 @@ const handleCustomDateSelect = () => {
                           }`}
                           onClick={handleReload}
                           disabled={loading}
+                          style={{ border: '1px solid var(--bs-primary)' }}
                         >
                           <i
                             className={`fas fa-sync-alt ${
@@ -162,6 +262,7 @@ const handleCustomDateSelect = () => {
                             alignItems: "center",
                             overflow: "hidden",
                             position: "relative",
+                            border: '1px solid #e9ecef'
                           }}
                           onClick={() => setIsGifPlaying(true)}
                           title={
@@ -255,7 +356,7 @@ const handleCustomDateSelect = () => {
                                     Totals Orders
                                   </span>
                                   <div className="d-flex align-items-center">
-                                    <h4 className="mb-0 me-2">234</h4>
+                                    <h4 className="mb-0 me-2">{statistics.total_orders}</h4>
                                     <span className="text-success">(+32%)</span>
                                   </div>
                                 </div>
@@ -277,7 +378,7 @@ const handleCustomDateSelect = () => {
                                     Total Revenue
                                   </span>
                                   <div className="d-flex align-items-center">
-                                    <h4 className="mb-0 me-2">₹47600</h4>
+                                    <h4 className="mb-0 me-2">₹{statistics.total_revenue}</h4>
                                     <span className="text-success">(+45%)</span>
                                   </div>
                                 </div>
@@ -299,7 +400,7 @@ const handleCustomDateSelect = () => {
                                     Customers count
                                   </span>
                                   <div className="d-flex align-items-center">
-                                    <h4 className="mb-0 me-2">123</h4>
+                                    <h4 className="mb-0 me-2">{statistics.customer_count}</h4>
                                     <span className="text-success">(+13%)</span>
                                   </div>
                                 </div>
@@ -321,7 +422,7 @@ const handleCustomDateSelect = () => {
                                     Average Order Value
                                   </span>
                                   <div className="d-flex align-items-center">
-                                    <h4 className="mb-0 me-2">₹145</h4>
+                                    <h4 className="mb-0 me-2">₹{statistics.average_order_value.toFixed(2)}</h4>
                                     <span className="text-success">(+10%)</span>
                                   </div>
                                 </div>
@@ -343,7 +444,7 @@ const handleCustomDateSelect = () => {
                                     Table Turnover
                                   </span>
                                   <div className="d-flex align-items-center">
-                                    <h4 className="mb-0 me-2">10 min</h4>
+                                    <h4 className="mb-0 me-2">{statistics.average_turnover_time}</h4>
                                     <span className="text-success">(+10%)</span>
                                   </div>
                                 </div>
