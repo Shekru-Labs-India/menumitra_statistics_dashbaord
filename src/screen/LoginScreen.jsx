@@ -160,6 +160,7 @@ function LoginScreen() {
   };
 
   const handleResendOtp = async () => {
+    setOtp(['', '', '', '']);
     setIsLoading(true);
     setError('');
     
@@ -270,21 +271,8 @@ function LoginScreen() {
                     <span> Create an account</span>
                   </a>
                 </p> */}
-                <div className="d-flex justify-content-center gap-2">
-                  {menuMitraSocialLinks.map((social) => (
-                    <a
-                      key={social.name}
-                      href={social.url}
-                      className={`btn btn-icon btn-lg rounded-pill ${social.btnClass} waves-effect waves-light`}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <i className={social.icon} />
-                    </a>
-                  ))}
-                </div>
 
-                <div className="mt-4 text-center">
+                <div className="text-center">
                   <p className="text-muted mb-0">
                     <small>
                       <span>
@@ -305,6 +293,19 @@ function LoginScreen() {
                       {/* <span className="text-muted">version {menuMitraCompanyInfo.version}</span> */}
                     </small>
                   </p>
+                </div>
+                <div className="mt-4 d-flex justify-content-center gap-2">
+                  {menuMitraSocialLinks.map((social) => (
+                    <a
+                      key={social.name}
+                      href={social.url}
+                      className={`btn btn-outline-secondary btn-icon btn-lg rounded-pill ${social.btnClass} waves-effect waves-light`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <i className={social.icon} />
+                    </a>
+                  ))}
                 </div>
               </>
             ) : (
@@ -391,21 +392,7 @@ function LoginScreen() {
                   </button>
                 </div>
 
-                <div className="d-flex justify-content-center gap-2">
-                  {menuMitraSocialLinks.map((social) => (
-                    <a
-                      key={social.name}
-                      href={social.url}
-                      className={`btn btn-icon btn-lg rounded-pill ${social.btnClass} waves-effect waves-light`}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <i className={social.icon} />
-                    </a>
-                  ))}
-                </div>
-
-                <div className="mt-4 text-center">
+                <div className="text-center">
                   <p className="text-muted mb-0">
                     <small>
                       <span>
@@ -426,6 +413,19 @@ function LoginScreen() {
                       {/* <span className="text-muted">version {menuMitraCompanyInfo.version}</span> */}
                     </small>
                   </p>
+                </div>
+                <div className="mt-4 d-flex justify-content-center gap-2">
+                  {menuMitraSocialLinks.map((social) => (
+                    <a
+                      key={social.name}
+                      href={social.url}
+                      className={`btn btn-outline-secondary btn-icon btn-lg rounded-pill ${social.btnClass} waves-effect waves-light`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <i className={social.icon} />
+                    </a>
+                  ))}
                 </div>
               </>
             )}
