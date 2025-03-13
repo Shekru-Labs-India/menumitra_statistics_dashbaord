@@ -252,7 +252,7 @@ const handleCustomDateSelect = () => {
                               <div className="d-flex align-items-start justify-content-between">
                                 <div className="content-left">
                                   <span className="fw-medium d-block mb-1">
-                                    Totals Orders
+                                    Total Orders
                                   </span>
                                   <div className="d-flex align-items-center">
                                     <h4 className="mb-0 me-2">234</h4>

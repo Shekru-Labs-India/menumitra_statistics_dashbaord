@@ -22,13 +22,7 @@ const Footer = () => {
           >
             Shekru Labs
           </a>
-          <a
-            href="https://themeselection.com/support/"
-            target="_blank"
-            className="footer-link"
-          >
-            Support
-          </a>
+         
         </div>
         <div className="d-none d-lg-inline-block">
           <a

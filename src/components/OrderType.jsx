@@ -14,32 +14,32 @@ const orderTypes = [
     name: "Dine In", 
     icon: "fas fa-utensils",
     count: 156,
-    trend: "+12.5%",
-    trendUp: true,
+    // trend: "+12.5%",
+    // trendUp: true,
     color: "primary"
   },
   { 
     name: "Drive Through", 
     icon: "fas fa-car",
     count: 89,
-    trend: "+8.2%",
-    trendUp: true,
+     // trend: "+8.2%",
+    // trendUp: true,
     color: "info"
   },
   { 
     name: "Parcel", 
     icon: "fas fa-box",
     count: 124,
-    trend: "-3.1%",
-    trendUp: false,
+    // trend: "-3.1%",
+    // trendUp: false,
     color: "success"
   },
   { 
     name: "Delivery", 
     icon: "fas fa-globe",
     count: 245,
-    trend: "+15.7%",
-    trendUp: true,
+    //  trend: "+15.7%",
+    // trendUp: true,
     color: "warning"
   },
   
@@ -245,7 +245,7 @@ const OrderType = () => {
                   <div className="d-flex align-items-center mt-3">
                     <h4 className="mb-0 me-2">{order.count}</h4>
                     <small className={`${order.trendUp ? 'text-success' : 'text-danger'} fw-semibold`}>
-                      <i className={`fas fa-arrow-${order.trendUp ? 'up' : 'down'}`}></i>
+                      {/* <i className={`fas fa-arrow-${order.trendUp ? 'up' : 'down'}`}></i> */}
                       {order.trend}
                     </small>
                   </div>
