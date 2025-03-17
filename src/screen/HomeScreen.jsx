@@ -113,11 +113,15 @@ function HomeScreen() {
 
   useEffect(() => {
     const outletId = localStorage.getItem('outlet_id');
-    if (!outletId) {
+    console.log('Outlet ID from localStorage:', outletId);
+    
+    if (outletId) {
+      console.log('Fetching statistics for outlet ID:', outletId);
+      fetchStatistics(dateRange);
+    } else {
       console.error('No outlet ID found in localStorage');
-      return;
+      setError('Please select an outlet first to view statistics.');
     }
-    fetchStatistics(dateRange);
   }, []);
 
   const fetchStatistics = async (range) => {
@@ -135,11 +139,35 @@ function HomeScreen() {
         requestData = { date_range: range };
       }
 
+      // Add outlet_id explicitly to the request data
+      const outletId = localStorage.getItem('outlet_id');
+      requestData.outlet_id = outletId;
+
+      console.log('Sending request with data:', requestData);
+      console.log('API endpoint:', apiEndpoint + 'analytics_reports');
+
       // Use POST method instead of GET
       const response = await axiosInstance.post('analytics_reports', requestData);
       
+      console.log('API Response:', response.data);
+      
       if (response.data) {
-        setStatistics(response.data);
+        // Update statistics state with the received data
+        setStatistics({
+          total_orders: response.data.total_orders || 0,
+          average_order_value: response.data.average_order_value || 0,
+          customer_count: response.data.customer_count || 0,
+          total_revenue: response.data.total_revenue || 0,
+          average_turnover_time: response.data.average_turnover_time || "00:00 - 00:00"
+        });
+        
+        console.log('Updated statistics state:', {
+          total_orders: response.data.total_orders || 0,
+          average_order_value: response.data.average_order_value || 0,
+          customer_count: response.data.customer_count || 0,
+          total_revenue: response.data.total_revenue || 0,
+          average_turnover_time: response.data.average_turnover_time || "00:00 - 00:00"
+        });
       }
     } catch (error) {
       console.error('Failed to fetch statistics:', error);
