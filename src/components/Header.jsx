@@ -163,23 +163,25 @@ function Header() {
                   {outlets.map((outlet) => (
                     <li key={outlet.name}>
                       <a
-                        className="dropdown-item d-flex align-items-center"
+                        className="dropdown-item d-flex align-items-center justify-content-between"
                         href="javascript:void(0);"
                         onClick={() => handleOutletSelect(outlet.name)}
                       >
-                        <i className="fas fa-store me-2"></i>
-                        <b>{outlet.name}</b>
-
-                        <div className="text-end">
-                          <span class="mx-2 badge bg-label-primary rounded-pill">
+                        <div className="d-flex align-items-center me-4">
+                          <i className="fas fa-store me-2"></i>
+                          <b>{outlet.name}</b>
+                        </div>
+                        
+                        <div className="ms-auto d-flex align-items-center">
+                          <span className="mx-1 badge bg-label-primary rounded-pill">
                             {outlet.location}
                           </span>
                           {outlet.status === "open" ? (
-                            <span className="mx-2 badge bg-label-success rounded-pill">
+                            <span className="mx-1 badge bg-label-success rounded-pill">
                               Open
                             </span>
                           ) : (
-                            <span className="mx-2 badge bg-label-danger rounded-pill">
+                            <span className="mx-1 badge bg-label-danger rounded-pill">
                               Closed
                             </span>
                           )}
