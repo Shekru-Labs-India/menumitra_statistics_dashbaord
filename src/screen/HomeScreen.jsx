@@ -16,7 +16,9 @@ import Footer from "../components/Footer";
 import aiAnimationGif from '../assets/img/gif/AI-animation-unscreen.gif';
 import aiAnimationStillFrame from '../assets/img/gif/AI-animation-unscreen-still-frame.gif';
 import { apiEndpoint } from '../config/menuMitraConfig';
-
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
+import { useNavigate } from 'react-router-dom';
 function HomeScreen() {
   const [dateRange, setDateRange] = useState('Today');
   const [loading, setLoading] = useState(false);
@@ -32,7 +34,7 @@ function HomeScreen() {
     total_revenue: 0,
     average_turnover_time: "00:00 - 00:00"
   });
-  
+  const navigate = useNavigate();
   // Create axios instance
   const axiosInstance = axios.create({
     baseURL: apiEndpoint,
@@ -120,7 +122,7 @@ function HomeScreen() {
       fetchStatistics(dateRange);
     } else {
       console.error('No outlet ID found in localStorage');
-      setError('Please select an outlet first to view statistics.');
+      return;
     }
   }, []);
 
@@ -204,6 +206,72 @@ function HomeScreen() {
       fetchStatistics('Custom Range');
     }
   };
+
+  // Skeleton card component
+  const StatCardSkeleton = ({ color }) => {
+    // Define color mapping for different variants
+    const colorMap = {
+      primary: { base: '#cfe2ff', highlight: '#9ec5fe' },
+      success: { base: '#d1e7dd', highlight: '#a3cfbb' },
+      warning: { base: '#fff3cd', highlight: '#ffe69c' },
+      info: { base: '#cff4fc', highlight: '#9eeaf9' },
+      danger: { base: '#f8d7da', highlight: '#f1aeb5' }
+    };
+
+    const selectedColor = colorMap[color] || colorMap.primary;
+
+    return (
+      <div className="col-md-6 col-lg-3">
+        <div className="card h-100">
+          <div className="card-body">
+            <div className="d-flex align-items-start justify-content-between">
+              <div className="content-left" style={{ flex: 1 }}>
+                <Skeleton width={120} height={20} className="mb-2" />
+                <div className="d-flex align-items-center">
+                  <Skeleton width={80} height={28} className="me-2" />
+                  <Skeleton width={40} height={20}  />
+                </div>
+              </div>
+              <div className="avatar">
+                <Skeleton 
+                  width={38} 
+                  height={38} 
+                  baseColor={selectedColor.base}
+                  highlightColor={selectedColor.highlight}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Stats card component
+  const StatCard = ({ title, value, icon, color, percentage }) => (
+    <div className="col-md-6 col-lg-3">
+      <div className="card h-100">
+        <div className="card-body">
+          <div className="d-flex align-items-start justify-content-between">
+            <div className="content-left">
+              <span className="fw-medium d-block mb-1">
+                {title}
+              </span>
+              <div className="d-flex align-items-center">
+                <h4 className="mb-0 me-2">{value}</h4>
+                <span className="text-success">({percentage})</span>
+              </div>
+            </div>
+            <div className="avatar">
+              <span className={`avatar-initial rounded bg-label-${color}`}>
+                <i className={icon}></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="layout-wrapper layout-content-navbar">
@@ -384,116 +452,53 @@ function HomeScreen() {
                       </p>
                       {/* Stats Cards */}
                       <div className="row g-4">
-                        <div className="col-md-6 col-lg-3">
-                          <div className="card h-100">
-                            <div className="card-body">
-                              <div className="d-flex align-items-start justify-content-between">
-                                <div className="content-left">
-                                  <span className="fw-medium d-block mb-1">
-                                    Totals Orders
-                                  </span>
-                                  <div className="d-flex align-items-center">
-                                    <h4 className="mb-0 me-2">{statistics.total_orders}</h4>
-                                    <span className="text-success">(+32%)</span>
-                                  </div>
-                                </div>
-                                <div className="avatar">
-                                  <span className="avatar-initial rounded bg-label-primary">
-                                    <i className="fas fa-shopping-cart"></i>
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col-md-6 col-lg-3">
-                          <div className="card h-100">
-                            <div className="card-body">
-                              <div className="d-flex align-items-start justify-content-between">
-                                <div className="content-left">
-                                  <span className="fw-medium d-block mb-1">
-                                    Total Revenue
-                                  </span>
-                                  <div className="d-flex align-items-center">
-                                    <h4 className="mb-0 me-2">₹{statistics.total_revenue}</h4>
-                                    <span className="text-success">(+45%)</span>
-                                  </div>
-                                </div>
-                                <div className="avatar">
-                                  <span className="avatar-initial rounded bg-label-success">
-                                    <i className="fas fa-rupee-sign"></i>
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col-md-6 col-lg-3">
-                          <div className="card h-100">
-                            <div className="card-body">
-                              <div className="d-flex align-items-start justify-content-between">
-                                <div className="content-left">
-                                  <span className="fw-medium d-block mb-1">
-                                    Customers count
-                                  </span>
-                                  <div className="d-flex align-items-center">
-                                    <h4 className="mb-0 me-2">{statistics.customer_count}</h4>
-                                    <span className="text-success">(+13%)</span>
-                                  </div>
-                                </div>
-                                <div className="avatar">
-                                  <span className="avatar-initial rounded bg-label-warning">
-                                    <i className="fas fa-users"></i>
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col-md-6 col-lg-3">
-                          <div className="card h-100">
-                            <div className="card-body">
-                              <div className="d-flex align-items-start justify-content-between">
-                                <div className="content-left">
-                                  <span className="fw-medium d-block mb-1">
-                                    Average Order Value
-                                  </span>
-                                  <div className="d-flex align-items-center">
-                                    <h4 className="mb-0 me-2">₹{statistics.average_order_value.toFixed(2)}</h4>
-                                    <span className="text-success">(+10%)</span>
-                                  </div>
-                                </div>
-                                <div className="avatar">
-                                  <span className="avatar-initial rounded bg-label-info">
-                                    <i className="fas fa-chart-line"></i>
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col-md-6 col-lg-3">
-                          <div className="card h-100">
-                            <div className="card-body">
-                              <div className="d-flex align-items-start justify-content-between">
-                                <div className="content-left">
-                                  <span className="fw-medium d-block mb-1">
-                                    Table Turnover
-                                  </span>
-                                  <div className="d-flex align-items-center">
-                                    <h4 className="mb-0 me-2">{statistics.average_turnover_time}</h4>
-                                    <span className="text-success">(+10%)</span>
-                                  </div>
-                                </div>
-                                <div className="avatar">
-                                  <span className="avatar-initial rounded bg-label-danger">
-                                    <i className="fas fa-chair"></i>
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+                        {loading ? (
+                          <>
+                            <StatCardSkeleton color="primary" />
+                            <StatCardSkeleton color="success" />
+                            <StatCardSkeleton color="warning" />
+                            <StatCardSkeleton color="info" />
+                            <StatCardSkeleton color="danger" />
+                          </>
+                        ) : (
+                          <>
+                            <StatCard
+                              title="Total Orders"
+                              value={statistics.total_orders}
+                              icon="fas fa-shopping-cart"
+                              color="primary"
+                              percentage="+32%"
+                            />
+                            <StatCard
+                              title="Total Revenue"
+                              value={`₹${statistics.total_revenue}`}
+                              icon="fas fa-rupee-sign"
+                              color="success"
+                              percentage="+45%"
+                            />
+                            <StatCard
+                              title="Customers count"
+                              value={statistics.customer_count}
+                              icon="fas fa-users"
+                              color="warning"
+                              percentage="+13%"
+                            />
+                            <StatCard
+                              title="Average Order Value"
+                              value={`₹${statistics.average_order_value.toFixed(2)}`}
+                              icon="fas fa-chart-line"
+                              color="info"
+                              percentage="+10%"
+                            />
+                            <StatCard
+                              title="Table Turnover"
+                              value={statistics.average_turnover_time}
+                              icon="fas fa-chair"
+                              color="danger"
+                              percentage="+10%"
+                            />
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
