@@ -100,32 +100,13 @@ function LoginScreen() {
       if (response.status === 200) {
         console.log('Verification Response:', response.data);
         
-        // Extract data from response
-        const { outlet_id, owner_id, role } = response.data;
-        
-        // Extract user_id and user_name from owner_id string if it contains that format
-        let userId = '';
-        let userName = '';
-        
-        if (owner_id && typeof owner_id === 'string') {
-          // Parse "User Id: 2 | User name: Heenaaaa" format
-          const userIdMatch = owner_id.match(/User Id: (\d+)/);
-          const userNameMatch = owner_id.match(/User name: ([^|]+)$/);
-          
-          if (userIdMatch && userIdMatch[1]) {
-            userId = userIdMatch[1];
-          }
-          
-          if (userNameMatch && userNameMatch[1]) {
-            userName = userNameMatch[1].trim();
-          }
-        }
+        // Extract data from response based on updated API format
+        const { user_id, name, outlet_id, role } = response.data;
         
         // Store data in localStorage
         localStorage.setItem('outlet_id', outlet_id);
-        localStorage.setItem('user_id', userId);
-        localStorage.setItem('user_name', userName);
-        localStorage.setItem('owner_id', owner_id);
+        localStorage.setItem('user_id', user_id);
+        localStorage.setItem('user_name', name);
         localStorage.setItem('mobile_number', mobileNumber);
         localStorage.setItem('role', role || "owner");
         
