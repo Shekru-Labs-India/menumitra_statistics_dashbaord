@@ -20,7 +20,7 @@ const Footer = () => {
             target="_blank"
             className="footer-link"
           >
-            Shekru Labs
+            Shekru Labs India Pvt. Ltd.
           </a>
          
         </div>

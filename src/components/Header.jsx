@@ -277,9 +277,18 @@ function Header() {
                     <div className="dropdown-divider" />
                   </li>
                   <li>
-                    <a className="dropdown-item" href="pages-profile-user.html">
+                    <Link className="dropdown-item" to="/profile">
                       <i className="far fa-user fa-lg me-2" />
                       <span className="align-middle">My Profile</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <a
+                      className="dropdown-item"
+                      href="pages-account-settings-account.html"
+                    >
+                      <i className="fas fa-tasks fa-lg me-2" />
+                      <span className="align-middle">My activity</span>
                     </a>
                   </li>
                   <li>
