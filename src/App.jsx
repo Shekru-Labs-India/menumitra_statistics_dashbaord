@@ -6,6 +6,7 @@ import "./assets/css/theme-default.css";
 import "./assets/css/menu.css";
 import HomeScreen from './screen/HomeScreen'
 import LoginScreen from './screen/LoginScreen'
+import MyProfile from './screen/MyProfile'
 
 import Header from './components/Header'
 import TopSell from './components/TopSell';
@@ -23,6 +24,7 @@ function App() {
             
             {/* Protected routes */}
             <Route path="/dashboard" element={<HomeScreen />} />
+            <Route path="/profile" element={<MyProfile />} />
             
             {/* Default redirect to login */}
             <Route path="/" element={<Navigate to="/login" replace />} />

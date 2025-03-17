@@ -19,6 +19,7 @@ import { apiEndpoint } from '../config/menuMitraConfig';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { useNavigate } from 'react-router-dom';
+import PaymentMethodCount from "../components/PaymentMethodCount";
 function HomeScreen() {
   const [dateRange, setDateRange] = useState('Today');
   const [loading, setLoading] = useState(false);
@@ -592,11 +593,17 @@ function HomeScreen() {
                     <PaymentMethodsChart />
                   </div>
                 </div>
-                <div className="col-12 col-md-6 col-lg-6">
+                {/* <div className="col-12 col-md-6 col-lg-6">
                   <div className="h-100">
                     <RevenueLossWidget />
                   </div>
+                </div> */}
+                      <div className="col-12 col-md-6 col-lg-6">
+                  <div className="h-100">
+                    <OrderStat />
+                  </div>
                 </div>
+
               </div>
 
               {/* Sales Section */}
@@ -608,23 +615,20 @@ function HomeScreen() {
                 </div>
                 <div className="col-12 col-md-6 col-lg-6">
                   <div className="h-100">
-                    <OrderStat />
+                    <FoodTypeGraph />
                   </div>
                 </div>
               </div>
 
               {/* Analytics Section */}
               <div className="row g-4">
-                <div className="col-12 col-md-6 col-lg-6">
-                  <div className="h-100">
-                    <FoodTypeGraph />
-                  </div>
-                </div>
+               
                 <div className="col-12 col-md-6 col-lg-6">
                   <div className="h-100">
                     <OrderType />
                   </div>
                 </div>
+                
                 <div className="row mt-4">
                   <OrderAnalytics />
                 </div>

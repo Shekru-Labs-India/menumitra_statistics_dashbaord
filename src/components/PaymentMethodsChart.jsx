@@ -66,10 +66,10 @@ const handleCustomDateSelect = () => {
 };
 
   const data = [
-    { method: 'Cash', value: Math.floor(Math.random() * 2000) },
-    { method: 'Card', value: Math.floor(Math.random() * 2000) },
-    { method: 'UPI', value: Math.floor(Math.random() * 2000) },
-    { method: 'Complimentary', value: Math.floor(Math.random() * 2000) },
+    { method: 'Cash', value: Math.floor(Math.random() * 2000), count: Math.floor(Math.random() * 50) },
+    { method: 'Card', value: Math.floor(Math.random() * 2000), count: Math.floor(Math.random() * 50) },
+    { method: 'UPI', value: Math.floor(Math.random() * 2000), count: Math.floor(Math.random() * 50) },
+    { method: 'Complimentary', value: Math.floor(Math.random() * 2000), count: Math.floor(Math.random() * 50) },
     
     
   ];
@@ -231,8 +231,9 @@ const handleCustomDateSelect = () => {
                   ></div>
                 </div>
               </div>
-              <div className="payment-amount" style={{ width: '80px', textAlign: 'right', color: '#433c50' }}>
-                ₹{item.value}
+              <div className="payment-amount" style={{ width: '120px', textAlign: 'right', color: '#433c50' }}>
+                <div>₹{item.value}</div>
+                <div className="text-muted small">{item.count} orders</div>
               </div>
             </div>
           ))}
