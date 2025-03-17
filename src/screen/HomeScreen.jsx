@@ -44,6 +44,13 @@ function HomeScreen() {
     }
   });
 
+  useEffect(() => {
+    const outletId = localStorage.getItem('outlet_id');
+    if (!outletId) {
+      navigate('/login');
+    }
+  }, []);
+
   // Add request interceptor
   axiosInstance.interceptors.request.use(
     (config) => {

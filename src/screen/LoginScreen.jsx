@@ -21,6 +21,17 @@ function LoginScreen() {
   const [error, setError] = useState(''); // Add error state
   const navigate = useNavigate();
 
+  useEffect(() => {
+  localStorage.removeItem('outlet_id');
+  localStorage.removeItem('user_id');
+  localStorage.removeItem('user_name');
+  localStorage.removeItem('mobile_number');
+  localStorage.removeItem('role');
+  
+  }, []);
+
+
+
   // Start countdown timer when OTP form is shown
   useEffect(() => {
     let timer;
