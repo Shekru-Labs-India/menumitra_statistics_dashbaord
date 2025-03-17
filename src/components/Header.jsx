@@ -96,7 +96,7 @@ function Header() {
   const outlets = [
     'Pune',
     'Mumbai',
-    'Delhi Mejwani asdsa asfasf asdasfas fsa asfasf saf saf as',
+    'Delhi',
     'Chennai',
     'Goa'
   ];
@@ -169,6 +169,15 @@ function Header() {
                       >
                         <i className="fas fa-store me-2"></i>
                         {outlet}
+                        <span class="mx-2 badge bg-label-primary rounded-pill">
+                          Swargate
+                        </span>
+                        <span class="mx-2 badge bg-label-success rounded-pill">
+                          Open
+                        </span>
+                        <span class="mx-2 badge bg-label-danger rounded-pill">
+                          Closed
+                        </span>
                       </a>
                     </li>
                   ))}
