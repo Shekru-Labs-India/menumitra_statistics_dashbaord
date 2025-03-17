@@ -253,8 +253,14 @@ function HomeScreen() {
 
   const handleDateRangeChange = (range) => {
     setDateRange(range);
-    setShowDatePicker(range === 'Custom Range');
-    if (range !== 'Custom Range') {
+    
+    if (range === 'Custom Range') {
+      // Reset date selections when opening custom date picker
+      setStartDate(null);
+      setEndDate(null);
+      setShowDatePicker(true);
+    } else {
+      setShowDatePicker(false);
       fetchStatistics(range);
     }
   };
