@@ -27,7 +27,7 @@ function LoginScreen() {
   localStorage.removeItem('user_name');
   localStorage.removeItem('mobile_number');
   localStorage.removeItem('role');
-  
+
   }, []);
 
 
@@ -112,7 +112,7 @@ function LoginScreen() {
         console.log('Verification Response:', response.data);
         
         // Extract data from response based on updated API format
-        const { user_id, name, outlet_id, role } = response.data;
+        const { user_id, name, outlet_id, role, refresh, access } = response.data;
         
         // Store data in localStorage
         localStorage.setItem('outlet_id', outlet_id);
@@ -120,6 +120,8 @@ function LoginScreen() {
         localStorage.setItem('user_name', name);
         localStorage.setItem('mobile_number', mobileNumber);
         localStorage.setItem('role', role || "owner");
+        localStorage.setItem('refresh', refresh);
+        localStorage.setItem('access', access);
         
         // Navigate to dashboard after a small delay for better UX
         setTimeout(() => {
