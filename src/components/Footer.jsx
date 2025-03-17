@@ -16,7 +16,7 @@ const Footer = () => {
           </span>{" "}
           by{" "}
           <a
-            href="https://themeselection.com"
+            href="https://shekruweb.com/"
             target="_blank"
             className="footer-link"
           >

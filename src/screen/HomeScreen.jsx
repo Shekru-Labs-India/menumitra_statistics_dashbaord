@@ -119,36 +119,42 @@ function HomeScreen() {
     
     if (outletId) {
       console.log('Fetching statistics for outlet ID:', outletId);
-      fetchStatistics(dateRange);
+      // Set default dates for all-time data
+      const today = new Date();
+      const oldDate = new Date(2000, 0, 1); // January 1, 2000
+      
+      setStartDate(oldDate);
+      setEndDate(today);
+      setDateRange("All Time"); // Just for display purposes
+      
+      // Custom fetch for initial load with all time data
+      fetchAllTimeStatistics(outletId);
     } else {
       console.error('No outlet ID found in localStorage');
       return;
     }
   }, []);
 
-  const fetchStatistics = async (range) => {
+  // Function to fetch all-time statistics at initial load
+  const fetchAllTimeStatistics = async (outletId) => {
     try {
       setLoading(true);
       setError('');
       
-      let requestData = {};
-      if (range === 'Custom Range' && startDate && endDate) {
-        requestData = {
-          start_date: startDate.toISOString().split('T')[0],
-          end_date: endDate.toISOString().split('T')[0]
-        };
-      } else if (range !== 'Custom Range') {
-        requestData = { date_range: range };
-      }
+      // For all-time data, set a very old start date and today as end date
+      const today = new Date();
+      const oldDate = new Date(2000, 0, 1); // January 1, 2000
+      
+      const requestData = {
+        start_date: oldDate.toISOString().split('T')[0],
+        end_date: today.toISOString().split('T')[0],
+        outlet_id: outletId
+      };
 
-      // Add outlet_id explicitly to the request data
-      const outletId = localStorage.getItem('outlet_id');
-      requestData.outlet_id = outletId;
-
-      console.log('Sending request with data:', requestData);
+      console.log('Sending initial request with data:', requestData);
       console.log('API endpoint:', apiEndpoint + 'analytics_reports');
 
-      // Use POST method instead of GET
+      // Use POST method
       const response = await axiosInstance.post('analytics_reports', requestData);
       
       console.log('API Response:', response.data);
@@ -162,8 +168,66 @@ function HomeScreen() {
           total_revenue: response.data.total_revenue || 0,
           average_turnover_time: response.data.average_turnover_time || "00:00 - 00:00"
         });
+      }
+    } catch (error) {
+      console.error('Failed to fetch statistics:', error);
+      setError(error.response?.data?.message || 'Failed to fetch statistics. Please try again.');
+      // Reset statistics on error
+      setStatistics({
+        total_orders: 0,
+        average_order_value: 0,
+        customer_count: 0,
+        total_revenue: 0,
+        average_turnover_time: "00:00 - 00:00"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Function for fetching statistics with date range filters
+  const fetchStatistics = async (range) => {
+    try {
+      setLoading(true);
+      setError('');
+      
+      let requestData = {};
+      if (range === 'Custom Range' && startDate && endDate) {
+        requestData = {
+          start_date: startDate.toISOString().split('T')[0],
+          end_date: endDate.toISOString().split('T')[0]
+        };
+      } else if (range !== 'Custom Range') {
+        requestData = { date_range: range };
+      } else {
+        // If Custom Range but no dates selected, default to last 30 days
+        const today = new Date();
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(today.getDate() - 30);
         
-        console.log('Updated statistics state:', {
+        requestData = {
+          start_date: thirtyDaysAgo.toISOString().split('T')[0],
+          end_date: today.toISOString().split('T')[0],
+          date_range: 'Last 30 Days'
+        };
+        // Update the displayed date range
+        setDateRange('Last 30 Days');
+      }
+      // Add outlet_id explicitly to the request data
+      const outletId = localStorage.getItem('outlet_id');
+      requestData.outlet_id = outletId;
+
+      console.log('Sending request with data:', requestData);
+      console.log('API endpoint:', apiEndpoint + 'analytics_reports');
+
+      // Use POST method
+      const response = await axiosInstance.post('analytics_reports', requestData);
+      
+      console.log('API Response:', response.data);
+      
+      if (response.data) {
+        // Update statistics state with the received data
+        setStatistics({
           total_orders: response.data.total_orders || 0,
           average_order_value: response.data.average_order_value || 0,
           customer_count: response.data.customer_count || 0,
@@ -204,6 +268,9 @@ function HomeScreen() {
       setDateRange(`${formatDate(startDate)} - ${formatDate(endDate)}`);
       setShowDatePicker(false);
       fetchStatistics('Custom Range');
+    } else {
+      // Show error message if dates are not selected
+      setError('Please select both start and end dates.');
     }
   };
 
