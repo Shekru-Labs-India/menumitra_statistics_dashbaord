@@ -92,13 +92,13 @@ function Header() {
     }
   };
 
-  // Update outlet names
+  // Update the outlets array to include location and status information
   const outlets = [
-    'Pune',
-    'Mumbai',
-    'Delhi',
-    'Chennai',
-    'Goa'
+    { name: 'Pune', location: 'Swargate', status: 'open' },
+    { name: 'Mumbai', location: 'Andheri', status: 'open' },
+    { name: 'Delhi', location: 'Connaught Place', status: 'closed' },
+    { name: 'Chennai', location: 'T Nagar', status: 'open' },
+    { name: 'Goa', location: 'Panjim', status: 'closed' }
   ];
 
   // Utility function to truncate text
@@ -161,23 +161,29 @@ function Header() {
                     <hr className="dropdown-divider" />
                   </li>
                   {outlets.map((outlet) => (
-                    <li key={outlet}>
+                    <li key={outlet.name}>
                       <a
                         className="dropdown-item d-flex align-items-center"
                         href="javascript:void(0);"
-                        onClick={() => handleOutletSelect(outlet)}
+                        onClick={() => handleOutletSelect(outlet.name)}
                       >
                         <i className="fas fa-store me-2"></i>
-                        {outlet}
-                        <span class="mx-2 badge bg-label-primary rounded-pill">
-                          Swargate
-                        </span>
-                        <span class="mx-2 badge bg-label-success rounded-pill">
-                          Open
-                        </span>
-                        <span class="mx-2 badge bg-label-danger rounded-pill">
-                          Closed
-                        </span>
+                        <b>{outlet.name}</b>
+
+                        <div className="text-end">
+                          <span class="mx-2 badge bg-label-primary rounded-pill">
+                            {outlet.location}
+                          </span>
+                          {outlet.status === "open" ? (
+                            <span className="mx-2 badge bg-label-success rounded-pill">
+                              Open
+                            </span>
+                          ) : (
+                            <span className="mx-2 badge bg-label-danger rounded-pill">
+                              Closed
+                            </span>
+                          )}
+                        </div>
                       </a>
                     </li>
                   ))}

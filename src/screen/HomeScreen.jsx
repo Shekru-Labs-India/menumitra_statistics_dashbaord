@@ -556,13 +556,13 @@ function HomeScreen() {
                               color="success"
                               percentage="+45%"
                             />
-                            <StatCard
+                            {/* <StatCard
                               title="Customers count"
                               value={statistics.customer_count}
                               icon="fas fa-users"
                               color="warning"
                               percentage="+13%"
-                            />
+                            /> */}
                             <StatCard
                               title="Average Order Value"
                               value={`₹${statistics.average_order_value.toFixed(2)}`}
