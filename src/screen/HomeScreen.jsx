@@ -20,6 +20,7 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { useNavigate } from 'react-router-dom';
 import PaymentMethodCount from "../components/PaymentMethodCount";
+import WeeklyOrderStat from "../components/WeeklyOrderStat";
 function HomeScreen() {
   const [dateRange, setDateRange] = useState('Today');
   const [loading, setLoading] = useState(false);
@@ -626,6 +627,11 @@ function HomeScreen() {
                 <div className="col-12 col-md-6 col-lg-6">
                   <div className="h-100">
                     <OrderType />
+                  </div>
+                </div>
+                <div className="col-12 col-md-6 col-lg-6">
+                  <div className="h-100">
+                    <WeeklyOrderStat/>
                   </div>
                 </div>
                 
