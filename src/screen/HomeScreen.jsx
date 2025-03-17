@@ -19,6 +19,7 @@ import { apiEndpoint } from '../config/menuMitraConfig';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { useNavigate } from 'react-router-dom';
+import PaymentMethodCount from "../components/PaymentMethodCount";
 function HomeScreen() {
   const [dateRange, setDateRange] = useState('Today');
   const [loading, setLoading] = useState(false);
@@ -43,6 +44,13 @@ function HomeScreen() {
       'Accept': 'application/json'
     }
   });
+
+  useEffect(() => {
+    const outletId = localStorage.getItem('outlet_id');
+    if (!outletId) {
+      navigate('/login');
+    }
+  }, []);
 
   // Add request interceptor
   axiosInstance.interceptors.request.use(
@@ -549,13 +557,13 @@ function HomeScreen() {
                               color="success"
                               percentage="+45%"
                             />
-                            <StatCard
+                            {/* <StatCard
                               title="Customers count"
                               value={statistics.customer_count}
                               icon="fas fa-users"
                               color="warning"
                               percentage="+13%"
-                            />
+                            /> */}
                             <StatCard
                               title="Average Order Value"
                               value={`₹${statistics.average_order_value.toFixed(2)}`}
@@ -585,11 +593,17 @@ function HomeScreen() {
                     <PaymentMethodsChart />
                   </div>
                 </div>
-                <div className="col-12 col-md-6 col-lg-6">
+                {/* <div className="col-12 col-md-6 col-lg-6">
                   <div className="h-100">
                     <RevenueLossWidget />
                   </div>
+                </div> */}
+                      <div className="col-12 col-md-6 col-lg-6">
+                  <div className="h-100">
+                    <OrderStat />
+                  </div>
                 </div>
+
               </div>
 
               {/* Sales Section */}
@@ -601,23 +615,20 @@ function HomeScreen() {
                 </div>
                 <div className="col-12 col-md-6 col-lg-6">
                   <div className="h-100">
-                    <OrderStat />
+                    <FoodTypeGraph />
                   </div>
                 </div>
               </div>
 
               {/* Analytics Section */}
               <div className="row g-4">
-                <div className="col-12 col-md-6 col-lg-6">
-                  <div className="h-100">
-                    <FoodTypeGraph />
-                  </div>
-                </div>
+               
                 <div className="col-12 col-md-6 col-lg-6">
                   <div className="h-100">
                     <OrderType />
                   </div>
                 </div>
+                
                 <div className="row mt-4">
                   <OrderAnalytics />
                 </div>

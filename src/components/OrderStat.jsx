@@ -68,7 +68,7 @@ const OrderStat = () => {
         { title: 'Success Order', value: '34', subtitle: 'Success Order' },
         { title: 'Cancelled Order', value: '55', subtitle: 'Cancelled Order' },
         { title: 'Complimentary Order', value: '12', subtitle: 'Complimentary Order' },
-        { title: 'Table Turn Around Time', value: '10 min', subtitle: 'Table Turn Around Time' }
+        { title: 'Kitchen Order token (KOT)', value: '10 min', subtitle: 'Kitchen Order token' }
     ];
 
     return (
