@@ -497,7 +497,7 @@ function HomeScreen() {
                           <>
                             <StatCardSkeleton color="primary" />
                             <StatCardSkeleton color="success" />
-                            <StatCardSkeleton color="warning" />
+                            {/* <StatCardSkeleton color="warning" /> */}
                             <StatCardSkeleton color="info" />
                             <StatCardSkeleton color="danger" />
                           </>
