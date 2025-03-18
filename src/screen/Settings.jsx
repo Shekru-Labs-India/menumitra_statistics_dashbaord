@@ -1,10 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import Header from "../components/Header";
 import VerticalSidebar from "../components/VerticalSidebar";
 
-
 function Settings() {
-  const { isDarkMode, setTheme } = useTheme();
+  // Use local state for theme toggle instead of useTheme hook
+  const [isLightMode, setIsLightMode] = useState(true);
+
+  // Handlers for theme toggle buttons
+  const handleLightModeClick = () => {
+    setIsLightMode(true);
+  };
+
+  const handleDarkModeClick = () => {
+    setIsLightMode(false);
+  };
 
   return (
     <div className="layout-container">
@@ -21,15 +30,15 @@ function Settings() {
                     <h5 className="card-title mb-0">Theme Settings</h5>
                     <div className="theme-switcher">
                       <button 
-                        className={`btn btn-icon ${!isDarkMode ? 'btn-primary' : 'btn-outline-secondary'} me-2`}
-                        onClick={() => setTheme('light')}
+                        className={`btn btn-icon ${isLightMode ? 'btn-primary' : 'btn-outline-secondary'} me-2`}
+                        onClick={handleLightModeClick}
                         title="Light Mode"
                       >
                         <i className="fas fa-sun"></i>
                       </button>
                       <button 
-                        className={`btn btn-icon ${isDarkMode ? 'btn-primary' : 'btn-outline-secondary'}`}
-                        onClick={() => setTheme('dark')}
+                        className={`btn btn-icon ${!isLightMode ? 'btn-primary' : 'btn-outline-secondary'}`}
+                        onClick={handleDarkModeClick}
                         title="Dark Mode"
                       >
                         <i className="fas fa-moon"></i>
@@ -38,7 +47,7 @@ function Settings() {
                   </div>
                   <div className="card-body">
                     <p className="text-muted mb-0">
-                      {isDarkMode 
+                      {!isLightMode 
                         ? "Dark mode is currently active. The interface uses a dark color scheme for better visibility in low-light conditions."
                         : "Light mode is currently active. The interface uses a light color scheme for better visibility in bright conditions."}
                     </p>
