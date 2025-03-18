@@ -10,7 +10,81 @@ function Header() {
   const [userName, setUserName] = useState('User');
   const [outletId, setOutletId] = useState('');
   const [storedRole, setStoredRole] = useState('');
+  const [outlets, setOutlets] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
+
+  // Fetch outlets from API
+  const fetchOutlets = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      // Get user_id and access token from localStorage
+      const userId = localStorage.getItem('user_id');
+      const accessToken = localStorage.getItem('access');
+      
+      if (!userId || !accessToken) {
+        setError('Authentication failed. Please login again.');
+        return;
+      }
+
+      const response = await fetch('https://men4u.xyz/common_api/get_outlet_list', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
+        },
+        body: JSON.stringify({
+          owner_id: parseInt(userId)
+        })
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          setError('Session expired. Please login again.');
+          navigate('/login');
+          return;
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.st === 1) {
+        // Transform API data to match our UI structure
+        const transformedOutlets = data.outlet_list.map(outlet => ({
+          name: outlet.name,
+          location: outlet.address,
+          status: outlet.is_open ? 'open' : 'closed',
+          outlet_id: outlet.outlet_id
+        }));
+        setOutlets(transformedOutlets);
+        
+        // If there's a stored outlet_id, select that outlet
+        const storedOutletId = localStorage.getItem('outlet_id');
+        if (storedOutletId) {
+          const matchingOutlet = transformedOutlets.find(o => o.outlet_id.toString() === storedOutletId);
+          if (matchingOutlet) {
+            handleOutletSelect(matchingOutlet);
+          }
+        }
+      } else {
+        setError(data.msg || 'Failed to fetch outlets');
+      }
+    } catch (err) {
+      console.error('Error fetching outlets:', err);
+      setError('Failed to connect to server. Please check your internet connection and try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchOutlets();
+  }, []);
 
   useEffect(() => {
     // Check if menu is collapsed on initial load
@@ -51,9 +125,11 @@ function Header() {
     }
   }, []);
 
-  const handleOutletSelect = (outletName) => {
-    const truncatedName = truncateText(outletName, 20);
+  const handleOutletSelect = (outlet) => {
+    const truncatedName = truncateText(outlet.name, 20);
     setSelectedOutlet(truncatedName);
+    setOutletId(outlet.outlet_id.toString());
+    localStorage.setItem('outlet_id', outlet.outlet_id.toString());
   };
 
   const handleLogout = () => {
@@ -93,15 +169,6 @@ function Header() {
       setIsMenuCollapsed(newState);
     }
   };
-
-  // Update the outlets array to include location and status information
-  const outlets = [
-    { name: 'Pune', location: 'Swargate', status: 'open' },
-    { name: 'Mumbai', location: 'Andheri', status: 'open' },
-    { name: 'Delhi', location: 'Connaught Place', status: 'closed' },
-    { name: 'Chennai', location: 'T Nagar', status: 'open' },
-    { name: 'Goa', location: 'Panjim', status: 'closed' }
-  ];
 
   // Utility function to truncate text
   const truncateText = (text, maxLength, maxWords = 3) => {
@@ -162,35 +229,54 @@ function Header() {
                   <li>
                     <hr className="dropdown-divider" />
                   </li>
-                  {outlets.map((outlet) => (
-                    <li key={outlet.name}>
-                      <a
-                        className="dropdown-item d-flex align-items-center justify-content-between"
-                        href="javascript:void(0);"
-                        onClick={() => handleOutletSelect(outlet.name)}
-                      >
-                        <div className="d-flex align-items-center me-4">
-                          <i className="fas fa-store me-2"></i>
-                          <b>{outlet.name}</b>
-                        </div>
-                        
-                        <div className="ms-auto d-flex align-items-center">
-                          <span className="mx-1 badge bg-label-primary rounded-pill">
-                            {outlet.location}
-                          </span>
-                          {outlet.status === "open" ? (
-                            <span className="mx-1 badge bg-label-success rounded-pill">
-                              Open
-                            </span>
-                          ) : (
-                            <span className="mx-1 badge bg-label-danger rounded-pill">
-                              Closed
-                            </span>
-                          )}
-                        </div>
-                      </a>
+                  {isLoading ? (
+                    <li className="px-3 py-2 text-center">
+                      <small>Loading outlets...</small>
                     </li>
-                  ))}
+                  ) : error ? (
+                    <li className="px-3 py-2 text-center text-danger">
+                      <small>{error}</small>
+                    </li>
+                  ) : outlets.length === 0 ? (
+                    <li className="px-3 py-2 text-center">
+                      <small>No outlets found</small>
+                    </li>
+                  ) : (
+                    outlets
+                      .filter(outlet => 
+                        outlet.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        outlet.location.toLowerCase().includes(searchTerm.toLowerCase())
+                      )
+                      .map((outlet) => (
+                        <li key={outlet.outlet_id}>
+                          <a
+                            className="dropdown-item d-flex align-items-center justify-content-between"
+                            href="javascript:void(0);"
+                            onClick={() => handleOutletSelect(outlet)}
+                          >
+                            <div className="d-flex align-items-center me-4">
+                              <i className="fas fa-store me-2"></i>
+                              <b>{outlet.name}</b>
+                            </div>
+                            
+                            <div className="ms-auto d-flex align-items-center">
+                              <span className="mx-1 badge bg-label-primary rounded-pill">
+                                {outlet.location}
+                              </span>
+                              {outlet.status === "open" ? (
+                                <span className="mx-1 badge bg-label-success rounded-pill">
+                                  Open
+                                </span>
+                              ) : (
+                                <span className="mx-1 badge bg-label-danger rounded-pill">
+                                  Closed
+                                </span>
+                              )}
+                            </div>
+                          </a>
+                        </li>
+                      ))
+                  )}
                 </ul>
               </li>
             </div>
