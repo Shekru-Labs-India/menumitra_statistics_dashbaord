@@ -27,6 +27,8 @@ function LoginScreen() {
   localStorage.removeItem('user_name');
   localStorage.removeItem('mobile_number');
   localStorage.removeItem('role');
+  localStorage.removeItem('access');
+  localStorage.removeItem('refresh');
 
   }, []);
 

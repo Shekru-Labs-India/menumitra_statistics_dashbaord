@@ -63,6 +63,8 @@ function Header() {
     localStorage.removeItem('user_name');
     localStorage.removeItem('owner_id');
     localStorage.removeItem('role');
+    localStorage.removeItem('access');
+    localStorage.removeItem('refresh');
     
     // Navigate to login page
     navigate('/login');
