@@ -246,8 +246,8 @@ function TopSell() {
             className={`nav-link ${selectedTab === 'top' ? 'active' : ''}`}
             onClick={() => setSelectedTab('top')}
             style={{
-              border: selectedTab === 'top' ? '3px solid var(--bs-primary)' : 'none',
               fontWeight: selectedTab === 'top' ? 'bold' : 'normal',
+              borderRadius: '8px',
               backgroundColor: selectedTab === 'top' ? 'var(--bs-primary)' : 'transparent',
               color: selectedTab === 'top' ? 'var(--bs-white)' : ''
             }}
@@ -258,8 +258,8 @@ function TopSell() {
             className={`nav-link ${selectedTab === 'low' ? 'active' : ''}`}
             onClick={() => setSelectedTab('low')}
             style={{
-              border: selectedTab === 'low' ? '3px solid var(--bs-primary)' : 'none',
               fontWeight: selectedTab === 'low' ? 'bold' : 'normal',
+              borderRadius: '8px',
               backgroundColor: selectedTab === 'low' ? 'var(--bs-primary)' : 'transparent',
               color: selectedTab === 'low' ? 'var(--bs-white)' : ''
             }}
