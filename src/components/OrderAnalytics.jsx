@@ -164,17 +164,40 @@ const OrderAnalytics = () => {
       });
       
       console.log('API Response:', response.data);
+      console.log('Response structure:', JSON.stringify(response.data, null, 2));
       
-      if (response.data) {
-        setAnalyticsData({
-          avg_first_order_time: response.data.avg_first_order_time || 0,
-          avg_last_order_time: response.data.avg_last_order_time || 0,
-          avg_order_time: response.data.avg_order_time || 0,
-          avg_cooking_time: response.data.avg_cooking_time || 0
-        });
+      if (response.data && response.data.message === 'success' && response.data.data) {
+        // The API returns nested data with a "data" object
+        const responseData = response.data.data;
+        console.log('Response data:', responseData);
+        
+        // Extract values using the correct field names from the API response
+        // Convert time values to minutes where needed
+        const analytics = {
+          // Use the exact field names from the API response
+          avg_first_order_time: responseData.first_order_time || '0 mins',
+          avg_last_order_time: responseData.last_order_time || '0 mins',
+          avg_order_time: responseData.average_order_time || '0 mins',
+          avg_cooking_time: responseData.average_cooking_time || '0 mins'
+        };
+        
+        console.log('Processed analytics data:', analytics);
+        setAnalyticsData(analytics);
+      } else {
+        console.warn('Empty or invalid response data');
+        setError('Received invalid data from server');
       }
     } catch (error) {
       console.error('Failed to fetch order analytics:', error);
+      // Log more details about the error
+      if (error.response) {
+        console.error('Error response:', error.response);
+        console.error('Error data:', error.response.data);
+        console.error('Error status:', error.response.status);
+      } else if (error.request) {
+        console.error('Error request:', error.request);
+      }
+      
       const errorMessage = handleApiError(error);
       setError(errorMessage || 'Failed to fetch order analytics. Please try again.');
     } finally {
@@ -392,7 +415,7 @@ const OrderAnalytics = () => {
                   </div>
                   <div className="ms-4 d-flex flex-column">
                     <h5 className="mb-0">Avg First Order Time</h5>
-                    <p className="mb-0">{analyticsData.avg_first_order_time} mins</p>
+                    <p className="mb-0">{analyticsData.avg_first_order_time}</p>
                   </div>
                 </div>
               </div>
@@ -407,7 +430,7 @@ const OrderAnalytics = () => {
                   </div>
                   <div className="ms-4 d-flex flex-column">
                     <h5 className="mb-0">Avg Last Order Time</h5>
-                    <p className="mb-0">{analyticsData.avg_last_order_time} mins</p>
+                    <p className="mb-0">{analyticsData.avg_last_order_time}</p>
                   </div>
                 </div>
               </div>
@@ -422,7 +445,7 @@ const OrderAnalytics = () => {
                   </div>
                   <div className="ms-4 d-flex flex-column">
                     <h5 className="mb-0">Avg Order Time</h5>
-                    <p className="mb-0">{analyticsData.avg_order_time} mins</p>
+                    <p className="mb-0">{analyticsData.avg_order_time}</p>
                   </div>
                 </div>
               </div>
@@ -437,7 +460,7 @@ const OrderAnalytics = () => {
                   </div>
                   <div className="ms-4 d-flex flex-column">
                     <h5 className="mb-0">Avg Cooking Time</h5>
-                    <p className="mb-0">{analyticsData.avg_cooking_time} mins</p>
+                    <p className="mb-0">{analyticsData.avg_cooking_time}</p>
                   </div>
                 </div>
               </div>

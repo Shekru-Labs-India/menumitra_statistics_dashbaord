@@ -184,46 +184,67 @@ const OrderType = () => {
       });
       
       console.log('API Response:', response.data);
+      console.log('Response structure:', JSON.stringify(response.data, null, 2));
       
-      if (response.data && response.data.order_types) {
-        // Map API response to our component's data structure
-        const mappedOrderTypes = response.data.order_types.map(item => {
-          // Default icon and color mapping (customize as needed)
-          let icon = "fas fa-utensils";
-          let color = "primary";
-          
-          // Map order type names to icons and colors
-          if (item.name.toLowerCase().includes("dine in")) {
-            icon = "fas fa-utensils";
-            color = "primary";
-          } else if (item.name.toLowerCase().includes("drive through")) {
-            icon = "fas fa-car";
-            color = "info";
-          } else if (item.name.toLowerCase().includes("parcel")) {
-            icon = "fas fa-box";
-            color = "success";
-          } else if (item.name.toLowerCase().includes("delivery")) {
-            icon = "fas fa-globe";
-            color = "warning";
-          }
-          
-          // Convert trend percentage to boolean trendUp value
-          const trendValue = parseFloat(item.trend || "0");
-          const trendUp = trendValue >= 0;
-          
-          return {
-            name: item.name,
-            icon: icon,
-            count: item.count || 0,
-            trend: item.trend || "0%",
-            trendUp: trendUp,
-            color: color
-          };
-        });
+      if (response.data && response.data.message === "success" && response.data.data) {
+        // The API returns a different structure than expected
+        // It has a nested 'data' object with direct properties for each order type
+        const responseData = response.data.data;
+        console.log('Order type data:', responseData);
         
-        setOrderTypes(mappedOrderTypes);
+        // Convert the flat object structure to the array format our component expects
+        const orderTypesArray = [
+          {
+            name: "Dine In",
+            icon: "fas fa-utensils",
+            count: responseData["dine-in"] || 0,
+            trend: "0%", // We don't have trend data in the response
+            trendUp: true,
+            color: "primary"
+          },
+          {
+            name: "Drive Through",
+            icon: "fas fa-car",
+            count: responseData["drive-through"] || 0,
+            trend: "0%",
+            trendUp: true,
+            color: "info"
+          },
+          {
+            name: "Parcel",
+            icon: "fas fa-box",
+            count: responseData["parcel"] || 0,
+            trend: "0%",
+            trendUp: true,
+            color: "success"
+          },
+          {
+            name: "Delivery",
+            icon: "fas fa-globe",
+            count: responseData["delivery"] || 0,
+            trend: "0%",
+            trendUp: true,
+            color: "warning"
+          }
+        ];
+        
+        // Add counter type if it exists in the response
+        if (responseData["counter"] !== undefined) {
+          orderTypesArray.push({
+            name: "Counter",
+            icon: "fas fa-cash-register",
+            count: responseData["counter"] || 0,
+            trend: "0%",
+            trendUp: true,
+            color: "danger"
+          });
+        }
+        
+        console.log('Processed order types:', orderTypesArray);
+        setOrderTypes(orderTypesArray);
       } else {
         // If no data is returned, use placeholder data
+        console.warn('Invalid response format or empty data');
         setOrderTypes(placeholderOrderTypes);
       }
     } catch (error) {
