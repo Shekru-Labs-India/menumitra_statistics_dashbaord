@@ -63,12 +63,15 @@ function Header() {
         }));
         setOutlets(transformedOutlets);
         
-        // If there's a stored outlet_id, select that outlet
+        // If there's a stored outlet_id, update UI
         const storedOutletId = localStorage.getItem('outlet_id');
         if (storedOutletId) {
           const matchingOutlet = transformedOutlets.find(o => o.outlet_id.toString() === storedOutletId);
           if (matchingOutlet) {
-            handleOutletSelect(matchingOutlet);
+            // Just update the UI without calling handleOutletSelect
+            const truncatedName = truncateText(matchingOutlet.name, 20);
+            setSelectedOutlet(truncatedName);
+            setOutletId(matchingOutlet.outlet_id.toString());
           }
         }
       } else {
@@ -125,11 +128,75 @@ function Header() {
     }
   }, []);
 
-  const handleOutletSelect = (outlet) => {
-    const truncatedName = truncateText(outlet.name, 20);
-    setSelectedOutlet(truncatedName);
-    setOutletId(outlet.outlet_id.toString());
-    localStorage.setItem('outlet_id', outlet.outlet_id.toString());
+  const handleOutletSelect = async (outlet) => {
+    try {
+      // Check if the selected outlet is already selected - avoid unnecessary API call
+      const currentOutletId = localStorage.getItem('outlet_id');
+      if (currentOutletId && currentOutletId === outlet.outlet_id.toString()) {
+        // Already selected, just update UI and return
+        const truncatedName = truncateText(outlet.name, 20);
+        setSelectedOutlet(truncatedName);
+        setOutletId(outlet.outlet_id.toString());
+        return;
+      }
+      
+      setIsLoading(true);
+      
+      // Get user_id from localStorage
+      const userId = localStorage.getItem('user_id');
+      const accessToken = localStorage.getItem('access');
+      
+      if (!userId || !accessToken) {
+        setError('Authentication failed. Please login again.');
+        return;
+      }
+      
+      // Make API call to select outlet
+      const response = await fetch('https://men4u.xyz/common_api/select_outlet', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
+        },
+        body: JSON.stringify({
+          outlet_id: outlet.outlet_id,
+          owner_id: parseInt(userId)
+        })
+      });
+      
+      if (!response.ok) {
+        if (response.status === 401) {
+          setError('Session expired. Please login again.');
+          navigate('/login');
+          return;
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.st === 1) {
+        // Update UI with selected outlet
+        const truncatedName = truncateText(outlet.name, 20);
+        setSelectedOutlet(truncatedName);
+        setOutletId(outlet.outlet_id.toString());
+        
+        // Store outlet_id in localStorage
+        localStorage.setItem('outlet_id', outlet.outlet_id.toString());
+        
+        // Use a simpler approach - set window.location directly to dashboard 
+        // This causes a full page load without the navigation transition that can cause the loop
+        window.location.href = '/dashboard';
+      } else {
+        setError(data.msg || 'Failed to select outlet');
+      }
+    } catch (err) {
+      console.error('Error selecting outlet:', err);
+      setError('Failed to connect to server. Please check your internet connection and try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleLogout = () => {
