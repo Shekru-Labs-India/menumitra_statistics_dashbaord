@@ -215,12 +215,24 @@ const handleCustomDateSelect = () => {
           <button
             className={`nav-link ${selectedTab === 'top' ? 'active' : ''}`}
             onClick={() => setSelectedTab('top')}
+            style={{
+              border: selectedTab === 'top' ? '3px solid var(--bs-primary)' : 'none',
+              fontWeight: selectedTab === 'top' ? 'bold' : 'normal',
+              backgroundColor: selectedTab === 'top' ? 'var(--bs-primary)' : 'transparent',
+              color: selectedTab === 'top' ? 'var(--bs-white)' : ''
+            }}
           >
             Top Selling
           </button>
           <button
             className={`nav-link ${selectedTab === 'low' ? 'active' : ''}`}
             onClick={() => setSelectedTab('low')}
+            style={{
+              border: selectedTab === 'low' ? '3px solid var(--bs-primary)' : 'none',
+              fontWeight: selectedTab === 'low' ? 'bold' : 'normal',
+              backgroundColor: selectedTab === 'low' ? 'var(--bs-primary)' : 'transparent',
+              color: selectedTab === 'low' ? 'var(--bs-white)' : ''
+            }}
           >
             Low Selling
           </button>
