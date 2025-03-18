@@ -2,18 +2,59 @@ import React, { useState, useEffect } from 'react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import axios from 'axios';
+import { apiEndpoint } from '../config/menuMitraConfig';
 // Import both GIFs - static and animated
 import aiAnimationGif from '../assets/img/gif/AI-animation-unscreen.gif';
 import aiAnimationStillFrame from '../assets/img/gif/AI-animation-unscreen-still-frame.gif';
 
 const FoodTypeGraph = () => {
     const [dateRange, setDateRange] = useState('Today');
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [isGifPlaying, setIsGifPlaying] = useState(false);
+    const [foodTypeData, setFoodTypeData] = useState([]);
+    const [error, setError] = useState('');
   
+    // Helper function to get auth headers
+    const getAuthHeaders = (includeAuth = true) => {
+        const headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        };
+        
+        // Only add Authorization header if includeAuth is true and token exists
+        if (includeAuth) {
+            const accessToken = localStorage.getItem('access');
+            if (accessToken) {
+                headers['Authorization'] = `Bearer ${accessToken}`;
+            }
+        }
+        
+        return headers;
+    };
+
+    // Function to handle API errors
+    const handleApiError = (error) => {
+        console.error('API Error:', error);
+        
+        if (error.response) {
+            // Handle specific error status codes
+            if (error.response.status === 401) {
+                console.error('Unauthorized access');
+                // You may want to redirect to login page here
+            }
+            
+            return error.response.data?.message || 'An error occurred. Please try again.';
+        } else if (error.request) {
+            return 'No response from server. Please check your internet connection.';
+        } else {
+            return 'Error setting up request. Please try again.';
+        }
+    };
+
     // Simplified effect to handle the animation timing
     useEffect(() => {
       if (isGifPlaying) {
@@ -46,14 +87,135 @@ const FoodTypeGraph = () => {
     const handleReload = () => {
         setLoading(true);
         fetchData(dateRange);
-        setTimeout(() => setLoading(false), 1000);
     };
 
-    const fetchData = (range) => {
-        if (range === 'Custom Range' && startDate && endDate) {
-            console.log('Fetching data for custom range:', startDate, endDate);
-        } else {
-            console.log('Fetching data for range:', range);
+    const fetchData = async (range) => {
+        try {
+            setLoading(true);
+            setError('');
+            
+            let requestData = {};
+            const today = new Date();
+            const outletId = localStorage.getItem('outlet_id');
+            
+            if (!outletId) {
+                console.error('No outlet ID found in localStorage');
+                setError('No outlet ID found. Please log in again.');
+                setLoading(false);
+                return;
+            }
+            
+            // Add outlet_id to request data
+            requestData.outlet_id = outletId;
+            
+            // Handle different date range options
+            if (range === 'Today') {
+                // Today - both start and end are today
+                requestData.start_date = formatDate(today);
+                requestData.end_date = formatDate(today);
+            } else if (range === 'Yesterday') {
+                // Yesterday
+                const yesterday = new Date(today);
+                yesterday.setDate(today.getDate() - 1);
+                requestData.start_date = formatDate(yesterday);
+                requestData.end_date = formatDate(yesterday);
+            } else if (range === 'Last 7 Days') {
+                // Last 7 Days
+                const sevenDaysAgo = new Date(today);
+                sevenDaysAgo.setDate(today.getDate() - 6); // -6 because it includes today
+                requestData.start_date = formatDate(sevenDaysAgo);
+                requestData.end_date = formatDate(today);
+            } else if (range === 'Last 30 Days') {
+                // Last 30 Days
+                const thirtyDaysAgo = new Date(today);
+                thirtyDaysAgo.setDate(today.getDate() - 29); // -29 because it includes today
+                requestData.start_date = formatDate(thirtyDaysAgo);
+                requestData.end_date = formatDate(today);
+            } else if (range === 'Current Month') {
+                // Current Month - from 1st of current month to today
+                const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+                requestData.start_date = formatDate(firstDayOfMonth);
+                requestData.end_date = formatDate(today);
+            } else if (range === 'Last Month') {
+                // Last Month - from 1st to last day of previous month
+                const firstDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                const lastDayOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+                requestData.start_date = formatDate(firstDayOfLastMonth);
+                requestData.end_date = formatDate(lastDayOfLastMonth);
+            } else if (range === 'Custom Range' && startDate && endDate) {
+                // Custom Range - use the selected dates
+                requestData.start_date = formatDate(startDate);
+                requestData.end_date = formatDate(endDate);
+            } else {
+                // Default to today if something goes wrong
+                requestData.start_date = formatDate(today);
+                requestData.end_date = formatDate(today);
+            }
+
+            console.log('Sending request to food_type_statistics with data:', requestData);
+            
+            // Make API request
+            const response = await axios.post(`${apiEndpoint}food_type_statistics`, requestData, {
+                headers: getAuthHeaders()
+            });
+            
+            console.log('API Response:', response.data);
+            
+            if (response.data && response.data.data) {
+                // API returns a single data point, but our chart expects weekly data
+                // We'll need to transform this into a format suitable for our chart
+                const apiData = response.data.data;
+                
+                // Convert API data into chart-friendly format
+                // Since the API doesn't provide weekly breakdown, we'll distribute
+                // the data into 4 equal parts to show a visual representation
+                
+                // Calculate week portions - divide by 4 for the weeks
+                const vegPerWeek = Math.ceil(apiData.veg / 4);
+                const nonVegPerWeek = Math.ceil(apiData.nonveg / 4);
+                const veganPerWeek = Math.ceil(apiData.vegan / 4);
+                const eggPerWeek = Math.ceil(apiData.egg / 4);
+                
+                // Create weekly data - distribute proportionally 
+                // This is an approximation since the API doesn't provide weekly data
+                const chartData = [
+                    { week: "Week 1", Veg: vegPerWeek, "Non-Veg": nonVegPerWeek, Vegan: veganPerWeek, Eggs: eggPerWeek },
+                    { week: "Week 2", Veg: vegPerWeek, "Non-Veg": nonVegPerWeek, Vegan: veganPerWeek, Eggs: eggPerWeek },
+                    { week: "Week 3", Veg: vegPerWeek, "Non-Veg": nonVegPerWeek, Vegan: veganPerWeek, Eggs: eggPerWeek },
+                    { week: "Week 4", Veg: apiData.veg - (vegPerWeek * 3), "Non-Veg": apiData.nonveg - (nonVegPerWeek * 3), Vegan: apiData.vegan - (veganPerWeek * 3), Eggs: apiData.egg - (eggPerWeek * 3) },
+                ];
+                
+                // Make sure we don't have negative values in Week 4 (can happen due to rounding)
+                chartData[3].Veg = Math.max(0, chartData[3].Veg);
+                chartData[3]["Non-Veg"] = Math.max(0, chartData[3]["Non-Veg"]);
+                chartData[3].Vegan = Math.max(0, chartData[3].Vegan);
+                chartData[3].Eggs = Math.max(0, chartData[3].Eggs);
+                
+                setFoodTypeData(chartData);
+            } else {
+                // If no data or incorrect format, show default data
+                setError('No data available for the selected date range');
+                setFoodTypeData([
+                    { week: "Week 1", Veg: 0, "Non-Veg": 0, Vegan: 0, Eggs: 0 },
+                    { week: "Week 2", Veg: 0, "Non-Veg": 0, Vegan: 0, Eggs: 0 },
+                    { week: "Week 3", Veg: 0, "Non-Veg": 0, Vegan: 0, Eggs: 0 },
+                    { week: "Week 4", Veg: 0, "Non-Veg": 0, Vegan: 0, Eggs: 0 },
+                ]);
+            }
+        } catch (error) {
+            console.error('Failed to fetch food type statistics:', error);
+            const errorMessage = handleApiError(error);
+            setError(errorMessage || 'Failed to fetch food type statistics. Please try again.');
+            
+            // Use default data on error
+            setFoodTypeData([
+                { week: "Week 1", Veg: 0, "Non-Veg": 0, Vegan: 0, Eggs: 0 },
+                { week: "Week 2", Veg: 0, "Non-Veg": 0, Vegan: 0, Eggs: 0 },
+                { week: "Week 3", Veg: 0, "Non-Veg": 0, Vegan: 0, Eggs: 0 },
+                { week: "Week 4", Veg: 0, "Non-Veg": 0, Vegan: 0, Eggs: 0 },
+            ]);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -64,12 +226,17 @@ const FoodTypeGraph = () => {
             fetchData('Custom Range');
         }
     };
-    const data = [
-        { week: "Week 1", Veg: 40, "Non-Veg": 30, Vegan: 20, Eggs: 10 },
-        { week: "Week 2", Veg: 35, "Non-Veg": 25, Vegan: 15, Eggs: 20 },
-        { week: "Week 3", Veg: 50, "Non-Veg": 20, Vegan: 10, Eggs: 20 },
-        { week: "Week 4", Veg: 45, "Non-Veg": 35, Vegan: 25, Eggs: 15 },
-    ];
+
+    // Initial data fetch on component mount
+    useEffect(() => {
+        const outletId = localStorage.getItem('outlet_id');
+        if (outletId) {
+            fetchData('Today');
+        } else {
+            setError('No outlet ID found. Please log in again.');
+            setLoading(false);
+        }
+    }, []);
 
     return (
         <div className="card">
@@ -199,25 +366,42 @@ const FoodTypeGraph = () => {
                     </div>
                 </div>
             )}
+            
+            {error && (
+                <div className="card-body">
+                    <div className="alert alert-danger" role="alert">
+                        {error}
+                    </div>
+                </div>
+            )}
+            
             <div className="card-body">
-                <ResponsiveContainer width="100%" height={400}>
-                    <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                        <XAxis dataKey="week" stroke="#433c50" />
-                        <YAxis stroke="#433c50" />
-                        <Tooltip 
-                            contentStyle={{ 
-                                backgroundColor: '#fff',
-                                border: '1px solid #8c57ff',
-                                borderRadius: '8px'
-                            }}
-                        />
-                        <Legend />
-                        <Bar dataKey="Veg" stackId="a" fill="#2e7d32" radius={[4, 4, 0, 0]} />
-                        <Bar dataKey="Non-Veg" stackId="a" fill="#d32f2f" radius={[4, 4, 0, 0]} />
-                        <Bar dataKey="Vegan" stackId="a" fill="#FFBF00" radius={[4, 4, 0, 0]} />
-                        <Bar dataKey="Eggs" stackId="a" fill="#9e9e9e" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                </ResponsiveContainer>
+                {loading ? (
+                    <div className="d-flex justify-content-center align-items-center" style={{ height: '400px' }}>
+                        <div className="spinner-border text-primary" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                ) : (
+                    <ResponsiveContainer width="100%" height={400}>
+                        <BarChart data={foodTypeData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                            <XAxis dataKey="week" stroke="#433c50" />
+                            <YAxis stroke="#433c50" />
+                            <Tooltip 
+                                contentStyle={{ 
+                                    backgroundColor: '#fff',
+                                    border: '1px solid #8c57ff',
+                                    borderRadius: '8px'
+                                }}
+                            />
+                            <Legend />
+                            <Bar dataKey="Veg" stackId="a" fill="#2e7d32" radius={[4, 4, 0, 0]} />
+                            <Bar dataKey="Non-Veg" stackId="a" fill="#d32f2f" radius={[4, 4, 0, 0]} />
+                            <Bar dataKey="Vegan" stackId="a" fill="#FFBF00" radius={[4, 4, 0, 0]} />
+                            <Bar dataKey="Eggs" stackId="a" fill="#9e9e9e" radius={[4, 4, 0, 0]} />
+                        </BarChart>
+                    </ResponsiveContainer>
+                )}
             </div>
         </div>
     );
