@@ -38,142 +38,14 @@ function HomeScreen() {
     average_turnover_time: "00:00 - 00:00"
   });
   const navigate = useNavigate();
-  // Create axios instance
-  const axiosInstance = axios.create({
-    baseURL: apiEndpoint,
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    }
-  });
 
-  // Add JWT token to requests
-  useEffect(() => {
-    // Create an interceptor for adding the auth token to requests
-    const requestInterceptor = axiosInstance.interceptors.request.use(
-      (config) => {
-        // Get the access token from localStorage
-        const accessToken = localStorage.getItem('access');
-        
-        // If token exists, add it to the Authorization header as a Bearer token
-        if (accessToken) {
-          config.headers['Authorization'] = `Bearer ${accessToken}`;
-        }
-        return config;
-      },
-      (error) => {
-        return Promise.reject(error);
-      }
-    );
-
-    // Cleanup function to eject the interceptor when component unmounts
-    return () => {
-      axiosInstance.interceptors.request.eject(requestInterceptor);
-    };
-  }, []);
-
+  // Check if user is logged in
   useEffect(() => {
     const outletId = localStorage.getItem('outlet_id');
     if (!outletId) {
       navigate('/login');
     }
-  }, []);
-
-  // Add request interceptor
-  axiosInstance.interceptors.request.use(
-    (config) => {
-      const outletId = localStorage.getItem('outlet_id');
-      if (outletId) {
-        if (config.method === 'get' && config.params) {
-          config.params = { ...config.params, outlet_id: outletId };
-        } else if (config.method === 'post' && config.data) {
-          config.data = { ...config.data, outlet_id: outletId };
-        } else {
-          config.params = { outlet_id: outletId };
-        }
-      }
-      return config;
-    },
-    (error) => {
-      return Promise.reject(error);
-    }
-  );
-
-  // Add response interceptor
-  axiosInstance.interceptors.response.use(
-    (response) => response,
-    async (error) => {
-      const originalRequest = error.config;
-      
-      // If error is 401 (Unauthorized) and we haven't tried to refresh the token yet
-      if (error.response && error.response.status === 401 && !originalRequest._retry) {
-        originalRequest._retry = true; // Mark that we've tried to refresh token
-        
-        try {
-          // Get the refresh token from localStorage
-          const refreshToken = localStorage.getItem('refresh');
-          
-          if (!refreshToken) {
-            // If no refresh token, redirect to login
-            console.error('No refresh token available');
-            navigate('/login');
-            return Promise.reject(error);
-          }
-          
-          // Call the refresh token endpoint to get a new access token
-          // You would need to implement this endpoint on your backend
-          const response = await axios.post(`${apiEndpoint}refresh_token`, {
-            refresh: refreshToken
-          });
-          
-          // If successful, update the tokens in localStorage
-          if (response.data.access) {
-            localStorage.setItem('access', response.data.access);
-            
-            // If a new refresh token is also provided, update it
-            if (response.data.refresh) {
-              localStorage.setItem('refresh', response.data.refresh);
-            }
-            
-            // Update the Authorization header for the original request
-            originalRequest.headers['Authorization'] = `Bearer ${response.data.access}`;
-            
-            // Retry the original request with the new token
-            return axiosInstance(originalRequest);
-          }
-        } catch (refreshError) {
-          console.error('Token refresh failed:', refreshError);
-          // If refresh fails, redirect to login
-          navigate('/login');
-          return Promise.reject(refreshError);
-        }
-      }
-      
-      // Handle other error responses
-      if (error.response) {
-        switch (error.response.status) {
-          case 401:
-            console.error('Unauthorized access');
-            // Handle unauthorized access (e.g., redirect to login)
-            navigate('/login');
-            break;
-          case 403:
-            console.error('Forbidden access');
-            break;
-          case 404:
-            console.error('Resource not found');
-            break;
-          default:
-            console.error('Server error:', error.response.data);
-        }
-      } else if (error.request) {
-        console.error('No response received:', error.request);
-      } else {
-        console.error('Error setting up request:', error.message);
-      }
-      return Promise.reject(error);
-    }
-  );
+  }, [navigate]);
 
   // Simplified effect to handle the animation timing
   useEffect(() => {
@@ -218,8 +90,45 @@ function HomeScreen() {
     }
   }, []);
 
+  // Helper function to get auth headers with option to include token or not
+  const getAuthHeaders = (includeAuth = true) => {
+    const headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    };
+    
+    // Only add Authorization header if includeAuth is true and token exists
+    if (includeAuth) {
+      const accessToken = localStorage.getItem('access');
+      if (accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`;
+      }
+    }
+    
+    return headers;
+  };
+
+  // Function to handle API errors
+  const handleApiError = (error) => {
+    console.error('API Error:', error);
+    
+    if (error.response) {
+      // Handle specific error status codes
+      if (error.response.status === 401) {
+        console.error('Unauthorized access');
+        navigate('/login');
+      }
+      
+      return error.response.data?.message || 'An error occurred. Please try again.';
+    } else if (error.request) {
+      return 'No response from server. Please check your internet connection.';
+    } else {
+      return 'Error setting up request. Please try again.';
+    }
+  };
+
   // Function to fetch all-time statistics at initial load
-  const fetchAllTimeStatistics = async (outletId) => {
+  const fetchAllTimeStatistics = async (outletId, useAuth = true) => {
     try {
       setLoading(true);
       setError('');
@@ -231,9 +140,12 @@ function HomeScreen() {
 
       console.log('Sending initial request with data:', requestData);
       console.log('API endpoint:', apiEndpoint + 'analytics_reports');
+      console.log('Using authentication:', useAuth);
 
-      // Use POST method
-      const response = await axiosInstance.post('analytics_reports', requestData);
+      // Use POST method with direct axios call, specifying whether to use auth
+      const response = await axios.post(`${apiEndpoint}analytics_reports`, requestData, {
+        headers: getAuthHeaders(useAuth)
+      });
       
       console.log('API Response:', response.data);
       
@@ -249,7 +161,9 @@ function HomeScreen() {
       }
     } catch (error) {
       console.error('Failed to fetch statistics:', error);
-      setError(error.response?.data?.message || 'Failed to fetch statistics. Please try again.');
+      const errorMessage = handleApiError(error);
+      setError(errorMessage || 'Failed to fetch statistics. Please try again.');
+      
       // Reset statistics on error
       setStatistics({
         total_orders: 0,
@@ -264,7 +178,7 @@ function HomeScreen() {
   };
 
   // Function for fetching statistics with date range filters
-  const fetchStatistics = async (range) => {
+  const fetchStatistics = async (range, useAuth = true) => {
     try {
       setLoading(true);
       setError('');
@@ -279,53 +193,53 @@ function HomeScreen() {
       } else if (range === 'Today') {
         // Today - both start and end are today
         requestData = {
-          start_date: today.toISOString().split('T')[0],
-          end_date: today.toISOString().split('T')[0]
+          start_date: formatDate(today),
+          end_date: formatDate(today)
         };
       } else if (range === 'Yesterday') {
         // Yesterday
         const yesterday = new Date(today);
         yesterday.setDate(today.getDate() - 1);
         requestData = {
-          start_date: yesterday.toISOString().split('T')[0],
-          end_date: yesterday.toISOString().split('T')[0]
+          start_date: formatDate(yesterday),
+          end_date: formatDate(yesterday)
         };
       } else if (range === 'Last 7 Days') {
         // Last 7 Days
         const sevenDaysAgo = new Date(today);
         sevenDaysAgo.setDate(today.getDate() - 6); // -6 because it includes today
         requestData = {
-          start_date: sevenDaysAgo.toISOString().split('T')[0],
-          end_date: today.toISOString().split('T')[0]
+          start_date: formatDate(sevenDaysAgo),
+          end_date: formatDate(today)
         };
       } else if (range === 'Last 30 Days') {
         // Last 30 Days
         const thirtyDaysAgo = new Date(today);
         thirtyDaysAgo.setDate(today.getDate() - 29); // -29 because it includes today
         requestData = {
-          start_date: thirtyDaysAgo.toISOString().split('T')[0],
-          end_date: today.toISOString().split('T')[0]
+          start_date: formatDate(thirtyDaysAgo),
+          end_date: formatDate(today)
         };
       } else if (range === 'Current Month') {
         // Current Month - from 1st of current month to today
         const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
         requestData = {
-          start_date: firstDayOfMonth.toISOString().split('T')[0],
-          end_date: today.toISOString().split('T')[0]
+          start_date: formatDate(firstDayOfMonth),
+          end_date: formatDate(today)
         };
       } else if (range === 'Last Month') {
         // Last Month - from 1st to last day of previous month
         const firstDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
         const lastDayOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
         requestData = {
-          start_date: firstDayOfLastMonth.toISOString().split('T')[0],
-          end_date: lastDayOfLastMonth.toISOString().split('T')[0]
+          start_date: formatDate(firstDayOfLastMonth),
+          end_date: formatDate(lastDayOfLastMonth)
         };
       } else if (range === 'Custom Range' && startDate && endDate) {
         // Custom Range - use the selected dates
         requestData = {
-          start_date: startDate.toISOString().split('T')[0],
-          end_date: endDate.toISOString().split('T')[0]
+          start_date: formatDate(startDate),
+          end_date: formatDate(endDate)
         };
       } else {
         // If Custom Range but no dates selected, default to last 30 days
@@ -333,8 +247,8 @@ function HomeScreen() {
         thirtyDaysAgo.setDate(today.getDate() - 29);
         
         requestData = {
-          start_date: thirtyDaysAgo.toISOString().split('T')[0],
-          end_date: today.toISOString().split('T')[0]
+          start_date: formatDate(thirtyDaysAgo),
+          end_date: formatDate(today)
         };
         // Update the displayed date range
         setDateRange('Last 30 Days');
@@ -346,9 +260,12 @@ function HomeScreen() {
 
       console.log('Sending request with data:', requestData);
       console.log('API endpoint:', apiEndpoint + 'analytics_reports');
+      console.log('Using authentication:', useAuth);
 
-      // Use POST method
-      const response = await axiosInstance.post('analytics_reports', requestData);
+      // Use POST method with direct axios call, specifying whether to use auth
+      const response = await axios.post(`${apiEndpoint}analytics_reports`, requestData, {
+        headers: getAuthHeaders(useAuth)
+      });
       
       console.log('API Response:', response.data);
       
@@ -364,7 +281,9 @@ function HomeScreen() {
       }
     } catch (error) {
       console.error('Failed to fetch statistics:', error);
-      setError(error.response?.data?.message || 'Failed to fetch statistics. Please try again.');
+      const errorMessage = handleApiError(error);
+      setError(errorMessage || 'Failed to fetch statistics. Please try again.');
+      
       // Reset statistics on error
       setStatistics({
         total_orders: 0,
@@ -388,19 +307,22 @@ function HomeScreen() {
       setShowDatePicker(true);
     } else {
       setShowDatePicker(false);
-      fetchStatistics(range);
+      // Default to using authentication, but you can change to false if needed
+      fetchStatistics(range, true);
     }
   };
 
   const handleReload = () => {
-    fetchStatistics(dateRange);
+    // Default to using authentication, but you can change to false if needed
+    fetchStatistics(dateRange, true);
   };
 
   const handleCustomDateSelect = () => {
     if (startDate && endDate) {
       setDateRange(`${formatDate(startDate)} - ${formatDate(endDate)}`);
       setShowDatePicker(false);
-      fetchStatistics('Custom Range');
+      // Default to using authentication, but you can change to false if needed
+      fetchStatistics('Custom Range', true);
     } else {
       // Show error message if dates are not selected
       setError('Please select both start and end dates.');
