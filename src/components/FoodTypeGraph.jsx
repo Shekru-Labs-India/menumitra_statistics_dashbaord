@@ -161,35 +161,44 @@ const FoodTypeGraph = () => {
             
             console.log('API Response:', response.data);
             
-            if (response.data && response.data.data) {
-                // API returns a single data point, but our chart expects weekly data
-                // We'll need to transform this into a format suitable for our chart
-                const apiData = response.data.data;
+            if (response.data && response.data.data && response.data.data.weeks) {
+                // The API now returns weekly data in the response
+                const { weeks } = response.data.data;
                 
-                // Convert API data into chart-friendly format
-                // Since the API doesn't provide weekly breakdown, we'll distribute
-                // the data into 4 equal parts to show a visual representation
+                // Map the API weeks data to our chart format
+                const chartData = weeks.map(week => ({
+                    week: week.week,
+                    Veg: week.veg || 0,
+                    "Non-Veg": week.nonveg || 0,
+                    Vegan: week.vegan || 0,
+                    Eggs: week.egg || 0
+                }));
                 
-                // Calculate week portions - divide by 4 for the weeks
-                const vegPerWeek = Math.ceil(apiData.veg / 4);
-                const nonVegPerWeek = Math.ceil(apiData.nonveg / 4);
-                const veganPerWeek = Math.ceil(apiData.vegan / 4);
-                const eggPerWeek = Math.ceil(apiData.egg / 4);
+                // If we have less than 4 weeks, fill in the missing weeks with zeros
+                const weekNames = ["Week 1", "Week 2", "Week 3", "Week 4"];
                 
-                // Create weekly data - distribute proportionally 
-                // This is an approximation since the API doesn't provide weekly data
-                const chartData = [
-                    { week: "Week 1", Veg: vegPerWeek, "Non-Veg": nonVegPerWeek, Vegan: veganPerWeek, Eggs: eggPerWeek },
-                    { week: "Week 2", Veg: vegPerWeek, "Non-Veg": nonVegPerWeek, Vegan: veganPerWeek, Eggs: eggPerWeek },
-                    { week: "Week 3", Veg: vegPerWeek, "Non-Veg": nonVegPerWeek, Vegan: veganPerWeek, Eggs: eggPerWeek },
-                    { week: "Week 4", Veg: apiData.veg - (vegPerWeek * 3), "Non-Veg": apiData.nonveg - (nonVegPerWeek * 3), Vegan: apiData.vegan - (veganPerWeek * 3), Eggs: apiData.egg - (eggPerWeek * 3) },
-                ];
+                // Check which weeks we already have
+                const existingWeeks = chartData.map(data => data.week);
                 
-                // Make sure we don't have negative values in Week 4 (can happen due to rounding)
-                chartData[3].Veg = Math.max(0, chartData[3].Veg);
-                chartData[3]["Non-Veg"] = Math.max(0, chartData[3]["Non-Veg"]);
-                chartData[3].Vegan = Math.max(0, chartData[3].Vegan);
-                chartData[3].Eggs = Math.max(0, chartData[3].Eggs);
+                // Add any missing weeks with zero values
+                weekNames.forEach(weekName => {
+                    if (!existingWeeks.includes(weekName)) {
+                        chartData.push({
+                            week: weekName,
+                            Veg: 0,
+                            "Non-Veg": 0,
+                            Vegan: 0,
+                            Eggs: 0
+                        });
+                    }
+                });
+                
+                // Sort the data by week number to ensure correct order
+                chartData.sort((a, b) => {
+                    const weekNumA = parseInt(a.week.split(' ')[1]);
+                    const weekNumB = parseInt(b.week.split(' ')[1]);
+                    return weekNumA - weekNumB;
+                });
                 
                 setFoodTypeData(chartData);
             } else {
