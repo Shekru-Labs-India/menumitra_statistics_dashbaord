@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import axios from 'axios';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -59,45 +59,13 @@ function HomeScreen() {
     }
   }, [isGifPlaying]);
 
-  const formatDate = (date) => {
-    if (!date) return '';
-    const day = date.getDate().toString().padStart(2, '0');
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const month = months[date.getMonth()];
-    const year = date.getFullYear();
-    return `${day} ${month} ${year}`;
-  };
-
-  useEffect(() => {
-    const outletId = localStorage.getItem('outlet_id');
-    console.log('Outlet ID from localStorage:', outletId);
-    
-    if (outletId) {
-      console.log('Fetching statistics for outlet ID:', outletId);
-      // Set default dates for all-time data
-      const today = new Date();
-      const oldDate = new Date(2000, 0, 1); // January 1, 2000
-      
-      setStartDate(oldDate);
-      setEndDate(today);
-      setDateRange("All Time"); // Just for display purposes
-      
-      // Custom fetch for initial load with all time data
-      fetchAllTimeStatistics(outletId);
-    } else {
-      console.error('No outlet ID found in localStorage');
-      return;
-    }
-  }, []);
-
-  // Helper function to get auth headers with option to include token or not
-  const getAuthHeaders = (includeAuth = true) => {
+  // Helper function to get auth headers
+  const getAuthHeaders = useMemo(() => (includeAuth = true) => {
     const headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json'
     };
     
-    // Only add Authorization header if includeAuth is true and token exists
     if (includeAuth) {
       const accessToken = localStorage.getItem('access');
       if (accessToken) {
@@ -106,64 +74,132 @@ function HomeScreen() {
     }
     
     return headers;
-  };
+  }, []);
 
-  // Function to handle API errors
-  const handleApiError = (error) => {
-    console.error('API Error:', error);
+  // Memoized date formatting function
+  const formatDate = useMemo(() => (date) => {
+    if (!date) return '';
+    const day = date.getDate().toString().padStart(2, '0');
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    return `${day} ${month} ${year}`;
+  }, []);
+
+  // Memoized function to prepare request data based on date range
+  const prepareRequestData = useMemo(() => (range) => {
+    const today = new Date();
     
-    if (error.response) {
-      // Handle specific error status codes
-      if (error.response.status === 401) {
-        console.error('Unauthorized access');
+    const getDateRange = (range) => {
+      switch(range) {
+        case 'All Time':
+          return {};
+        case 'Today':
+          return {
+            start_date: formatDate(today),
+            end_date: formatDate(today)
+          };
+        case 'Yesterday': {
+          const yesterday = new Date(today);
+          yesterday.setDate(today.getDate() - 1);
+          return {
+            start_date: formatDate(yesterday),
+            end_date: formatDate(yesterday)
+          };
+        }
+        case 'Last 7 Days': {
+          const sevenDaysAgo = new Date(today);
+          sevenDaysAgo.setDate(today.getDate() - 6);
+          return {
+            start_date: formatDate(sevenDaysAgo),
+            end_date: formatDate(today)
+          };
+        }
+        case 'Last 30 Days': {
+          const thirtyDaysAgo = new Date(today);
+          thirtyDaysAgo.setDate(today.getDate() - 29);
+          return {
+            start_date: formatDate(thirtyDaysAgo),
+            end_date: formatDate(today)
+          };
+        }
+        case 'Current Month': {
+          const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+          return {
+            start_date: formatDate(firstDayOfMonth),
+            end_date: formatDate(today)
+          };
+        }
+        case 'Last Month': {
+          const firstDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+          const lastDayOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+          return {
+            start_date: formatDate(firstDayOfLastMonth),
+            end_date: formatDate(lastDayOfLastMonth)
+          };
+        }
+        case 'Custom Range': {
+          if (startDate && endDate) {
+            return {
+              start_date: formatDate(startDate),
+              end_date: formatDate(endDate)
+            };
+          }
+          return {};
+        }
+        default: {
+          const defaultStart = new Date(today);
+          defaultStart.setDate(today.getDate() - 29);
+          return {
+            start_date: formatDate(defaultStart),
+            end_date: formatDate(today)
+          };
+        }
+      }
+    };
+
+    const requestData = {
+      ...getDateRange(range),
+      outlet_id: localStorage.getItem('outlet_id')
+    };
+
+    return requestData;
+  }, [formatDate, startDate, endDate]);
+
+  // Memoized function to fetch statistics
+  const fetchStatistics = useMemo(() => async (range = 'All Time', useAuth = true) => {
+    try {
+      setLoading(true);
+      setError('');
+
+      const requestData = prepareRequestData(range);
+      console.log('Sending request with data:', requestData);
+      
+      const response = await axios.post(`${apiEndpoint}analytics_reports`, requestData, {
+        headers: getAuthHeaders(useAuth)
+      });
+
+      if (response.data) {
+        setStatistics({
+          total_orders: response.data.total_orders || 0,
+          average_order_value: response.data.average_order_value || 0,
+          customer_count: response.data.customer_count || 0,
+          total_revenue: response.data.total_revenue || 0,
+          average_turnover_time: response.data.average_turnover_time || "00:00 - 00:00"
+        });
+      }
+    } catch (error) {
+      console.error('Failed to fetch statistics:', error);
+      const errorMessage = error.response?.data?.message || 
+                          error.response?.status === 401 ? 'Unauthorized access' :
+                          error.request ? 'No response from server' :
+                          'Failed to fetch statistics';
+      
+      setError(errorMessage);
+      if (error.response?.status === 401) {
         navigate('/login');
       }
-      
-      return error.response.data?.message || 'An error occurred. Please try again.';
-    } else if (error.request) {
-      return 'No response from server. Please check your internet connection.';
-    } else {
-      return 'Error setting up request. Please try again.';
-    }
-  };
 
-  // Function to fetch all-time statistics at initial load
-  const fetchAllTimeStatistics = async (outletId, useAuth = true) => {
-    try {
-      setLoading(true);
-      setError('');
-      
-      // For All Time data, just send the outlet_id without any date parameters
-      const requestData = {
-        outlet_id: outletId
-      };
-
-      console.log('Sending initial request with data:', requestData);
-      console.log('API endpoint:', apiEndpoint + 'analytics_reports');
-      console.log('Using authentication:', useAuth);
-
-      // Use POST method with direct axios call, specifying whether to use auth
-      const response = await axios.post(`${apiEndpoint}analytics_reports`, requestData, {
-        headers: getAuthHeaders(useAuth)
-      });
-      
-      console.log('API Response:', response.data);
-      
-      if (response.data) {
-        // Update statistics state with the received data
-        setStatistics({
-          total_orders: response.data.total_orders || 0,
-          average_order_value: response.data.average_order_value || 0,
-          customer_count: response.data.customer_count || 0,
-          total_revenue: response.data.total_revenue || 0,
-          average_turnover_time: response.data.average_turnover_time || "00:00 - 00:00"
-        });
-      }
-    } catch (error) {
-      console.error('Failed to fetch statistics:', error);
-      const errorMessage = handleApiError(error);
-      setError(errorMessage || 'Failed to fetch statistics. Please try again.');
-      
       // Reset statistics on error
       setStatistics({
         total_orders: 0,
@@ -175,156 +211,38 @@ function HomeScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [prepareRequestData, getAuthHeaders, navigate]);
 
-  // Function for fetching statistics with date range filters
-  const fetchStatistics = async (range, useAuth = true) => {
-    try {
-      setLoading(true);
-      setError('');
-      
-      let requestData = {};
-      const today = new Date();
-      
-      // Handle different date range options with explicit date calculations
-      if (range === 'All Time') {
-        // For All Time, don't send start_date and end_date
-        requestData = {};
-      } else if (range === 'Today') {
-        // Today - both start and end are today
-        requestData = {
-          start_date: formatDate(today),
-          end_date: formatDate(today)
-        };
-      } else if (range === 'Yesterday') {
-        // Yesterday
-        const yesterday = new Date(today);
-        yesterday.setDate(today.getDate() - 1);
-        requestData = {
-          start_date: formatDate(yesterday),
-          end_date: formatDate(yesterday)
-        };
-      } else if (range === 'Last 7 Days') {
-        // Last 7 Days
-        const sevenDaysAgo = new Date(today);
-        sevenDaysAgo.setDate(today.getDate() - 6); // -6 because it includes today
-        requestData = {
-          start_date: formatDate(sevenDaysAgo),
-          end_date: formatDate(today)
-        };
-      } else if (range === 'Last 30 Days') {
-        // Last 30 Days
-        const thirtyDaysAgo = new Date(today);
-        thirtyDaysAgo.setDate(today.getDate() - 29); // -29 because it includes today
-        requestData = {
-          start_date: formatDate(thirtyDaysAgo),
-          end_date: formatDate(today)
-        };
-      } else if (range === 'Current Month') {
-        // Current Month - from 1st of current month to today
-        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-        requestData = {
-          start_date: formatDate(firstDayOfMonth),
-          end_date: formatDate(today)
-        };
-      } else if (range === 'Last Month') {
-        // Last Month - from 1st to last day of previous month
-        const firstDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-        const lastDayOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
-        requestData = {
-          start_date: formatDate(firstDayOfLastMonth),
-          end_date: formatDate(lastDayOfLastMonth)
-        };
-      } else if (range === 'Custom Range' && startDate && endDate) {
-        // Custom Range - use the selected dates
-        requestData = {
-          start_date: formatDate(startDate),
-          end_date: formatDate(endDate)
-        };
-      } else {
-        // If Custom Range but no dates selected, default to last 30 days
-        const thirtyDaysAgo = new Date(today);
-        thirtyDaysAgo.setDate(today.getDate() - 29);
-        
-        requestData = {
-          start_date: formatDate(thirtyDaysAgo),
-          end_date: formatDate(today)
-        };
-        // Update the displayed date range
-        setDateRange('Last 30 Days');
-      }
-      
-      // Add outlet_id explicitly to the request data
-      const outletId = localStorage.getItem('outlet_id');
-      requestData.outlet_id = outletId;
-
-      console.log('Sending request with data:', requestData);
-      console.log('API endpoint:', apiEndpoint + 'analytics_reports');
-      console.log('Using authentication:', useAuth);
-
-      // Use POST method with direct axios call, specifying whether to use auth
-      const response = await axios.post(`${apiEndpoint}analytics_reports`, requestData, {
-        headers: getAuthHeaders(useAuth)
-      });
-      
-      console.log('API Response:', response.data);
-      
-      if (response.data) {
-        // Update statistics state with the received data
-        setStatistics({
-          total_orders: response.data.total_orders || 0,
-          average_order_value: response.data.average_order_value || 0,
-          customer_count: response.data.customer_count || 0,
-          total_revenue: response.data.total_revenue || 0,
-          average_turnover_time: response.data.average_turnover_time || "00:00 - 00:00"
-        });
-      }
-    } catch (error) {
-      console.error('Failed to fetch statistics:', error);
-      const errorMessage = handleApiError(error);
-      setError(errorMessage || 'Failed to fetch statistics. Please try again.');
-      
-      // Reset statistics on error
-      setStatistics({
-        total_orders: 0,
-        average_order_value: 0,
-        customer_count: 0,
-        total_revenue: 0,
-        average_turnover_time: "00:00 - 00:00"
-      });
-    } finally {
-      setLoading(false);
+  // Initial data fetch on component mount
+  useEffect(() => {
+    const outletId = localStorage.getItem('outlet_id');
+    if (outletId) {
+      fetchStatistics('All Time');
     }
-  };
+  }, [fetchStatistics]);
 
   const handleDateRangeChange = (range) => {
     setDateRange(range);
-    
     if (range === 'Custom Range') {
-      // Reset date selections when opening custom date picker
       setStartDate(null);
       setEndDate(null);
       setShowDatePicker(true);
     } else {
       setShowDatePicker(false);
-      // Default to using authentication, but you can change to false if needed
-      fetchStatistics(range, true);
+      fetchStatistics(range);
     }
   };
 
   const handleReload = () => {
-    // Default to using authentication, but you can change to false if needed
-    fetchStatistics(dateRange, true);
+    fetchStatistics(dateRange);
   };
 
   const handleCustomDateSelect = () => {
     if (startDate && endDate) {
       setDateRange(`${formatDate(startDate)} - ${formatDate(endDate)}`);
       setShowDatePicker(false);
-      // Default to using authentication, but you can change to false if needed
-      fetchStatistics('Custom Range', true);
+      fetchStatistics('Custom Range');
     } else {
-      // Show error message if dates are not selected
       setError('Please select both start and end dates.');
     }
   };
