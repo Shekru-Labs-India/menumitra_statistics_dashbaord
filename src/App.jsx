@@ -11,6 +11,7 @@ import MyProfile from './screen/MyProfile'
 import Header from './components/Header'
 import TopSell from './components/TopSell';
 import FoodTypeGraph from './components/FoodTypeGraph';
+import Settings from './screen/Settings';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
             {/* Protected routes */}
             <Route path="/dashboard" element={<HomeScreen />} />
             <Route path="/profile" element={<MyProfile />} />
+            <Route path="/settings" element={<Settings />} /> 
             
             {/* Default redirect to login */}
             <Route path="/" element={<Navigate to="/login" replace />} />

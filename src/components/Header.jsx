@@ -311,13 +311,13 @@ function Header() {
                     </a>
                   </li>
                   <li>
-                    <a
+                    <Link
                       className="dropdown-item"
-                      href="pages-account-settings-account.html"
+                      to="/settings"
                     >
                       <i className="fas fa-cog fa-lg me-2" />
                       <span className="align-middle">Settings</span>
-                    </a>
+                    </Link>
                   </li>
                   {/* <li>
                     <a
