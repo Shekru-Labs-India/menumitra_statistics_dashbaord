@@ -2,18 +2,47 @@ import React, { useState, useEffect } from 'react';
 import ReactApexChart from 'react-apexcharts';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import axios from 'axios';
 // Import both GIFs - static and animated
 import aiAnimationGif from '../assets/img/gif/AI-animation-unscreen.gif';
 import aiAnimationStillFrame from '../assets/img/gif/AI-animation-unscreen-still-frame.gif';
 
 const PaymentMethodsChart = () => {
   const [dateRange, setDateRange] = useState('Today');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isGifPlaying, setIsGifPlaying] = useState(false);
+  const [paymentData, setPaymentData] = useState({
+    upi_amount: 0,
+    upi_orders: 0,
+    cash_amount: 0,
+    cash_orders: 0,
+    card_amount: 0,
+    card_orders: 0,
+    complemenatry_amount: 0,
+    complemenatry_orders: 0
+  });
   
+  // Helper function to get auth headers
+  const getAuthHeaders = (includeAuth = true) => {
+    const headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    };
+    
+    // Only add Authorization header if includeAuth is true and token exists
+    if (includeAuth) {
+      const accessToken = localStorage.getItem('access');
+      if (accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`;
+      }
+    }
+    
+    return headers;
+  };
+
   // Simplified effect to handle the animation timing
   useEffect(() => {
     if (isGifPlaying) {
@@ -25,6 +54,10 @@ const PaymentMethodsChart = () => {
       return () => clearTimeout(timer);
     }
   }, [isGifPlaying]);
+
+  useEffect(() => {
+    fetchData(dateRange);
+  }, []);
 
   const formatDate = (date) => {
     if (!date) return '';
@@ -41,40 +74,125 @@ const PaymentMethodsChart = () => {
     if (range !== 'Custom Range') {
         fetchData(range);
     }
-};
+  };
 
-const handleReload = () => {
+  const handleReload = () => {
     setLoading(true);
     fetchData(dateRange);
-    setTimeout(() => setLoading(false), 1000);
-};
+  };
 
-const fetchData = (range) => {
-    if (range === 'Custom Range' && startDate && endDate) {
-        console.log('Fetching data for custom range:', startDate, endDate);
-    } else {
-        console.log('Fetching data for range:', range);
+  const fetchData = async (range) => {
+    try {
+      setLoading(true);
+      
+      // Get values from localStorage
+      const outlet_id = localStorage.getItem('outlet_id') ? parseInt(localStorage.getItem('outlet_id')) : 74;
+      const owner_id = localStorage.getItem('user_id') ? parseInt(localStorage.getItem('user_id')) : 412;
+      
+      // Prepare request data with proper date ranges
+      let requestData = {
+        outlet_id: outlet_id,
+        owner_id: owner_id
+      };
+
+      // Handle different date range options (same as HomeScreen)
+      const today = new Date();
+      
+      switch(range) {
+        case 'Today':
+          requestData.start_date = formatDate(today);
+          requestData.end_date = formatDate(today);
+          break;
+        case 'Yesterday': {
+          const yesterday = new Date(today);
+          yesterday.setDate(today.getDate() - 1);
+          requestData.start_date = formatDate(yesterday);
+          requestData.end_date = formatDate(yesterday);
+          break;
+        }
+        case 'Last 7 Days': {
+          const sevenDaysAgo = new Date(today);
+          sevenDaysAgo.setDate(today.getDate() - 6); // -6 because it includes today
+          requestData.start_date = formatDate(sevenDaysAgo);
+          requestData.end_date = formatDate(today);
+          break;
+        }
+        case 'Last 30 Days': {
+          const thirtyDaysAgo = new Date(today);
+          thirtyDaysAgo.setDate(today.getDate() - 29); // -29 because it includes today
+          requestData.start_date = formatDate(thirtyDaysAgo);
+          requestData.end_date = formatDate(today);
+          break;
+        }
+        case 'Current Month': {
+          const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+          requestData.start_date = formatDate(firstDayOfMonth);
+          requestData.end_date = formatDate(today);
+          break;
+        }
+        case 'Last Month': {
+          const firstDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+          const lastDayOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+          requestData.start_date = formatDate(firstDayOfLastMonth);
+          requestData.end_date = formatDate(lastDayOfLastMonth);
+          break;
+        }
+        case 'Custom Range': {
+          if (startDate && endDate) {
+            requestData.start_date = formatDate(startDate);
+            requestData.end_date = formatDate(endDate);
+          }
+          break;
+        }
+        default: {
+          // Default to Today if something goes wrong
+          requestData.start_date = formatDate(today);
+          requestData.end_date = formatDate(today);
+          break;
+        }
+      }
+
+      console.log('Sending request with data:', requestData);
+
+      // Make API call with auth headers
+      const response = await axios.post(
+        'https://men4u.xyz/outlet_statistics/total_collection_source',
+        requestData,
+        {
+          headers: getAuthHeaders()
+        }
+      );
+
+      if (response.data && response.data.message === 'success') {
+        setPaymentData(response.data.data);
+      } else {
+        console.error('API response error:', response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching payment data:', error);
+    } finally {
+      setLoading(false);
     }
-};
+  };
 
-const handleCustomDateSelect = () => {
+  const handleCustomDateSelect = () => {
     if (startDate && endDate) {
         setDateRange(`${formatDate(startDate)} - ${formatDate(endDate)}`);
         setShowDatePicker(false);
         fetchData('Custom Range');
     }
-};
+  };
 
+  // Transform API data to the format expected by our component
   const data = [
-    { method: 'Cash', value: Math.floor(Math.random() * 2000), count: Math.floor(Math.random() * 50) },
-    { method: 'Card', value: Math.floor(Math.random() * 2000), count: Math.floor(Math.random() * 50) },
-    { method: 'UPI', value: Math.floor(Math.random() * 2000), count: Math.floor(Math.random() * 50) },
-    { method: 'Complimentary', value: Math.floor(Math.random() * 2000), count: Math.floor(Math.random() * 50) },
-    
-    
+    { method: 'Cash', value: paymentData.cash_amount || 0, count: paymentData.cash_orders || 0 },
+    { method: 'Card', value: paymentData.card_amount || 0, count: paymentData.card_orders || 0 },
+    { method: 'UPI', value: paymentData.upi_amount || 0, count: paymentData.upi_orders || 0 },
+    { method: 'Complimentary', value: paymentData.complemenatry_amount || 0, count: paymentData.complemenatry_orders || 0 },
   ];
 
   const total = data.reduce((sum, item) => sum + item.value, 0);
+  const maxValue = Math.max(...data.map(d => d.value), 1); // Avoid division by zero
 
   return (
     <div className="card">
@@ -206,38 +324,46 @@ const handleCustomDateSelect = () => {
       <div className="card-body">
         <div className="d-flex justify-content-between mb-3">
           <div>
-            <h6 className="mb-0">Total: ₹{total}</h6>
+            <h6 className="mb-0">Total: ₹{total.toFixed(2)}</h6>
           </div>
         </div>
-        <div className="payment-methods-chart">
-          {data.map((item, index) => (
-            <div key={index} className="d-flex align-items-center mb-3 payment-row">
-              <div className="payment-method" style={{ width: '120px', color: '#433c50' }}>
-                {item.method}
-              </div>
-              <div className="flex-grow-1 px-3">
-                <div className="progress" style={{ height: '8px', backgroundColor: '#f4f5fa' }}>
-                  <div 
-                    className="progress-bar bg-primary" 
-                    role="progressbar" 
-                    style={{ 
-                      width: `${(item.value / Math.max(...data.map(d => d.value))) * 100}%`,
-                      backgroundColor: '#8c57ff',
-                      borderRadius: '4px'
-                    }} 
-                    aria-valuenow={item.value} 
-                    aria-valuemin="0" 
-                    aria-valuemax={Math.max(...data.map(d => d.value))}
-                  ></div>
+        {loading ? (
+          <div className="d-flex justify-content-center p-3">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        ) : (
+          <div className="payment-methods-chart">
+            {data.map((item, index) => (
+              <div key={index} className="d-flex align-items-center mb-3 payment-row">
+                <div className="payment-method" style={{ width: '120px', color: '#433c50' }}>
+                  {item.method}
+                </div>
+                <div className="flex-grow-1 px-3">
+                  <div className="progress" style={{ height: '8px', backgroundColor: '#f4f5fa' }}>
+                    <div 
+                      className="progress-bar bg-primary" 
+                      role="progressbar" 
+                      style={{ 
+                        width: `${(item.value / maxValue) * 100}%`,
+                        backgroundColor: '#8c57ff',
+                        borderRadius: '4px'
+                      }} 
+                      aria-valuenow={item.value} 
+                      aria-valuemin="0" 
+                      aria-valuemax={maxValue}
+                    ></div>
+                  </div>
+                </div>
+                <div className="payment-amount" style={{ width: '120px', textAlign: 'right', color: '#433c50' }}>
+                  <div>₹{item.value.toFixed(2)}</div>
+                  <div className="text-muted small">{item.count} orders</div>
                 </div>
               </div>
-              <div className="payment-amount" style={{ width: '120px', textAlign: 'right', color: '#433c50' }}>
-                <div>₹{item.value}</div>
-                <div className="text-muted small">{item.count} orders</div>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
