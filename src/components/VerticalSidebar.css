@@ -1,0 +1,254 @@
+.layout-menu {
+  width: 70px; /* STATIC state - collapsed width */
+  transform: translateX(0);
+  transition: all 0.3s ease;
+  background: white;
+  border-right: 1px solid #e9ecef;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* HOVER and PINNED states - expanded width */
+.layout-menu.docked,
+.layout-menu:not(.docked).hovered {
+  width: 260px;
+}
+
+/* Mobile state */
+.layout-menu.mobile {
+  position: fixed !important;
+  transform: translateX(-100%);
+  z-index: 1050;
+}
+
+.layout-menu.mobile.docked,
+.layout-menu.mobile.hovered {
+  transform: translateX(0);
+  width: 260px;
+}
+
+/* Search bar styles */
+.menu-search {
+  display: none;
+  transition: all 0.3s ease;
+  padding: 1rem 1.25rem;
+}
+
+.layout-menu.docked .menu-search,
+.layout-menu.hovered .menu-search {
+  display: block;
+}
+
+.search-input-wrapper {
+  position: relative;
+}
+
+.search-input-wrapper .search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  font-size: 1.25rem;
+}
+
+.search-input-wrapper .form-control {
+  padding: 0.5rem 0.75rem 0.5rem 2.5rem;
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 0.375rem;
+  color: #666;
+  font-size: 0.9375rem;
+  width: 100%;
+}
+
+.search-input-wrapper .form-control:focus {
+  background-color: white;
+  border-color: #7367f0;
+  box-shadow: none;
+  outline: none;
+}
+
+/* Menu header styles */
+.menu-header {
+  margin: 1rem 0 0.5rem;
+  padding: 0 1.25rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #a5a3ae;
+  letter-spacing: 0.5px;
+}
+
+.layout-menu:not(.docked):not(.hovered) .menu-header {
+  opacity: 0;
+  height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Pin button styles */
+.menu-pin-toggle {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.layout-menu.docked .menu-pin-toggle,
+.layout-menu.hovered .menu-pin-toggle {
+  opacity: 1;
+}
+
+.menu-pin-toggle .btn {
+  padding: 0.25rem;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e9ecef;
+  border-radius: 50%;
+  background: white;
+  color: #666;
+  transition: all 0.2s ease;
+}
+
+.menu-pin-toggle .btn:hover {
+  background: #f8f9fa;
+  color: #333;
+}
+
+/* Menu items container */
+.menu-inner {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  width: 260px; /* Match expanded width */
+}
+
+/* Logo and brand text transitions */
+.app-brand-text {
+  opacity: 1;
+  transition: opacity 0.3s ease;
+  white-space: nowrap;
+  color: #333;
+  font-weight: 600;
+}
+
+/* Hide text in STATIC state */
+.layout-menu:not(.docked):not(.hovered) .app-brand-text {
+  opacity: 0;
+  width: 0;
+  visibility: hidden;
+}
+
+/* Menu item styles */
+.menu-item {
+  position: relative;
+  margin: 0.125rem 0.75rem;
+}
+
+.menu-link {
+  display: flex;
+  align-items: center;
+  padding: 0.625rem 1.25rem;
+  color: #666;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  border-radius: 6px;
+}
+
+.menu-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  min-width: 1.5rem;
+  margin-right: 0.75rem;
+  transition: all 0.3s ease;
+  font-size: 1.25rem;
+  color: #666;
+}
+
+/* STATIC state adjustments */
+.layout-menu:not(.docked):not(.hovered) {
+  .menu-link {
+    justify-content: center;
+    padding: 0.625rem 0;
+    margin: 0.125rem auto;
+    width: 3.5rem;
+  }
+  
+  .menu-icon {
+    margin-right: 0;
+    width: 1.5rem;
+  }
+  
+  .menu-link div {
+    opacity: 0;
+    width: 0;
+    visibility: hidden;
+  }
+}
+
+/* Active menu item styles */
+.menu-item.active .menu-link {
+  color: white;
+  background: #7367f0;
+  box-shadow: 0 2px 6px 0 rgba(115, 103, 240, 0.48);
+}
+
+.menu-item.active .menu-icon {
+  color: white;
+}
+
+/* Brand section adjustments */
+.app-brand {
+  padding: 0 1.25rem;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.3s ease;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.layout-menu:not(.docked):not(.hovered) .app-brand {
+  padding: 0;
+  justify-content: center;
+}
+
+/* Menu inner shadow */
+.menu-inner-shadow {
+  display: none;
+}
+
+/* Hover effect for menu items */
+.menu-link:hover {
+  color: #7367f0;
+  background: #f8f8ff;
+}
+
+.menu-link:hover .menu-icon {
+  color: #7367f0;
+}
+
+.menu-item.active .menu-link:hover {
+  color: white;
+  background: #7367f0;
+}
+
+/* App brand link styles */
+.app-brand-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Adjust logo container in STATIC state */
+.layout-menu:not(.docked):not(.hovered) .app-brand-logo {
+  margin: 0;
+} 
