@@ -1,45 +1,49 @@
 import React from "react";
 import Header from "../components/Header";
 import VerticalSidebar from "../components/VerticalSidebar";
-// import { useTheme } from "../context/ThemeContext";
+
 
 function Settings() {
-//   const { isDarkMode, toggleTheme } = useTheme();
+  const { isDarkMode, setTheme } = useTheme();
 
   return (
     <div className="layout-container">
       <VerticalSidebar />
       <div className="layout-page d-flex flex-column min-vh-100">
         <Header />
-        <div className="container-xxl flex-grow-1 container-p-y">
-          <div className="card mb-4">
-            <h5 className="card-header">Display Settings</h5>
-            <div className="card-body">
-              <div className="d-flex align-items-start align-items-sm-center gap-4">
-                <div className="flex-grow-1">
-                  <h6 className="mb-2">Theme Mode</h6>
-                  <div className="d-flex align-items-center">
-                    <div className="form-check form-switch me-3">
-                      <input
-                        className="form-check-input cursor-pointer"
-                        type="checkbox"
-                        id="themeSwitch"
-                       
-                      />
-                      <label
-                        className="form-check-label cursor-pointer"
-                        htmlFor="themeSwitch"
+        <div className="content-wrapper">
+          <div className="container-xxl flex-grow-1 container-p-y">
+            <h4 className="py-3 mb-4">Settings</h4>
+            <div className="row">
+              <div className="col-12">
+                <div className="card mb-4">
+                  <div className="card-header d-flex justify-content-between align-items-center">
+                    <h5 className="card-title mb-0">Theme Settings</h5>
+                    <div className="theme-switcher">
+                      <button 
+                        className={`btn btn-icon ${!isDarkMode ? 'btn-primary' : 'btn-outline-secondary'} me-2`}
+                        onClick={() => setTheme('light')}
+                        title="Light Mode"
                       >
-                       
-                      </label>
+                        <i className="fas fa-sun"></i>
+                      </button>
+                      <button 
+                        className={`btn btn-icon ${isDarkMode ? 'btn-primary' : 'btn-outline-secondary'}`}
+                        onClick={() => setTheme('dark')}
+                        title="Dark Mode"
+                      >
+                        <i className="fas fa-moon"></i>
+                      </button>
                     </div>
                   </div>
-                  <p className="text-muted mt-2 mb-0">
-                    Choose between light or dark theme. Dark theme helps reduce
-                    eye strain in low-light conditions.
-                  </p>
+                  <div className="card-body">
+                    <p className="text-muted mb-0">
+                      {isDarkMode 
+                        ? "Dark mode is currently active. The interface uses a dark color scheme for better visibility in low-light conditions."
+                        : "Light mode is currently active. The interface uses a light color scheme for better visibility in bright conditions."}
+                    </p>
+                  </div>
                 </div>
-               
               </div>
             </div>
           </div>

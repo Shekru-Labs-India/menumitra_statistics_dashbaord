@@ -206,7 +206,7 @@ function Header() {
             <div className="navbar-nav flex-row">
               <li className="nav-item dropdown me-3">
                 <button
-                  className="btn btn-outline-primary dropdown-toggle d-flex align-items-center"
+                  className="btn btn-outline-primary dropdown-toggle d-flex align-items-center border border-primary"
                   type="button"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
