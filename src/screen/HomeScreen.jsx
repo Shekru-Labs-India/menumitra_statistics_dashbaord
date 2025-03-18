@@ -179,13 +179,13 @@ function HomeScreen() {
         headers: getAuthHeaders(useAuth)
       });
 
-      if (response.data) {
+      if (response.data?.message === 'success' && response.data?.data) {
         setStatistics({
-          total_orders: response.data.total_orders || 0,
-          average_order_value: response.data.average_order_value || 0,
-          customer_count: response.data.customer_count || 0,
-          total_revenue: response.data.total_revenue || 0,
-          average_turnover_time: response.data.average_turnover_time || "00:00 - 00:00"
+          total_orders: response.data.data.total_orders || 0,
+          average_order_value: response.data.data.average_order_value || 0,
+          customer_count: 0, // Removed from API response
+          total_revenue: response.data.data.total_revenue || 0,
+          average_turnover_time: response.data.data.average_turnover_time || "0 min"
         });
       }
     } catch (error) {
@@ -206,7 +206,7 @@ function HomeScreen() {
         average_order_value: 0,
         customer_count: 0,
         total_revenue: 0,
-        average_turnover_time: "00:00 - 00:00"
+        average_turnover_time: "0 min"
       });
     } finally {
       setLoading(false);
