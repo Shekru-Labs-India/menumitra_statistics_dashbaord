@@ -45,7 +45,7 @@ const placeholderOrderTypes = [
 ];
 
 const OrderType = () => {
-  const [dateRange, setDateRange] = useState('Today');
+  const [dateRange, setDateRange] = useState('All Time');
   const [loading, setLoading] = useState(true);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -133,7 +133,9 @@ const OrderType = () => {
       requestData.outlet_id = outletId;
       
       // Handle different date range options
-      if (range === 'Today') {
+      if (range === 'All Time') {
+        // Don't add date range for All Time
+      } else if (range === 'Today') {
         // Today - both start and end are today
         requestData.start_date = formatDate(today);
         requestData.end_date = formatDate(today);
@@ -271,7 +273,7 @@ const OrderType = () => {
   useEffect(() => {
     const outletId = localStorage.getItem('outlet_id');
     if (outletId) {
-      fetchData('Today');
+      fetchData('All Time');
     } else {
       setError('No outlet ID found. Please log in again.');
       setLoading(false);
@@ -306,7 +308,7 @@ const OrderType = () => {
               {dateRange}
             </button>
             <ul className="dropdown-menu dropdown-menu-end">
-              {['Today', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Current Month', 'Last Month'].map((range) => (
+              {['All Time', 'Today', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Current Month', 'Last Month'].map((range) => (
                 <li key={range}>
                   <a href="javascript:void(0);"
                     className="dropdown-item d-flex align-items-center"
