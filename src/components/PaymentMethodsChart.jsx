@@ -8,7 +8,7 @@ import aiAnimationGif from '../assets/img/gif/AI-animation-unscreen.gif';
 import aiAnimationStillFrame from '../assets/img/gif/AI-animation-unscreen-still-frame.gif';
 
 const PaymentMethodsChart = () => {
-  const [dateRange, setDateRange] = useState('Today');
+  const [dateRange, setDateRange] = useState('All Time');
   const [loading, setLoading] = useState(true);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -99,6 +99,9 @@ const PaymentMethodsChart = () => {
       const today = new Date();
       
       switch(range) {
+        case 'All Time':
+          // Don't include date range for 'All Time'
+          break;
         case 'Today':
           requestData.start_date = formatDate(today);
           requestData.end_date = formatDate(today);
@@ -192,7 +195,6 @@ const PaymentMethodsChart = () => {
   ];
 
   const total = data.reduce((sum, item) => sum + item.value, 0);
-  const maxValue = Math.max(...data.map(d => d.value), 1); // Avoid division by zero
 
   return (
     <div className="card">
@@ -210,7 +212,7 @@ const PaymentMethodsChart = () => {
                             {dateRange}
                         </button>
                         <ul className="dropdown-menu dropdown-menu-end">
-                            {['Today', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Current Month', 'Last Month'].map((range) => (
+                            {['All Time', 'Today', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Current Month', 'Last Month'].map((range) => (
                                 <li key={range}>
                                     <a href="javascript:void(0);"
                                         className="dropdown-item d-flex align-items-center"
