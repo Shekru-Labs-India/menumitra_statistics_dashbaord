@@ -23,7 +23,7 @@ import PaymentMethodCount from "../components/PaymentMethodCount";
 import WeeklyOrderStat from "../components/WeeklyOrderStat";
 
 function HomeScreen() {
-  const [dateRange, setDateRange] = useState('Today');
+  const [dateRange, setDateRange] = useState('All Time');
   const [loading, setLoading] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -93,7 +93,7 @@ function HomeScreen() {
     const getDateRange = (range) => {
       switch(range) {
         case 'All Time':
-          return {};
+          return {}; // Only send outlet_id for All Time
         case 'Today':
           return {
             start_date: formatDate(today),
