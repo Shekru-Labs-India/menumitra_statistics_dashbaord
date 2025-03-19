@@ -330,7 +330,7 @@ const PaymentMethodsChart = () => {
         <div className="payment-methods-chart">
           {data.map((item, index) => (
             <div key={index} className="d-flex align-items-center mb-3 payment-row">
-              <div className="payment-method" style={{ width: '120px', color: '#433c50' }}>
+              <div className="payment-method text-dark" style={{ width: '120px', color: '#433c50' }}>
                 {item.method}
               </div>
               <div className="flex-grow-1 px-3">
