@@ -5,7 +5,24 @@
     <link rel="icon" type="image/png" href="/assets/MenuMitra_logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-<link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
+    <!-- Prevent flash of incorrect theme -->
+    <script>
+      (function() {
+        // Get saved theme or use light as default
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        
+        // Check if system preference should be used
+        if (savedTheme === 'system') {
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          document.documentElement.classList.add(prefersDark ? 'dark-style' : 'light-style');
+        } else {
+          // Otherwise use the saved theme
+          document.documentElement.classList.add(savedTheme === 'dark' ? 'dark-style' : 'light-style');
+        }
+      })();
+    </script>
+
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
     
 <!-- <link rel="manifest" href="%PUBLIC_URL%/manifest.json" /> -->
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
