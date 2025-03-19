@@ -9,6 +9,7 @@ function VerticalSidebar() {
   const [isHovered, setIsHovered] = useState(false)
   const [isSmallScreen, setIsSmallScreen] = useState(false)
   const [showPinButton, setShowPinButton] = useState(false)
+  const [isMobileExpanded, setIsMobileExpanded] = useState(false)
   const sidebarRef = useRef(null)
   const hoverTimerRef = useRef(null)
 
@@ -17,12 +18,26 @@ function VerticalSidebar() {
       setIsSmallScreen(window.Helpers.isSmallScreen());
     }
 
+    // Check if menu is expanded on mobile
+    const isExpanded = document.documentElement.classList.contains('layout-menu-expanded');
+    setIsMobileExpanded(isExpanded);
+
     window.addEventListener('resize', handleResize);
+    
+    // Listen for menu toggle events from other components
+    window.addEventListener('layout:toggle', handleLayoutToggle);
+    
     return () => {
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('layout:toggle', handleLayoutToggle);
       clearTimeout(hoverTimerRef.current);
     };
   }, []);
+
+  const handleLayoutToggle = () => {
+    const isExpanded = document.documentElement.classList.contains('layout-menu-expanded');
+    setIsMobileExpanded(isExpanded);
+  };
 
   const handleResize = () => {
     if (window.Helpers) {
@@ -57,6 +72,16 @@ function VerticalSidebar() {
     setIsHovered(false);
   };
 
+  const handleOverlayClick = () => {
+    if (isSmallScreen && isMobileExpanded) {
+      // Toggle menu closed
+      if (window.Helpers) {
+        window.Helpers.toggleCollapsed();
+        setIsMobileExpanded(false);
+      }
+    }
+  };
+
   const isActive = (path) => {
     return location.pathname === path
   }
@@ -66,50 +91,62 @@ function VerticalSidebar() {
     ${isHovered ? 'hovered' : ''}
     ${isDocked ? 'docked' : ''}
     ${isSmallScreen ? 'mobile' : ''}
+    ${isSmallScreen && isMobileExpanded ? 'expanded' : ''}
   `;
 
   return (
-    <aside 
-      id="layout-menu" 
-      className={sidebarClasses}
-      ref={sidebarRef}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
-      {/* Logo Section */}
-      <div className="sidebar-brand">
-        <Link to="/dashboard" className="sidebar-brand-link">
-          <span className="sidebar-brand-logo">
-            <img src={logo} alt="MenuMitra" width="32" />
-          </span>
-          <span className="sidebar-brand-text">MenuMitra</span>
-        </Link>
-
-        {!isSmallScreen && (
-          <div className="sidebar-pin-toggle">
-            {isDocked ? (
-              <button className="btn" onClick={handleUnpinClick} title="Unpin">
-                <i className="ri-pushpin-fill"></i>
-              </button>
-            ) : showPinButton && (
-              <button className="btn" onClick={handlePinClick} title="Pin">
-                <i className="ri-pushpin-line"></i>
-              </button>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Menu Items */}
-      <ul className="menu-inner">
-        <li className={`menu-item ${isActive('/dashboard') ? 'active' : ''}`}>
-          <Link to="/dashboard" className="menu-link">
-            <i className="menu-icon fa-solid fa-house text-white"></i>
-            <div>Home</div>
+    <>
+      <aside 
+        id="layout-menu" 
+        className={sidebarClasses}
+        ref={sidebarRef}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        {/* Logo Section */}
+        <div className="sidebar-brand">
+          <Link to="/dashboard" className="sidebar-brand-link">
+            <span className="sidebar-brand-logo">
+              <img src={logo} alt="MenuMitra" width="32" />
+            </span>
+            <span className="sidebar-brand-text">MenuMitra</span>
           </Link>
-        </li>
-      </ul>
-    </aside>
+
+          {!isSmallScreen && (
+            <div className="sidebar-pin-toggle">
+              {isDocked ? (
+                <button className="btn" onClick={handleUnpinClick} title="Unpin">
+                  <i className="ri-pushpin-fill"></i>
+                </button>
+              ) : showPinButton && (
+                <button className="btn" onClick={handlePinClick} title="Pin">
+                  <i className="ri-pushpin-line"></i>
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Menu Items */}
+        <ul className="menu-inner">
+          <li className={`menu-item ${isActive('/dashboard') ? 'active' : ''}`}>
+            <Link to="/dashboard" className="menu-link">
+              <i className="menu-icon fa-solid fa-house text-white"></i>
+              <div>Home</div>
+            </Link>
+          </li>
+        </ul>
+      </aside>
+      
+      {/* Overlay for mobile - only shown when menu is expanded on mobile */}
+      {isSmallScreen && isMobileExpanded && (
+        <div 
+          className="layout-overlay" 
+          onClick={handleOverlayClick}
+          aria-hidden="true"
+        ></div>
+      )}
+    </>
   );
 }
 

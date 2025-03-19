@@ -9,6 +9,7 @@
   height: 100vh;
   overflow-x: hidden;
   overflow-y: auto;
+  z-index: 1090;
 }
 
 /* HOVER and PINNED states - expanded width */
@@ -21,13 +22,32 @@
 .layout-menu.mobile {
   position: fixed !important;
   transform: translateX(-100%);
-  z-index: 1050;
+  z-index: 1090;
+  width: 260px; /* Always use expanded width on mobile */
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
 }
 
-.layout-menu.mobile.docked,
-.layout-menu.mobile.hovered {
+/* When mobile menu is expanded */
+.layout-menu.mobile.expanded {
   transform: translateX(0);
-  width: 260px;
+}
+
+/* Overlay for mobile menu */
+.layout-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(38, 41, 45, 0.5);
+  z-index: 1049;
+  animation: fadeIn 0.2s;
+  cursor: pointer;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* Search bar styles */
@@ -144,6 +164,13 @@
   visibility: hidden;
 }
 
+/* Special handling for mobile sidebar-brand-text */
+.layout-menu.mobile .sidebar-brand-text {
+  opacity: 1;
+  width: auto;
+  visibility: visible;
+}
+
 /* Menu item styles */
 .menu-item {
   position: relative;
@@ -174,24 +201,40 @@
 }
 
 /* STATIC state adjustments */
-.layout-menu:not(.docked):not(.hovered) {
-  .menu-link {
-    justify-content: center;
-    padding: 0.625rem 0;
-    margin: 0.125rem auto;
-    width: 3.5rem;
-  }
-  
-  .menu-icon {
-    margin-right: 0;
-    width: 1.5rem;
-  }
-  
-  .menu-link div {
-    opacity: 0;
-    width: 0;
-    visibility: hidden;
-  }
+.layout-menu:not(.docked):not(.hovered) .menu-link {
+  justify-content: center;
+  padding: 0.625rem 0;
+  margin: 0.125rem auto;
+  width: 3.5rem;
+}
+
+.layout-menu:not(.docked):not(.hovered) .menu-icon {
+  margin-right: 0;
+  width: 1.5rem;
+}
+
+.layout-menu:not(.docked):not(.hovered) .menu-link div {
+  opacity: 0;
+  width: 0;
+  visibility: hidden;
+}
+
+/* Mobile specific overrides */
+.layout-menu.mobile .menu-link {
+  justify-content: flex-start;
+  padding: 0.625rem 1.25rem;
+  margin: 0.125rem 0.75rem;
+  width: auto;
+}
+
+.layout-menu.mobile .menu-icon {
+  margin-right: 0.75rem;
+}
+
+.layout-menu.mobile .menu-link div {
+  opacity: 1;
+  width: auto;
+  visibility: visible;
 }
 
 /* Active menu item styles */
@@ -219,6 +262,12 @@
 .layout-menu:not(.docked):not(.hovered) .sidebar-brand {
   padding: 0;
   justify-content: center;
+}
+
+/* Mobile specific brand overrides */
+.layout-menu.mobile .sidebar-brand {
+  padding: 0 1.25rem;
+  justify-content: space-between;
 }
 
 /* Menu inner shadow */
@@ -251,4 +300,16 @@
 /* Adjust logo container in STATIC state */
 .layout-menu:not(.docked):not(.hovered) .sidebar-brand-logo {
   margin: 0;
+}
+
+/* Apply the layout-menu-expanded class to the body to manage overlay and behavior */
+html.layout-menu-expanded {
+  overflow: hidden;
+}
+
+/* Improve sidebar scrolling on mobile */
+@media (max-width: 1199.98px) {
+  .layout-menu.mobile {
+    -webkit-overflow-scrolling: touch;
+  }
 } 

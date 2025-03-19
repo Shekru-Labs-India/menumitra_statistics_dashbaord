@@ -223,11 +223,23 @@ function Header() {
       if (window.config && window.config.enableMenuLocalStorage) {
         try {
           localStorage.setItem(`templateCustomizer-${window.templateName}--LayoutCollapsed`, String(newState));
-          // Update data-menu-open attribute
-          document.documentElement.setAttribute('data-menu-open', String(!newState));
         } catch (error) {
           console.error('Error writing to localStorage:', error);
         }
+      }
+
+      // For mobile: toggle layout-menu-expanded class
+      if (window.Helpers.isSmallScreen()) {
+        if (newState) {
+          // Adding this class will show the sidebar overlay
+          document.documentElement.classList.remove('layout-menu-expanded');
+        } else {
+          // Removing this class will hide the sidebar overlay
+          document.documentElement.classList.add('layout-menu-expanded');
+        }
+        
+        // Update data-menu-open attribute
+        document.documentElement.setAttribute('data-menu-open', String(!newState));
       }
       
       // Trigger custom event for other components to listen
