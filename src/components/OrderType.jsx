@@ -467,10 +467,10 @@ const OrderType = () => {
                     </div>
                     <div className="d-flex align-items-center mt-3">
                       <h4 className="mb-0 me-2">{order.count}</h4>
-                      <small className={`${order.trendUp ? 'text-success' : 'text-danger'} fw-semibold`}>
+                      {/* <small className={`${order.trendUp ? 'text-success' : 'text-danger'} fw-semibold`}>
                         <i className={`fas fa-arrow-${order.trendUp ? 'up' : 'down'}`}></i>
                         {order.trend}
-                      </small>
+                      </small> */}
                     </div>
                     <small className="text-muted">Total Orders</small>
                   </div>
