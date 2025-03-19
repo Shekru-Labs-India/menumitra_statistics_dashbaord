@@ -13,166 +13,262 @@ const WeeklyOrderStat = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isGifPlaying, setIsGifPlaying] = useState(false);
 
-  // Generate mock data for the hours between 6 AM to 11:59 PM
-  const generateHourlyData = () => {
-    const hours = [];
+  // Generate mock data for Monday to Sunday
+  const generateWeeklyData = () => {
+    // Order days from Monday to Sunday
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     const orderCounts = [];
     
-    // Generate data for 6 AM to 11:59 PM
-    for (let i = 6; i <= 23; i++) {
-      const amPm = i < 12 ? 'AM' : 'PM';
-      const hourDisplay = i > 12 ? i - 12 : i;
-      hours.push(`${hourDisplay}:00 ${amPm}`);
-      
-      // Random order count with different peaks throughout the day
-      let count;
-      if (i >= 8 && i <= 9) {
-        // Morning peak (breakfast)
-        count = Math.floor(Math.random() * 30) + 40; // 40-70 orders
-      } else if (i >= 12 && i <= 14) {
-        // Lunch peak
-        count = Math.floor(Math.random() * 35) + 55; // 55-90 orders
-      } else if (i >= 19 && i <= 21) {
-        // Dinner peak
-        count = Math.floor(Math.random() * 40) + 60; // 60-100 orders
-      } else if (i >= 10 && i <= 11 || i >= 15 && i <= 18) {
-        // Medium time
-        count = Math.floor(Math.random() * 25) + 25; // 25-50 orders
-      } else {
-        // Low peak time
-        count = Math.floor(Math.random() * 15) + 10; // 10-25 orders
-      }
-      
-      orderCounts.push(count);
-    }
+    // Generate data between 0-1000
+    orderCounts.push(780); // Monday
+    orderCounts.push(850); // Tuesday
+    orderCounts.push(600); // Wednesday
+    orderCounts.push(820); // Thursday
+    orderCounts.push(750); // Friday
+    orderCounts.push(920); // Saturday
+    orderCounts.push(680); // Sunday
     
-    return { hours, orderCounts };
+    return { days, orderCounts };
   };
 
-  const { hours, orderCounts } = generateHourlyData();
+  const { days, orderCounts } = generateWeeklyData();
   
-  // Find peak and low peak times
+  // Find peak and low peak days
   const maxOrders = Math.max(...orderCounts);
   const minOrders = Math.min(...orderCounts);
-  const peakTimeIndex = orderCounts.indexOf(maxOrders);
-  const lowPeakTimeIndex = orderCounts.indexOf(minOrders);
-  const peakTime = hours[peakTimeIndex];
-  const lowPeakTime = hours[lowPeakTimeIndex];
+  const peakDayIndex = orderCounts.indexOf(maxOrders);
+  const lowPeakDayIndex = orderCounts.indexOf(minOrders);
+  const peakDay = days[peakDayIndex];
+  const lowPeakDay = days[lowPeakDayIndex];
+
+  // Colors for each day (Monday to Sunday)
+  const dayColors = [
+    '#9bbb59', // Monday - green
+    '#c0504d', // Tuesday - pink
+    '#d8c878', // Wednesday - gold
+    '#8064a2', // Thursday - purple
+    '#4bacc6', // Friday - teal
+    '#c0504d', // Saturday - red
+    '#4f81bd', // Sunday - blue
+  ];
 
   // ApexCharts options
   const chartOptions = {
     chart: {
-      height: 350,
-      type: 'line',
+      height: 300,
+      type: 'bar',
       toolbar: {
         show: false,
       },
       zoom: {
         enabled: false
-      }
-    },
-    colors: ['#8c57ff'],
-    dataLabels: {
-      enabled: true,
-      formatter: function(val) {
-        return val + ' orders';
       },
-      style: {
-        fontSize: '10px',
-      }
+      animations: {
+        enabled: true,
+        easing: 'easeinout',
+        speed: 800,
+        animateGradually: {
+          enabled: true,
+          delay: 150
+        },
+        dynamicAnimation: {
+          enabled: true,
+          speed: 350
+        }
+      },
+      fontFamily: 'Helvetica, Arial, sans-serif',
+      background: 'transparent'
     },
-    stroke: {
-      curve: 'smooth',
-      width: 3
+    colors: dayColors,
+    fill: {
+      opacity: 1
+    },
+    dataLabels: {
+      enabled: false
+    },
+    plotOptions: {
+      bar: {
+        borderRadius: 2,
+        columnWidth: '70%',
+        distributed: true,
+        endingShape: 'flat'
+      }
     },
     grid: {
-      borderColor: '#e7e7e7',
+      borderColor: 'rgba(0, 0, 0, 0.05)',
       row: {
-        colors: ['#f3f3f3', 'transparent'],
-        opacity: 0.5
+        colors: ['transparent'],
+        opacity: 0.2
       },
+      xaxis: {
+        lines: {
+          show: false
+        }
+      },
+      yaxis: {
+        lines: {
+          show: true
+        }
+      },
+      padding: {
+        top: 0,
+        right: 10,
+        bottom: 15,
+        left: 10
+      }
     },
-    markers: {
-      size: 6,
-      colors: ['#8c57ff'],
-      strokeColors: '#fff',
-      strokeWidth: 2
+    states: {
+      hover: {
+        filter: {
+          type: 'lighten',
+          value: 0.15
+        }
+      }
     },
     xaxis: {
-      categories: hours,
-      title: {
-        text: 'Hour of Day'
-      },
+      categories: days,
       labels: {
-        rotate: -45,
         style: {
-          fontSize: '10px'
-        }
+          fontSize: '12px',
+          fontFamily: 'Helvetica, Arial, sans-serif',
+          colors: days.map(() => '#000000')
+        },
+        rotate: 0,
+        offsetY: 5
+      },
+      axisBorder: {
+        show: true
+      },
+      axisTicks: {
+        show: true
       }
     },
     yaxis: {
       title: {
-        text: 'Order Count'
+        text: 'Count',
+        style: {
+          fontSize: '14px',
+          fontWeight: 600,
+          fontFamily: 'Helvetica, Arial, sans-serif',
+          color: '#454545'
+        }
       },
       min: 0,
-      max: Math.ceil(maxOrders * 1.2), // 20% headroom
+      max: 1000,
+      labels: {
+        style: {
+          fontSize: '12px',
+          fontFamily: 'Helvetica, Arial, sans-serif',
+          colors: '#5a5a5a'
+        },
+        formatter: function(val) {
+          return val.toFixed(0);
+        }
+      }
+    },
+    legend: {
+      show: true,
+      position: 'right',
+      fontSize: '12px',
+      fontFamily: 'Helvetica, Arial, sans-serif',
+      offsetY: 0,
+      markers: {
+        width: 12,
+        height: 12,
+        radius: 12
+      },
+      itemMargin: {
+        horizontal: 5,
+        vertical: 5
+      }
+    },
+    tooltip: {
+      enabled: true,
+      theme: 'light',
+      style: {
+        fontSize: '12px',
+        fontFamily: 'Helvetica, Arial, sans-serif'
+      },
+      y: {
+        formatter: function(val) {
+          return val;
+        }
+      }
+    },
+    title: {
+      text: 'Weekly Order Distribution',
+      align: 'left',
+      style: {
+        fontSize: '16px',
+        fontWeight: 'bold',
+        fontFamily: 'Helvetica, Arial, sans-serif',
+        color: '#2c2c2c'
+      },
+      offsetY: 10,
+      offsetX: 10
     },
     annotations: {
       points: [
         {
-          x: peakTime,
+          x: peakDay,
           y: maxOrders,
           marker: {
-            size: 8,
-            fillColor: '#FF4560',
-            strokeColor: '#fff',
-            radius: 2
+            size: 10,
+            fillColor: '#fff',
+            strokeColor: '#ff4560',
+            strokeWidth: 2,
+            radius: 20
           },
           label: {
-            borderColor: '#FF4560',
-            offsetY: 0,
+            borderColor: '#ff4560',
+            offsetY: -15,
             style: {
               color: '#fff',
-              background: '#FF4560',
+              background: '#ff4560',
+              padding: {
+                left: 10,
+                right: 10,
+                top: 5,
+                bottom: 5
+              },
+              borderRadius: 5,
+              fontSize: '12px',
+              fontWeight: 'bold'
             },
-            text: 'Peak Time'
+            text: 'Peak Day'
           }
         },
         {
-          x: lowPeakTime,
+          x: lowPeakDay,
           y: minOrders,
           marker: {
-            size: 8,
-            fillColor: '#00E396',
-            strokeColor: '#fff',
-            radius: 2
+            size: 10,
+            fillColor: '#fff',
+            strokeColor: '#00e396',
+            strokeWidth: 2,
+            radius: 20
           },
           label: {
-            borderColor: '#00E396',
-            offsetY: 0,
+            borderColor: '#00e396',
+            offsetY: -15,
             style: {
               color: '#fff',
-              background: '#00E396',
+              background: '#00e396',
+              padding: {
+                left: 10,
+                right: 10,
+                top: 5,
+                bottom: 5
+              },
+              borderRadius: 5,
+              fontSize: '12px',
+              fontWeight: 'bold'
             },
             text: 'Low Peak'
           }
         }
       ]
     },
-    tooltip: {
-      y: {
-        formatter: function(val) {
-          return val + " orders";
-        }
-      }
-    },
-    title: {
-      text: 'Hourly Order Distribution (6 AM - 11:59 PM)',
-      align: 'left',
-      style: {
-        fontSize: '14px'
-      }
-    }
   };
 
   const chartSeries = [
@@ -368,8 +464,8 @@ const WeeklyOrderStat = () => {
                 </span>
               </div>
               <div>
-                <p className="mb-0">Peak Time</p>
-                <h6 className="mb-0">{peakTime} - {maxOrders} orders</h6>
+                <p className="mb-0">Peak Day</p>
+                <h6 className="mb-0">{peakDay} - {maxOrders} orders</h6>
               </div>
             </div>
             <div className="d-flex align-items-center">
@@ -379,8 +475,8 @@ const WeeklyOrderStat = () => {
                 </span>
               </div>
               <div>
-                <p className="mb-0">Low Peak Time</p>
-                <h6 className="mb-0">{lowPeakTime} - {minOrders} orders</h6>
+                <p className="mb-0">Low Peak Day</p>
+                <h6 className="mb-0">{lowPeakDay} - {minOrders} orders</h6>
               </div>
             </div>
           </div>
@@ -390,7 +486,7 @@ const WeeklyOrderStat = () => {
           <ReactApexChart 
             options={chartOptions} 
             series={chartSeries} 
-            type="line" 
+            type="bar" 
             height={350}
           />
         </div>
