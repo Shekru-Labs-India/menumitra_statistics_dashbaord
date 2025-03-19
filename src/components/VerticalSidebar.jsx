@@ -132,7 +132,7 @@ function VerticalSidebar() {
           <li className={`menu-item ${isActive('/dashboard') ? 'active' : ''}`}>
             <Link to="/dashboard" className="menu-link">
               <i className="menu-icon fa-solid fa-house text-white"></i>
-              <div>Home</div>
+              <div className="d-block text-truncate overflow-hidden w-100">Home</div>
             </Link>
           </li>
         </ul>

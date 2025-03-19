@@ -176,7 +176,7 @@
   color: #333;
 }
 
-/* Menu item styles */
+/* Menu item styles - Mobile First Approach */
 .menu-item {
   position: relative;
   margin: 0.125rem 0.75rem;
@@ -185,11 +185,14 @@
 .menu-link {
   display: flex;
   align-items: center;
-  padding: 0.625rem 1.25rem;
+  padding: 0.625rem 1rem;
+  margin: 0.125rem 0.5rem;
+  width: calc(100% - 1rem);
+  box-sizing: border-box;
+  overflow: hidden;
   color: #666;
   text-decoration: none;
   transition: all 0.3s ease;
-  white-space: nowrap;
   border-radius: 6px;
 }
 
@@ -200,46 +203,42 @@
   width: 1.5rem;
   min-width: 1.5rem;
   margin-right: 0.75rem;
+  flex-shrink: 0;
   transition: all 0.3s ease;
   font-size: 1.25rem;
   color: #666;
 }
 
-/* STATIC state adjustments */
-.layout-menu:not(.docked):not(.hovered) .menu-link {
-  justify-content: center;
-  padding: 0.625rem 0;
-  margin: 0.125rem auto;
-  width: 3.5rem;
+/* Desktop overrides - applied after mobile */
+@media (min-width: 992px) {
+  .layout-menu:not(.docked):not(.hovered) .menu-link {
+    justify-content: center;
+    padding: 0.625rem 0;
+    margin: 0.125rem auto;
+    width: 3.5rem;
+  }
+
+  .layout-menu:not(.docked):not(.hovered) .menu-link div {
+    display: none !important;
+  }
+  
+  .layout-menu:not(.docked):not(.hovered) .menu-icon {
+    margin-right: 0;
+  }
+  
+  .layout-menu.docked .menu-link div,
+  .layout-menu.hovered .menu-link div {
+    display: block !important;
+  }
 }
 
-.layout-menu:not(.docked):not(.hovered) .menu-icon {
-  margin-right: 0;
-  width: 1.5rem;
+/* Remove the unnecessary classes */
+.mobile-visible {
+  /* Replaced with Bootstrap classes */
 }
 
-.layout-menu:not(.docked):not(.hovered) .menu-link div {
-  opacity: 0;
-  width: 0;
-  visibility: hidden;
-}
-
-/* Mobile specific overrides */
-.layout-menu.mobile .menu-link {
-  justify-content: flex-start;
-  padding: 0.625rem 1.25rem;
-  margin: 0.125rem 0.75rem;
-  width: auto;
-}
-
-.layout-menu.mobile .menu-icon {
-  margin-right: 0.75rem;
-}
-
-.layout-menu.mobile .menu-link div {
-  opacity: 1;
-  width: auto;
-  visibility: visible;
+.layout-menu.mobile .mobile-visible {
+  /* Replaced with Bootstrap classes */
 }
 
 /* Active menu item styles */
