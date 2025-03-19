@@ -485,8 +485,8 @@ const WeeklyOrderStat = () => {
 
       <div className="card-body">
         <div className="d-flex justify-content-between mb-3">
-          <div>
-            <div className="d-flex align-items-center mb-1">
+          <div className="d-flex gap-6">
+            <div className="d-flex align-items-center">
               <div className="me-3">
                 <span className="badge bg-danger p-2">
                   <i className="fas fa-arrow-up"></i>
