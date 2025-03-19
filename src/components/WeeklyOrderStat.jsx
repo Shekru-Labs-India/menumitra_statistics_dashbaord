@@ -13,21 +13,29 @@ const WeeklyOrderStat = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isGifPlaying, setIsGifPlaying] = useState(false);
 
-  // Generate mock data for the hours between 6 AM to 12 PM
+  // Generate mock data for the hours between 6 AM to 11:59 PM
   const generateHourlyData = () => {
     const hours = [];
     const orderCounts = [];
     
-    // Generate data for 6 AM to 12 PM (noon)
-    for (let i = 6; i <= 12; i++) {
-      hours.push(`${i}:00 ${i < 12 ? 'AM' : 'PM'}`);
+    // Generate data for 6 AM to 11:59 PM
+    for (let i = 6; i <= 23; i++) {
+      const amPm = i < 12 ? 'AM' : 'PM';
+      const hourDisplay = i > 12 ? i - 12 : i;
+      hours.push(`${hourDisplay}:00 ${amPm}`);
       
-      // Random order count with a peak around 8-9 AM
+      // Random order count with different peaks throughout the day
       let count;
       if (i >= 8 && i <= 9) {
-        // Peak time
+        // Morning peak (breakfast)
         count = Math.floor(Math.random() * 30) + 40; // 40-70 orders
-      } else if (i >= 10 && i <= 11) {
+      } else if (i >= 12 && i <= 14) {
+        // Lunch peak
+        count = Math.floor(Math.random() * 35) + 55; // 55-90 orders
+      } else if (i >= 19 && i <= 21) {
+        // Dinner peak
+        count = Math.floor(Math.random() * 40) + 60; // 60-100 orders
+      } else if (i >= 10 && i <= 11 || i >= 15 && i <= 18) {
         // Medium time
         count = Math.floor(Math.random() * 25) + 25; // 25-50 orders
       } else {
@@ -94,6 +102,12 @@ const WeeklyOrderStat = () => {
       categories: hours,
       title: {
         text: 'Hour of Day'
+      },
+      labels: {
+        rotate: -45,
+        style: {
+          fontSize: '10px'
+        }
       }
     },
     yaxis: {
@@ -153,7 +167,7 @@ const WeeklyOrderStat = () => {
       }
     },
     title: {
-      text: 'Hourly Order Distribution (6 AM - 12 PM)',
+      text: 'Hourly Order Distribution (6 AM - 11:59 PM)',
       align: 'left',
       style: {
         fontSize: '14px'
