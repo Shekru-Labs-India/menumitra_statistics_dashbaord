@@ -327,43 +327,35 @@ const PaymentMethodsChart = () => {
             <h6 className="mb-0">Total: ₹{total.toFixed(2)}</h6>
           </div>
         </div>
-        {loading ? (
-          <div className="d-flex justify-content-center p-3">
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
-          </div>
-        ) : (
-          <div className="payment-methods-chart">
-            {data.map((item, index) => (
-              <div key={index} className="d-flex align-items-center mb-3 payment-row">
-                <div className="payment-method" style={{ width: '120px', color: '#433c50' }}>
-                  {item.method}
-                </div>
-                <div className="flex-grow-1 px-3">
-                  <div className="progress" style={{ height: '8px', backgroundColor: '#f4f5fa' }}>
-                    <div 
-                      className="progress-bar bg-primary" 
-                      role="progressbar" 
-                      style={{ 
-                        width: `${(item.value / maxValue) * 100}%`,
-                        backgroundColor: '#8c57ff',
-                        borderRadius: '4px'
-                      }} 
-                      aria-valuenow={item.value} 
-                      aria-valuemin="0" 
-                      aria-valuemax={maxValue}
-                    ></div>
-                  </div>
-                </div>
-                <div className="payment-amount" style={{ width: '120px', textAlign: 'right', color: '#433c50' }}>
-                  <div>₹{item.value.toFixed(2)}</div>
-                  <div className="text-muted small">{item.count} orders</div>
+        <div className="payment-methods-chart">
+          {data.map((item, index) => (
+            <div key={index} className="d-flex align-items-center mb-3 payment-row">
+              <div className="payment-method text-dark" style={{ width: '120px', color: '#433c50' }}>
+                {item.method}
+              </div>
+              <div className="flex-grow-1 px-3">
+                <div className="progress" style={{ height: '8px', backgroundColor: '#f4f5fa' }}>
+                  <div 
+                    className="progress-bar bg-primary" 
+                    role="progressbar" 
+                    style={{ 
+                      width: `${(item.value / Math.max(...data.map(d => d.value))) * 100}%`,
+                      backgroundColor: '#8c57ff',
+                      borderRadius: '4px'
+                    }} 
+                    aria-valuenow={item.value} 
+                    aria-valuemin="0" 
+                    aria-valuemax={Math.max(...data.map(d => d.value))}
+                  ></div>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
+              <div className="payment-amount" style={{ width: '120px', textAlign: 'right', color: '#433c50' }}>
+                <div>₹{item.value}</div>
+                <div className="text-muted small">{item.count} orders</div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
