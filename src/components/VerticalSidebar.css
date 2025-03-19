@@ -91,17 +91,17 @@
 }
 
 /* Pin button styles */
-.menu-pin-toggle {
+.sidebar-pin-toggle {
   opacity: 0;
   transition: opacity 0.3s ease;
 }
 
-.layout-menu.docked .menu-pin-toggle,
-.layout-menu.hovered .menu-pin-toggle {
+.layout-menu.docked .sidebar-pin-toggle,
+.layout-menu.hovered .sidebar-pin-toggle {
   opacity: 1;
 }
 
-.menu-pin-toggle .btn {
+.sidebar-pin-toggle .btn {
   padding: 0.25rem;
   width: 28px;
   height: 28px;
@@ -115,7 +115,7 @@
   transition: all 0.2s ease;
 }
 
-.menu-pin-toggle .btn:hover {
+.sidebar-pin-toggle .btn:hover {
   background: #f8f9fa;
   color: #333;
 }
@@ -129,7 +129,7 @@
 }
 
 /* Logo and brand text transitions */
-.app-brand-text {
+.sidebar-brand-text {
   opacity: 1;
   transition: opacity 0.3s ease;
   white-space: nowrap;
@@ -138,7 +138,7 @@
 }
 
 /* Hide text in STATIC state */
-.layout-menu:not(.docked):not(.hovered) .app-brand-text {
+.layout-menu:not(.docked):not(.hovered) .sidebar-brand-text {
   opacity: 0;
   width: 0;
   visibility: hidden;
@@ -206,7 +206,7 @@
 }
 
 /* Brand section adjustments */
-.app-brand {
+.sidebar-brand {
   padding: 0 1.25rem;
   height: 64px;
   display: flex;
@@ -216,7 +216,7 @@
   /* border-bottom: 1px solid #e9ecef; */
 }
 
-.layout-menu:not(.docked):not(.hovered) .app-brand {
+.layout-menu:not(.docked):not(.hovered) .sidebar-brand {
   padding: 0;
   justify-content: center;
 }
@@ -242,13 +242,13 @@
 }
 
 /* App brand link styles */
-.app-brand-link {
+.sidebar-brand-link {
   display: flex;
   align-items: center;
   gap: 0.75rem;
 }
 
 /* Adjust logo container in STATIC state */
-.layout-menu:not(.docked):not(.hovered) .app-brand-logo {
+.layout-menu:not(.docked):not(.hovered) .sidebar-brand-logo {
   margin: 0;
 } 
