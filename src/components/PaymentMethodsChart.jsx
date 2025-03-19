@@ -43,6 +43,17 @@ const PaymentMethodsChart = () => {
     return headers;
   };
 
+  // Helper function to format currency in Indian format
+  const formatIndianCurrency = (amount) => {
+    const num = parseFloat(amount);
+    if (isNaN(num)) return '₹0';
+    const [integerPart, decimalPart] = num.toFixed(2).split('.');
+    const lastThree = integerPart.substring(integerPart.length - 3);
+    const otherNumbers = integerPart.substring(0, integerPart.length - 3);
+    const formatted = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ',');
+    return `₹${otherNumbers ? formatted + ',' + lastThree : lastThree}.${decimalPart}`;
+  };
+
   // Simplified effect to handle the animation timing
   useEffect(() => {
     if (isGifPlaying) {
@@ -326,7 +337,7 @@ const PaymentMethodsChart = () => {
       <div className="card-body">
         <div className="d-flex justify-content-between mb-3">
           <div>
-            <h6 className="mb-0">Total: ₹{total.toFixed(2)}</h6>
+            <h6 className="mb-0">Total: {formatIndianCurrency(total)}</h6>
           </div>
         </div>
         <div className="payment-methods-chart">
@@ -352,7 +363,7 @@ const PaymentMethodsChart = () => {
                 </div>
               </div>
               <div className="payment-amount" style={{ width: '120px', textAlign: 'right', color: '#433c50' }}>
-                <div>₹{item.value}</div>
+                <div>{formatIndianCurrency(item.value)}</div>
                 <div className="text-muted small">{item.count} orders</div>
               </div>
             </div>

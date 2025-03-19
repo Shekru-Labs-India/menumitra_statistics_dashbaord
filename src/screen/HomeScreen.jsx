@@ -86,6 +86,22 @@ function HomeScreen() {
     return `${day} ${month} ${year}`;
   }, []);
 
+  // Helper function to format currency in Indian format
+  const formatIndianCurrency = (amount) => {
+    const num = parseFloat(amount);
+    if (isNaN(num) || num === 0) return '₹0.00';
+    
+    const [integerPart, decimalPart = '00'] = num.toFixed(2).split('.');
+    if (integerPart.length <= 3) {
+      return `₹${integerPart}.${decimalPart}`;
+    }
+    
+    const lastThree = integerPart.substring(integerPart.length - 3);
+    const otherNumbers = integerPart.substring(0, integerPart.length - 3);
+    const formatted = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ',');
+    return `₹${formatted},${lastThree}.${decimalPart}`;
+  };
+
   // Memoized function to prepare request data based on date range
   const prepareRequestData = useMemo(() => (range) => {
     const today = new Date();
@@ -288,7 +304,7 @@ function HomeScreen() {
   };
 
   // Stats card component
-  const StatCard = ({ title, value, icon, color }) => (
+  const StatCard = ({ title, value, icon, color, isPrice }) => (
     <div className="col-md-6 col-lg-3">
       <div className="card h-100">
         <div className="card-body">
@@ -298,8 +314,7 @@ function HomeScreen() {
                 {title}
               </span>
               <div className="d-flex align-items-center">
-                <h4 className="mb-0 me-2">{value}</h4>
-                {/* <span className="text-success">({percentage})</span> */}
+                <h4 className="mb-0 me-2">{isPrice ? formatIndianCurrency(value) : value}</h4>
               </div>
             </div>
             <div className="avatar">
@@ -388,7 +403,7 @@ function HomeScreen() {
                           }`}
                           onClick={handleReload}
                           disabled={loading}
-                          style={{ border: '1px solid var(--bs-primary)' }}
+                          style={{ border: "1px solid var(--bs-primary)" }}
                         >
                           <i
                             className={`fas fa-sync-alt ${
@@ -408,7 +423,7 @@ function HomeScreen() {
                             alignItems: "center",
                             overflow: "hidden",
                             position: "relative",
-                            border: '1px solid #e9ecef'
+                            border: "1px solid #e9ecef",
                           }}
                           onClick={() => setIsGifPlaying(true)}
                           title={
@@ -426,7 +441,7 @@ function HomeScreen() {
                               style={{
                                 width: "24px",
                                 height: "24px",
-                                objectFit: "contain"
+                                objectFit: "contain",
                               }}
                             />
                           ) : (
@@ -438,7 +453,7 @@ function HomeScreen() {
                                 width: "24px",
                                 height: "24px",
                                 objectFit: "contain",
-                                opacity: 0.9
+                                opacity: 0.9,
                               }}
                             />
                           )}
@@ -508,12 +523,14 @@ function HomeScreen() {
                               value={statistics.total_orders}
                               icon="fas fa-shopping-cart"
                               color="primary"
+                              isPrice={false}
                             />
                             <StatCard
                               title="Total Revenue"
-                              value={`₹${statistics.total_revenue}`}
+                              value={statistics.total_revenue}
                               icon="fas fa-rupee-sign"
                               color="success"
+                              isPrice={true}
                             />
                             {/* <StatCard
                               title="Customers count"
@@ -523,15 +540,17 @@ function HomeScreen() {
                             /> */}
                             <StatCard
                               title="Average Order Value"
-                              value={`₹${statistics.average_order_value.toFixed(2)}`}
+                              value={statistics.average_order_value}
                               icon="fas fa-chart-line"
                               color="info"
+                              isPrice={true}
                             />
                             <StatCard
                               title="Table Turnover"
                               value={statistics.average_turnover_time}
                               icon="fas fa-chair"
                               color="danger"
+                              isPrice={false}
                             />
                           </>
                         )}
@@ -583,10 +602,10 @@ function HomeScreen() {
                 </div>
                 <div className="col-12 col-md-6 col-lg-6">
                   <div className="h-100">
-                    <WeeklyOrderStat/>
+                    <WeeklyOrderStat />
                   </div>
                 </div>
-                
+
                 <div className="row mt-4">
                   <OrderAnalytics />
                 </div>
