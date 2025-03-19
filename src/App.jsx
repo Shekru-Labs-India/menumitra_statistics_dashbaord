@@ -7,6 +7,7 @@ import "./assets/css/menu.css";
 import HomeScreen from './screen/HomeScreen'
 import LoginScreen from './screen/LoginScreen'
 import MyProfile from './screen/MyProfile'
+import { ThemeProvider } from './components/ThemeContext'
 
 import Header from './components/Header'
 import TopSell from './components/TopSell';
@@ -15,36 +16,38 @@ import Settings from './screen/Settings';
 
 function App() {
   return (
-    <Router>
-      <div className="layout-wrapper layout-content-navbar">
-        <div className="layout-container">
-          {/* Routes */}
-          <Routes>
-            {/* Public routes */}
-            <Route path="/login" element={<LoginScreen />} />
-            
-            {/* Protected routes */}
-            <Route path="/dashboard" element={<HomeScreen />} />
-            <Route path="/profile" element={<MyProfile />} />
-            <Route path="/settings" element={<Settings />} /> 
-            
-            {/* Default redirect to login */}
-            <Route path="/" element={<Navigate to="/login" replace />} />
-        
+    <ThemeProvider>
+      <Router>
+        <div className="layout-wrapper layout-content-navbar">
+          <div className="layout-container">
+            {/* Routes */}
+            <Routes>
+              {/* Public routes */}
+              <Route path="/login" element={<LoginScreen />} />
+              
+              {/* Protected routes */}
+              <Route path="/dashboard" element={<HomeScreen />} />
+              <Route path="/profile" element={<MyProfile />} />
+              <Route path="/settings" element={<Settings />} /> 
+              
+              {/* Default redirect to login */}
+              <Route path="/" element={<Navigate to="/login" replace />} />
+          
 
-            {/* Add more routes here */}
-            {/* Example:
-            <Route path="/email" element={<EmailScreen />} />
-            <Route path="/chat" element={<ChatScreen />} />
-            <Route path="/calendar" element={<CalendarScreen />} />
-            */}
+              {/* Add more routes here */}
+              {/* Example:
+              <Route path="/email" element={<EmailScreen />} />
+              <Route path="/chat" element={<ChatScreen />} />
+              <Route path="/calendar" element={<CalendarScreen />} />
+              */}
 
-            {/* 404 - Not Found */}
-            <Route path="*" element={<Navigate to="/login" replace />} />
-          </Routes>
+              {/* 404 - Not Found */}
+              <Route path="*" element={<Navigate to="/login" replace />} />
+            </Routes>
+          </div>
         </div>
-      </div>
-    </Router>
+      </Router>
+    </ThemeProvider>
   )
 }
 
