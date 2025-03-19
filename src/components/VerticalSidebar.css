@@ -213,7 +213,7 @@
   align-items: center;
   justify-content: space-between;
   transition: all 0.3s ease;
-  border-bottom: 1px solid #e9ecef;
+  /* border-bottom: 1px solid #e9ecef; */
 }
 
 .layout-menu:not(.docked):not(.hovered) .app-brand {

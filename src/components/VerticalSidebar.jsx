@@ -100,65 +100,12 @@ function VerticalSidebar() {
         )}
       </div>
 
-      {/* Search Bar */}
-      <div className="menu-search px-4 py-2">
-        <div className="search-input-wrapper">
-          <i className="ri-search-line search-icon"></i>
-          <input type="text" className="form-control" placeholder="Search (Ctrl+/)" />
-        </div>
-      </div>
-
       {/* Menu Items */}
       <ul className="menu-inner">
-        {/* Dashboards Section */}
-        <li className="menu-header">
-          <span>Dashboards</span>
-        </li>
         <li className={`menu-item ${isActive('/dashboard') ? 'active' : ''}`}>
           <Link to="/dashboard" className="menu-link">
-            <i className="menu-icon ri-home-line"></i>
+            <i className="menu-icon fa-solid fa-house text-white"></i>
             <div>Home</div>
-          </Link>
-        </li>
-        <li className={`menu-item ${isActive('/analytics') ? 'active' : ''}`}>
-          <Link to="/analytics" className="menu-link">
-            <i className="menu-icon ri-bar-chart-line"></i>
-            <div>Analytics</div>
-          </Link>
-        </li>
-        <li className={`menu-item ${isActive('/ecommerce') ? 'active' : ''}`}>
-          <Link to="/ecommerce" className="menu-link">
-            <i className="menu-icon ri-shopping-cart-line"></i>
-            <div>eCommerce</div>
-          </Link>
-        </li>
-
-        {/* Apps & Pages Section */}
-        <li className="menu-header">
-          <span>Apps & Pages</span>
-        </li>
-        <li className={`menu-item ${isActive('/email') ? 'active' : ''}`}>
-          <Link to="/email" className="menu-link">
-            <i className="menu-icon ri-mail-line"></i>
-            <div>Email</div>
-          </Link>
-        </li>
-        <li className={`menu-item ${isActive('/chat') ? 'active' : ''}`}>
-          <Link to="/chat" className="menu-link">
-            <i className="menu-icon ri-message-3-line"></i>
-            <div>Chat</div>
-          </Link>
-        </li>
-        <li className={`menu-item ${isActive('/calendar') ? 'active' : ''}`}>
-          <Link to="/calendar" className="menu-link">
-            <i className="menu-icon ri-calendar-line"></i>
-            <div>Calendar</div>
-          </Link>
-        </li>
-        <li className={`menu-item ${isActive('/kanban') ? 'active' : ''}`}>
-          <Link to="/kanban" className="menu-link">
-            <i className="menu-icon ri-layout-masonry-line"></i>
-            <div>Kanban</div>
           </Link>
         </li>
       </ul>
