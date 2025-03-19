@@ -77,16 +77,16 @@ function VerticalSidebar() {
       onMouseLeave={handleMouseLeave}
     >
       {/* Logo Section */}
-      <div className="app-brand">
-        <Link to="/dashboard" className="app-brand-link">
-          <span className="app-brand-logo">
+      <div className="sidebar-brand">
+        <Link to="/dashboard" className="sidebar-brand-link">
+          <span className="sidebar-brand-logo">
             <img src={logo} alt="MenuMitra" width="32" />
           </span>
-          <span className="app-brand-text">MenuMitra</span>
+          <span className="sidebar-brand-text">MenuMitra</span>
         </Link>
 
         {!isSmallScreen && (
-          <div className="menu-pin-toggle">
+          <div className="sidebar-pin-toggle">
             {isDocked ? (
               <button className="btn" onClick={handleUnpinClick} title="Unpin">
                 <i className="ri-pushpin-fill"></i>
