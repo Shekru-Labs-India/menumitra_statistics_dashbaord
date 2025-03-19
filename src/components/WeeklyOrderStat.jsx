@@ -12,34 +12,49 @@ const WeeklyOrderStat = () => {
   const [endDate, setEndDate] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isGifPlaying, setIsGifPlaying] = useState(false);
+  const [days] = useState(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']);
+  const [orderData, setOrderData] = useState([]);
+  const [peakDay, setPeakDay] = useState('');
+  const [lowPeakDay, setLowPeakDay] = useState('');
+  const [maxOrders, setMaxOrders] = useState(0);
+  const [minOrders, setMinOrders] = useState(0);
 
-  // Generate mock data for Monday to Sunday
+  // Function to generate random data between 0-500
   const generateWeeklyData = () => {
-    // Order days from Monday to Sunday
-    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     const orderCounts = [];
     
-    // Generate data between 0-1000
-    orderCounts.push(780); // Monday
-    orderCounts.push(850); // Tuesday
-    orderCounts.push(600); // Wednesday
-    orderCounts.push(820); // Thursday
-    orderCounts.push(750); // Friday
-    orderCounts.push(920); // Saturday
-    orderCounts.push(680); // Sunday
+    // Generate random data between 100-500 for each day
+    days.forEach(day => {
+      // Generate a random value between 100 and 500
+      const randomValue = Math.floor(Math.random() * 400) + 100;
+      orderCounts.push(randomValue);
+    });
     
-    return { days, orderCounts };
+    return orderCounts;
   };
 
-  const { days, orderCounts } = generateWeeklyData();
-  
-  // Find peak and low peak days
-  const maxOrders = Math.max(...orderCounts);
-  const minOrders = Math.min(...orderCounts);
-  const peakDayIndex = orderCounts.indexOf(maxOrders);
-  const lowPeakDayIndex = orderCounts.indexOf(minOrders);
-  const peakDay = days[peakDayIndex];
-  const lowPeakDay = days[lowPeakDayIndex];
+  // Update peak and low peak information
+  const updatePeakInfo = (orderCounts) => {
+    const max = Math.max(...orderCounts);
+    const min = Math.min(...orderCounts);
+    const peakDayIndex = orderCounts.indexOf(max);
+    const lowPeakDayIndex = orderCounts.indexOf(min);
+    
+    setMaxOrders(max);
+    setMinOrders(min);
+    setPeakDay(days[peakDayIndex]);
+    setLowPeakDay(days[lowPeakDayIndex]);
+  };
+
+  // Initialize data on component mount
+  useEffect(() => {
+    const initialData = generateWeeklyData();
+    setOrderData(initialData);
+    updatePeakInfo(initialData);
+  }, []);
+
+  // Create shortened day names for x-axis
+  const dayShortNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   // Colors for each day (Monday to Sunday)
   const dayColors = [
@@ -55,7 +70,7 @@ const WeeklyOrderStat = () => {
   // ApexCharts options
   const chartOptions = {
     chart: {
-      height: 300,
+      height: 350,
       type: 'bar',
       toolbar: {
         show: false,
@@ -77,7 +92,8 @@ const WeeklyOrderStat = () => {
         }
       },
       fontFamily: 'Helvetica, Arial, sans-serif',
-      background: 'transparent'
+      background: 'transparent',
+      parentHeightOffset: 0
     },
     colors: dayColors,
     fill: {
@@ -89,7 +105,7 @@ const WeeklyOrderStat = () => {
     plotOptions: {
       bar: {
         borderRadius: 2,
-        columnWidth: '70%',
+        columnWidth: '65%',
         distributed: true,
         endingShape: 'flat'
       }
@@ -113,7 +129,7 @@ const WeeklyOrderStat = () => {
       padding: {
         top: 0,
         right: 10,
-        bottom: 15,
+        bottom: 30,
         left: 10
       }
     },
@@ -126,15 +142,17 @@ const WeeklyOrderStat = () => {
       }
     },
     xaxis: {
-      categories: days,
+      categories: dayShortNames,
       labels: {
         style: {
-          fontSize: '12px',
+          fontSize: '15px',
+          
           fontFamily: 'Helvetica, Arial, sans-serif',
           colors: days.map(() => '#000000')
         },
         rotate: 0,
-        offsetY: 5
+        offsetY: 1,
+        trim: false
       },
       axisBorder: {
         show: true
@@ -154,7 +172,7 @@ const WeeklyOrderStat = () => {
         }
       },
       min: 0,
-      max: 1000,
+      max: 500,
       labels: {
         style: {
           fontSize: '12px',
@@ -257,7 +275,7 @@ const WeeklyOrderStat = () => {
               padding: {
                 left: 10,
                 right: 10,
-                top: 5,
+                top: 10,
                 bottom: 5
               },
               borderRadius: 5,
@@ -274,7 +292,7 @@ const WeeklyOrderStat = () => {
   const chartSeries = [
     {
       name: "Orders",
-      data: orderCounts
+      data: orderData
     }
   ];
 
@@ -298,8 +316,16 @@ const WeeklyOrderStat = () => {
 
   const handleReload = () => {
     setLoading(true);
-    fetchData(dateRange);
-    setTimeout(() => setLoading(false), 1000);
+    
+    // Generate new random data
+    const newData = generateWeeklyData();
+    
+    // Update state with new data
+    setTimeout(() => {
+      setOrderData(newData);
+      updatePeakInfo(newData);
+      setLoading(false);
+    }, 800);
   };
 
   const fetchData = (range) => {
@@ -308,6 +334,9 @@ const WeeklyOrderStat = () => {
     } else {
       console.log('Fetching data for range:', range);
     }
+    
+    // Generate new data when range changes
+    handleReload();
   };
 
   const handleCustomDateSelect = () => {
@@ -487,7 +516,7 @@ const WeeklyOrderStat = () => {
             options={chartOptions} 
             series={chartSeries} 
             type="bar" 
-            height={350}
+            height={450}
           />
         </div>
       </div>
