@@ -233,7 +233,7 @@ const handleCustomDateSelect = () => {
               </div>
               <div className="payment-amount" style={{ width: '120px', textAlign: 'right', color: '#433c50' }}>
                 <div>₹{item.value}</div>
-                <div className="text-muted small">{item.count} orders</div>
+                <div className="text-primary small">{item.count} orders</div>
               </div>
             </div>
           ))}
