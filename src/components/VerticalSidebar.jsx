@@ -109,7 +109,7 @@ function VerticalSidebar() {
             <span className="sidebar-brand-logo">
               <img src={logo} alt="MenuMitra" width="32" />
             </span>
-            <span className="sidebar-brand-text">MenuMitra</span>
+            <span className="sidebar-brand-text mobile-visible">MenuMitra</span>
           </Link>
 
           {!isSmallScreen && (

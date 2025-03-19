@@ -166,9 +166,14 @@
 
 /* Special handling for mobile sidebar-brand-text */
 .layout-menu.mobile .sidebar-brand-text {
-  opacity: 1;
-  width: auto;
-  visibility: visible;
+  opacity: 1 !important;
+  width: auto !important;
+  visibility: visible !important;
+  display: block !important;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-left: 10px;
+  color: #333;
 }
 
 /* Menu item styles */
@@ -268,6 +273,20 @@
 .layout-menu.mobile .sidebar-brand {
   padding: 0 1.25rem;
   justify-content: space-between;
+  height: 70px;
+}
+
+/* Ensure logo and text are properly displayed on mobile */
+.layout-menu.mobile .sidebar-brand-link {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.layout-menu.mobile .sidebar-brand-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Menu inner shadow */
@@ -312,4 +331,15 @@ html.layout-menu-expanded {
   .layout-menu.mobile {
     -webkit-overflow-scrolling: touch;
   }
+}
+
+/* Special class to ensure text visibility on mobile */
+.mobile-visible {
+  display: inline-block !important;
+}
+
+.layout-menu.mobile .mobile-visible {
+  opacity: 1 !important;
+  width: auto !important;
+  visibility: visible !important;
 } 
