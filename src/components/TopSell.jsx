@@ -8,7 +8,7 @@ import aiAnimationStillFrame from "../assets/img/gif/AI-animation-unscreen-still
 
 function TopSell() {
   const [selectedTab, setSelectedTab] = useState("top");
-  const [dateRange, setDateRange] = useState("Today");
+  const [dateRange, setDateRange] = useState("All Time");
   const [loading, setLoading] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -199,13 +199,17 @@ function TopSell() {
         return;
       }
       
-      const { start, end } = getDateRangeForAPI(range);
-      
+      // Initialize request data with outlet_id
       const requestData = {
-        outlet_id: outletId,
-        start_date: formatDateForAPI(start),
-        end_date: formatDateForAPI(end)
+        outlet_id: outletId
       };
+      
+      // Only add date parameters if not "All Time"
+      if (range !== "All Time") {
+        const { start, end } = getDateRangeForAPI(range);
+        requestData.start_date = formatDateForAPI(start);
+        requestData.end_date = formatDateForAPI(end);
+      }
       
       console.log('Sending request to sales_performance with data:', requestData);
       
@@ -264,6 +268,7 @@ function TopSell() {
             </button>
             <ul className="dropdown-menu dropdown-menu-end">
               {[
+                "All Time",
                 "Today",
                 "Yesterday",
                 "Last 7 Days",
