@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import ReactApexChart from 'react-apexcharts';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import aiAnimationGif from '../assets/img/gif/AI-animation-unscreen.gif';
 import aiAnimationStillFrame from '../assets/img/gif/AI-animation-unscreen-still-frame.gif';
+import axios from 'axios';
+import { apiEndpoint } from '../config/menuMitraConfig';
 
 const WeeklyOrderStat = () => {
   const [dateRange, setDateRange] = useState('This Week');
@@ -12,14 +14,165 @@ const WeeklyOrderStat = () => {
   const [endDate, setEndDate] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isGifPlaying, setIsGifPlaying] = useState(false);
-  const [days] = useState(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']);
+  const [days, setDays] = useState(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']);
   const [orderData, setOrderData] = useState([]);
   const [peakDay, setPeakDay] = useState('');
   const [lowPeakDay, setLowPeakDay] = useState('');
   const [maxOrders, setMaxOrders] = useState(0);
   const [minOrders, setMinOrders] = useState(0);
+  const [error, setError] = useState('');
 
-  // Function to generate random data between 0-500
+  // Helper function to get auth headers
+  const getAuthHeaders = useMemo(() => (includeAuth = true) => {
+    const headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    };
+    
+    if (includeAuth) {
+      const accessToken = localStorage.getItem('access');
+      if (accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`;
+      }
+    }
+    
+    return headers;
+  }, []);
+
+  // Date formatting function
+  const formatDate = (date) => {
+    if (!date) return '';
+    const day = date.getDate().toString().padStart(2, '0');
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    return `${day} ${month} ${year}`;
+  };
+
+  // Function to prepare request data based on date range
+  const prepareRequestData = useMemo(() => (range) => {
+    const today = new Date();
+    
+    const getDateRange = (range) => {
+      switch(range) {
+        case 'This Week': {
+          const firstDayOfWeek = new Date(today);
+          const day = today.getDay(); // 0 is Sunday, 1 is Monday, etc.
+          const diff = day === 0 ? 6 : day - 1; // Adjust to make Monday the first day
+          firstDayOfWeek.setDate(today.getDate() - diff);
+          return {
+            start_date: formatDate(firstDayOfWeek),
+            end_date: formatDate(today)
+          };
+        }
+        case 'Last Week': {
+          const lastWeekEnd = new Date(today);
+          const day = today.getDay(); // 0 is Sunday, 1 is Monday, etc.
+          const diff = day === 0 ? 6 : day - 1; // Adjust to make Monday the first day
+          lastWeekEnd.setDate(today.getDate() - diff - 1); // End of previous week (Sunday)
+          const lastWeekStart = new Date(lastWeekEnd);
+          lastWeekStart.setDate(lastWeekEnd.getDate() - 6); // Start of previous week (Monday)
+          return {
+            start_date: formatDate(lastWeekStart),
+            end_date: formatDate(lastWeekEnd)
+          };
+        }
+        case 'Last 2 Weeks': {
+          const twoWeeksAgo = new Date(today);
+          twoWeeksAgo.setDate(today.getDate() - 13);
+          return {
+            start_date: formatDate(twoWeeksAgo),
+            end_date: formatDate(today)
+          };
+        }
+        case 'Last 30 Days': {
+          const thirtyDaysAgo = new Date(today);
+          thirtyDaysAgo.setDate(today.getDate() - 29);
+          return {
+            start_date: formatDate(thirtyDaysAgo),
+            end_date: formatDate(today)
+          };
+        }
+        case 'Custom Range': {
+          if (startDate && endDate) {
+            return {
+              start_date: formatDate(startDate),
+              end_date: formatDate(endDate)
+            };
+          }
+          return {};
+        }
+        default: {
+          const firstDayOfWeek = new Date(today);
+          const day = today.getDay(); // 0 is Sunday, 1 is Monday, etc.
+          const diff = day === 0 ? 6 : day - 1; // Adjust to make Monday the first day
+          firstDayOfWeek.setDate(today.getDate() - diff);
+          return {
+            start_date: formatDate(firstDayOfWeek),
+            end_date: formatDate(today)
+          };
+        }
+      }
+    };
+
+    const requestData = {
+      ...getDateRange(range),
+      outlet_id: localStorage.getItem('outlet_id')
+    };
+
+    return requestData;
+  }, [startDate, endDate]);
+
+  // Function to fetch weekly order stats
+  const fetchWeeklyOrderStats = async (range = 'This Week') => {
+    try {
+      setLoading(true);
+      setError('');
+
+      const requestData = prepareRequestData(range);
+      
+      const response = await axios.post(
+        `${apiEndpoint}weekly_order_stats`, 
+        requestData, 
+        { headers: getAuthHeaders() }
+      );
+
+      if (response.data?.message === 'success' && response.data?.data) {
+        const { orderStats } = response.data.data;
+        
+        setDays(orderStats.days || days);
+        setOrderData(orderStats.orderCounts || []);
+        
+        // Set peak and low peak information
+        if (orderStats.peakInfo) {
+          setPeakDay(orderStats.peakInfo.day);
+          setMaxOrders(orderStats.peakInfo.count);
+        }
+        
+        if (orderStats.lowPeakInfo) {
+          setLowPeakDay(orderStats.lowPeakInfo.day);
+          setMinOrders(orderStats.lowPeakInfo.count);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch weekly order stats:', error);
+      const errorMessage = error.response?.data?.message || 
+                         error.response?.status === 401 ? 'Unauthorized access' :
+                         error.request ? 'No response from server' :
+                         'Failed to fetch weekly order statistics';
+      
+      setError(errorMessage);
+      
+      // Use fallback data if API fails
+      const fallbackData = generateWeeklyData();
+      setOrderData(fallbackData);
+      updatePeakInfo(fallbackData);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Function to generate random data between 0-500 (fallback)
   const generateWeeklyData = () => {
     const orderCounts = [];
     
@@ -33,7 +186,7 @@ const WeeklyOrderStat = () => {
     return orderCounts;
   };
 
-  // Update peak and low peak information
+  // Update peak and low peak information (for fallback)
   const updatePeakInfo = (orderCounts) => {
     const max = Math.max(...orderCounts);
     const min = Math.min(...orderCounts);
@@ -48,13 +201,19 @@ const WeeklyOrderStat = () => {
 
   // Initialize data on component mount
   useEffect(() => {
-    const initialData = generateWeeklyData();
-    setOrderData(initialData);
-    updatePeakInfo(initialData);
+    const outletId = localStorage.getItem('outlet_id');
+    if (outletId) {
+      fetchWeeklyOrderStats('This Week');
+    } else {
+      // Fallback to generated data if no outlet ID
+      const initialData = generateWeeklyData();
+      setOrderData(initialData);
+      updatePeakInfo(initialData);
+    }
   }, []);
 
   // Create shortened day names for x-axis
-  const dayShortNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const dayShortNames = days.map(day => day.substring(0, 3));
 
   // Colors for each day (Monday to Sunday)
   const dayColors = [
@@ -146,7 +305,6 @@ const WeeklyOrderStat = () => {
       labels: {
         style: {
           fontSize: '15px',
-          
           fontFamily: 'Helvetica, Arial, sans-serif',
           colors: days.map(() => '#000000')
         },
@@ -172,7 +330,7 @@ const WeeklyOrderStat = () => {
         }
       },
       min: 0,
-      max: 500,
+      max: orderData.length > 0 ? Math.max(...orderData) * 1.2 : 500,
       labels: {
         style: {
           fontSize: '12px',
@@ -297,53 +455,23 @@ const WeeklyOrderStat = () => {
   ];
 
   // Date range handlers
-  const formatDate = (date) => {
-    if (!date) return '';
-    const day = date.getDate().toString().padStart(2, '0');
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const month = months[date.getMonth()];
-    const year = date.getFullYear();
-    return `${day} ${month} ${year}`;
-  };
-
   const handleDateRangeChange = (range) => {
     setDateRange(range);
     setShowDatePicker(range === 'Custom Range');
     if (range !== 'Custom Range') {
-      fetchData(range);
+      fetchWeeklyOrderStats(range);
     }
   };
 
   const handleReload = () => {
-    setLoading(true);
-    
-    // Generate new random data
-    const newData = generateWeeklyData();
-    
-    // Update state with new data
-    setTimeout(() => {
-      setOrderData(newData);
-      updatePeakInfo(newData);
-      setLoading(false);
-    }, 800);
-  };
-
-  const fetchData = (range) => {
-    if (range === 'Custom Range' && startDate && endDate) {
-      console.log('Fetching data for custom range:', startDate, endDate);
-    } else {
-      console.log('Fetching data for range:', range);
-    }
-    
-    // Generate new data when range changes
-    handleReload();
+    fetchWeeklyOrderStats(dateRange);
   };
 
   const handleCustomDateSelect = () => {
     if (startDate && endDate) {
       setDateRange(`${formatDate(startDate)} - ${formatDate(endDate)}`);
       setShowDatePicker(false);
-      fetchData('Custom Range');
+      fetchWeeklyOrderStats('Custom Range');
     }
   };
 
@@ -483,6 +611,12 @@ const WeeklyOrderStat = () => {
         </div>
       )}
 
+      {error && (
+        <div className="alert alert-danger m-3" role="alert">
+          {error}
+        </div>
+      )}
+
       <div className="card-body">
         <div className="d-flex justify-content-between mb-3">
           <div className="d-flex gap-6">
@@ -512,12 +646,20 @@ const WeeklyOrderStat = () => {
         </div>
         
         <div id="weeklyOrderChart">
-          <ReactApexChart 
-            options={chartOptions} 
-            series={chartSeries} 
-            type="bar" 
-            height={450}
-          />
+          {loading ? (
+            <div className="d-flex justify-content-center align-items-center" style={{ height: '450px' }}>
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          ) : (
+            <ReactApexChart 
+              options={chartOptions} 
+              series={chartSeries} 
+              type="bar" 
+              height={450}
+            />
+          )}
         </div>
       </div>
     </div>

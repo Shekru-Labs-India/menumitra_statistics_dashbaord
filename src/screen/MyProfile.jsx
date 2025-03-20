@@ -171,8 +171,8 @@ const MyProfile = () => {
                         <span className="text-muted"><i className="fas fa-user-tag me-1"></i>{userDetails.role?.toUpperCase()}</span>
                         <span className="text-muted">•</span>
                         <span className="text-muted"><i className="fas fa-map-marker-alt me-1"></i>{userDetails.address}</span>
-                        <span className="text-muted">•</span>
-                        <span className="text-muted"><i className="fas fa-calendar-alt me-1"></i>Joined {userDetails.joined_date}</span>
+                        {/* <span className="text-muted">•</span> */}
+                        {/* <span className="text-muted"><i className="fas fa-calendar-alt me-1"></i>Joined {userDetails.joined_date}</span> */}
                       </div>
                     </div>
                     <button 
@@ -315,10 +315,7 @@ const MyProfile = () => {
                           <div className="fs-5">{userDetails.user_id}</div>
                         </div>
                         
-                        <div className="mb-4">
-                          <div className="text-muted small mb-1">Owner ID:</div>
-                          <div className="fs-5">{userDetails.owner_id || 'Not applicable'}</div>
-                        </div>
+                        
                         
                         <div className="mb-4">
                           <div className="text-muted small mb-1">Outlet ID:</div>

@@ -13,6 +13,8 @@ function Header() {
   const [outlets, setOutlets] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [timeElapsed, setTimeElapsed] = useState('0 seconds ago');
+  const [startTime] = useState(new Date());
   const navigate = useNavigate();
 
   // Fetch outlets from API
@@ -262,6 +264,34 @@ function Header() {
     return truncated.trim() + '...';
   };
 
+  // Add this new function to format time
+  const formatTimeElapsed = (startTime, currentTime) => {
+    const seconds = Math.floor((currentTime - startTime) / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (days > 0) {
+      return `${days} day${days === 1 ? '' : 's'} ago`;
+    } else if (hours > 0) {
+      return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+    } else if (minutes > 0) {
+      return `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
+    } else {
+      return `${seconds} second${seconds === 1 ? '' : 's'} ago`;
+    }
+  };
+
+  // Add this new useEffect for time tracking
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const currentTime = new Date();
+      setTimeElapsed(formatTimeElapsed(startTime, currentTime));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [startTime]);
+
   return (
     <div>
       <nav
@@ -419,11 +449,16 @@ function Header() {
                   href="javascript:void(0);"
                   data-bs-toggle="dropdown"
                 >
+                 
                   <div className="flex-grow-1 me-3 text-end">
-                    <h6 className="mb-0 small">{userName}</h6>
+                  <small className="text-black d-block">
+                      Last updated: {timeElapsed}
+                    </small>
+                    <h6 className="mb-0 small fw-bold">{userName}</h6>
                     <small className="text-muted">
                       {storedRole.toUpperCase()}
                     </small>
+                    
                   </div>
                   <div className="avatar ms-2">
                     <img
