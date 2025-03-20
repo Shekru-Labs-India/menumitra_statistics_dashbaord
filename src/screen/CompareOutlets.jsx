@@ -7,6 +7,36 @@ import VerticalSidebar from '../components/VerticalSidebar'
 const CompareOutlets = () => {
   const [showComparisonTable, setShowComparisonTable] = useState(false);
   const [isOutletListExpanded, setIsOutletListExpanded] = useState(true);
+  const [selectedOutlets, setSelectedOutlets] = useState({
+    selectAll: false,
+    starbuck: false,
+    kfc: false,
+    mcdonalds: false,
+    burgerKing: false,
+    pizzaHut: false,
+    dominos: false,
+    subway: false,
+    dunkin: false
+  });
+
+  const handleSelectAll = (e) => {
+    const { checked } = e.target;
+    setSelectedOutlets(prev => {
+      const newState = {};
+      Object.keys(prev).forEach(key => {
+        newState[key] = checked;
+      });
+      return newState;
+    });
+  };
+
+  const handleOutletSelect = (outlet) => {
+    setSelectedOutlets(prev => ({
+      ...prev,
+      [outlet]: !prev[outlet],
+      selectAll: false
+    }));
+  };
 
   const handleCompare = () => {
     setShowComparisonTable(true);
@@ -44,35 +74,84 @@ const CompareOutlets = () => {
                 <div className="card-body">
                   <div className="d-flex flex-wrap gap-2 justify-content-center justify-content-md-start">
                     <label className="btn btn-outline-dark btn-sm btn-md-normal mb-2">
-                      <input type="checkbox" className="form-check-input me-1" />
-                       Starbuck
+                      <input 
+                        type="checkbox" 
+                        className="form-check-input me-1"
+                        checked={selectedOutlets.selectAll}
+                        onChange={handleSelectAll}
+                      />
+                      All
                     </label>
                     <label className="btn btn-outline-dark btn-sm btn-md-normal mb-2">
-                      <input type="checkbox" className="form-check-input me-1" />
+                      <input 
+                        type="checkbox" 
+                        className="form-check-input me-1"
+                        checked={selectedOutlets.starbuck}
+                        onChange={() => handleOutletSelect('starbuck')}
+                      />
+                      Starbuck
+                    </label>
+                    <label className="btn btn-outline-dark btn-sm btn-md-normal mb-2">
+                      <input 
+                        type="checkbox" 
+                        className="form-check-input me-1"
+                        checked={selectedOutlets.kfc}
+                        onChange={() => handleOutletSelect('kfc')}
+                      />
                       KFC
                     </label>
                     <label className="btn btn-outline-dark btn-sm btn-md-normal mb-2">
-                      <input type="checkbox" className="form-check-input me-1" />
+                      <input 
+                        type="checkbox" 
+                        className="form-check-input me-1"
+                        checked={selectedOutlets.mcdonalds}
+                        onChange={() => handleOutletSelect('mcdonalds')}
+                      />
                       McDonalds
                     </label>
                     <label className="btn btn-outline-dark btn-sm btn-md-normal mb-2">
-                      <input type="checkbox" className="form-check-input me-1" />
+                      <input 
+                        type="checkbox" 
+                        className="form-check-input me-1"
+                        checked={selectedOutlets.burgerKing}
+                        onChange={() => handleOutletSelect('burgerKing')}
+                      />
                       Burger King
                     </label>
                     <label className="btn btn-outline-dark btn-sm btn-md-normal mb-2">
-                      <input type="checkbox" className="form-check-input me-1" />
+                      <input 
+                        type="checkbox" 
+                        className="form-check-input me-1"
+                        checked={selectedOutlets.pizzaHut}
+                        onChange={() => handleOutletSelect('pizzaHut')}
+                      />
                       Pizza Hut
                     </label>
                     <label className="btn btn-outline-dark btn-sm btn-md-normal mb-2">
-                      <input type="checkbox" className="form-check-input me-1" />
+                      <input 
+                        type="checkbox" 
+                        className="form-check-input me-1"
+                        checked={selectedOutlets.dominos}
+                        onChange={() => handleOutletSelect('dominos')}
+                      />
                       Domino's
                     </label>
                     <label className="btn btn-outline-dark btn-sm btn-md-normal mb-2">
-                      <input type="checkbox" className="form-check-input me-1" />
+                      <input 
+                        type="checkbox" 
+                        className="form-check-input me-1"
+                        checked={selectedOutlets.subway}
+                        onChange={() => handleOutletSelect('subway')}
+                      />
                       Subway
                     </label>
                     <label className="btn btn-outline-dark btn-sm btn-md-normal mb-2">
-                      <input type="checkbox" className="form-check-input me-1" />
+                      <input 
+                        type="checkbox" 
+                        className="form-check-input me-1"
+                        checked={selectedOutlets.dunkin}
+                        onChange={() => handleOutletSelect('dunkin')}
+                      />
                       Dunkin'
                     </label>
                   </div>
