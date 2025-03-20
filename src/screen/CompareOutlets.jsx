@@ -16,27 +16,27 @@ const CompareOutlets = () => {
           
           <div className="container-xxl flex-grow-1 container-p-y">
             <div className="row mb-4">
-              <div className="col-12 text-center">
+              <div className="col-12 text-start">
                 <h2 className="fw-bold">All Outlet List</h2>
               </div>
             </div>
             
             <div className="row">
-              <div className="col-12 d-flex justify-content-center">
+              <div className="col-12 d-flex justify-content-start">
                 <div className="d-flex gap-2 flex-wrap">
-                  <label className="btn btn-outline-primary">
+                  <label className="btn btn-outline-dark">
                     <input type="checkbox" className="form-check-input me-1" />
                      Starbuck
                   </label>
-                  <label className="btn btn-outline-success">
+                  <label className="btn btn-outline-dark">
                     <input type="checkbox" className="form-check-input me-1" />
                     KFC
                   </label>
-                  <label className="btn btn-outline-danger">
+                  <label className="btn btn-outline-dark">
                     <input type="checkbox" className="form-check-input me-1" />
                     McDonalds
                   </label>
-                  <label className="btn btn-outline-warning">
+                  <label className="btn btn-outline-dark">
                     <input type="checkbox" className="form-check-input me-1" />
                     Burger King
                   </label>
@@ -45,10 +45,10 @@ const CompareOutlets = () => {
             </div>
             
             <div className="row mt-4 mb-4">
-              <div className="col-12 text-center">
+              <div className="col-12 text-start">
                 <button type="button" className="btn btn-primary btn-lg">
                   <i className="fas fa-chart-bar me-2"></i>
-                  Compare Selected Outlets
+                  Compare 
                 </button>
               </div>
             </div>
