@@ -30,7 +30,7 @@ function App() {
               <Route path="/dashboard" element={<HomeScreen />} />
               <Route path="/profile" element={<MyProfile />} />
               <Route path="/settings" element={<Settings />} /> 
-              <Route path="/CompareOutlets" element={<CompareOutlets />} /> 
+              <Route path="/compare-outlets" element={<CompareOutlets />} /> 
               
               {/* Default redirect to login */}
               <Route path="/" element={<Navigate to="/login" replace />} />

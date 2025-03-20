@@ -397,7 +397,7 @@ function Header() {
               </li>
               <li className="nav-item me-3">
                 <Link 
-                  to="/CompareOutlets" 
+                  to="/compare-outlets" 
                   className="btn btn-primary d-none d-md-flex align-items-center"
                   style={{
                     borderRadius: '8px',
