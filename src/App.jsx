@@ -7,6 +7,7 @@ import "./assets/css/menu.css";
 import HomeScreen from './screen/HomeScreen'
 import LoginScreen from './screen/LoginScreen'
 import MyProfile from './screen/MyProfile'
+import CompareOutlets from './screen/CompareOutlets'
 import { ThemeProvider } from './components/ThemeContext'
 
 import Header from './components/Header'
@@ -29,6 +30,7 @@ function App() {
               <Route path="/dashboard" element={<HomeScreen />} />
               <Route path="/profile" element={<MyProfile />} />
               <Route path="/settings" element={<Settings />} /> 
+              <Route path="/CompareOutlets" element={<CompareOutlets />} /> 
               
               {/* Default redirect to login */}
               <Route path="/" element={<Navigate to="/login" replace />} />
