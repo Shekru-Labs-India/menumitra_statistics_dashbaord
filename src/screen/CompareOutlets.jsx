@@ -38,6 +38,15 @@ const CompareOutlets = () => {
                       className="control sorting_disabled dtr-hidden"
                       style={{ width: 0, display: "none" }}
                     />
+                    <th className="text-center" style={{ width: "40px" }}>
+                      <div className="form-check">
+                        <input 
+                          className="form-check-input" 
+                          type="checkbox" 
+                          id="selectAll"
+                        />
+                      </div>
+                    </th>
                     <th className="sorting sorting_desc" style={{ minWidth: "180px" }}>
                       OUTLET NAME
                     </th>
@@ -62,6 +71,15 @@ const CompareOutlets = () => {
                       tabIndex={0}
                       style={{ display: "none" }}
                     />
+                    <td className="text-center">
+                      <div className="form-check">
+                        <input 
+                          className="form-check-input" 
+                          type="checkbox" 
+                          id="checkbox1"
+                        />
+                      </div>
+                    </td>
                     <td className="sorting_1">
                       <div className="d-flex justify-content-start align-items-center">
                         <div className="avatar-wrapper">
@@ -101,6 +119,15 @@ const CompareOutlets = () => {
                       tabIndex={0}
                       style={{ display: "none" }}
                     />
+                    <td className="text-center">
+                      <div className="form-check">
+                        <input 
+                          className="form-check-input" 
+                          type="checkbox" 
+                          id="checkbox2"
+                        />
+                      </div>
+                    </td>
                     <td className="sorting_1">
                       <div className="d-flex justify-content-start align-items-center">
                         <div className="avatar-wrapper">
