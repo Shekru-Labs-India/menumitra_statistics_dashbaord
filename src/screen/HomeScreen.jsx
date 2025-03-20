@@ -335,7 +335,7 @@ function HomeScreen() {
         <div className="layout-page d-flex flex-column min-vh-100">
           <Header />
           <div className="content-wrapper flex-grow-1">
-            <div className="container-xxl flex-grow-1 container-p-y">
+            <div className="container-fluid flex-grow-1 container-p-y">
               {error && (
                 <div className="alert alert-danger mb-4" role="alert">
                   {error}

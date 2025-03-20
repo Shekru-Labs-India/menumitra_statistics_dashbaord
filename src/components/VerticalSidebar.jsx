@@ -27,12 +27,28 @@ function VerticalSidebar() {
     // Listen for menu toggle events from other components
     window.addEventListener('layout:toggle', handleLayoutToggle);
     
+    // Add layout-menu-unpinned class when not docked
+    updateLayoutMenuUnpinnedClass(isDocked);
+    
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('layout:toggle', handleLayoutToggle);
       clearTimeout(hoverTimerRef.current);
     };
   }, []);
+
+  // Add useEffect to update class when isDocked changes
+  useEffect(() => {
+    updateLayoutMenuUnpinnedClass(isDocked);
+  }, [isDocked]);
+
+  const updateLayoutMenuUnpinnedClass = (docked) => {
+    if (docked) {
+      document.body.classList.remove('layout-menu-unpinned');
+    } else {
+      document.body.classList.add('layout-menu-unpinned');
+    }
+  };
 
   const handleLayoutToggle = () => {
     const isExpanded = document.documentElement.classList.contains('layout-menu-expanded');
