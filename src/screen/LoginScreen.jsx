@@ -106,8 +106,20 @@ function LoginScreen() {
     
     try {
       // Get FCM token 
-      const fcmToken = await requestNotificationPermission();
-      localStorage.setItem('fcm_token', fcmToken)
+      let fcmToken;
+      try {
+        fcmToken = await requestNotificationPermission();
+        if (!fcmToken) {
+          throw new Error('Failed to get notification token');
+        }
+        localStorage.setItem('fcm_token', fcmToken);
+      } catch (tokenError) {
+        console.error('FCM Token Error:', tokenError);
+        setError('Please allow notifications to continue. You can change this in your browser settings.');
+        setIsLoading(false);
+        return;
+      }
+
       // Make API call to verify OTP with FCM token
       const response = await axios.post(`${apiEndpoint}verify_otp`, {
         mobile: mobileNumber,

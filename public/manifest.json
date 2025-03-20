@@ -1,0 +1,16 @@
+{
+  "name": "MenuMitra Owner Dashboard",
+  "short_name": "MenuMitra",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "gcm_sender_id": "103953800507",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    }
+  ]
+} 
