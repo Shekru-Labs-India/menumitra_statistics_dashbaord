@@ -30,6 +30,7 @@ function LoginScreen() {
   localStorage.removeItem('role');
   localStorage.removeItem('access');
   localStorage.removeItem('refresh');
+  localStorage.removeItem('fcm_token');
 
   }, []);
 
@@ -106,7 +107,7 @@ function LoginScreen() {
     try {
       // Get FCM token 
       const fcmToken = await requestNotificationPermission();
-      
+      localStorage.setItem('fcm_token', fcmToken)
       // Make API call to verify OTP with FCM token
       const response = await axios.post(`${apiEndpoint}verify_otp`, {
         mobile: mobileNumber,

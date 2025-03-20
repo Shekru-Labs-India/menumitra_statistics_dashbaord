@@ -208,6 +208,7 @@ function Header() {
     localStorage.removeItem('role');
     localStorage.removeItem('access');
     localStorage.removeItem('refresh');
+    localStorage.removeItem('fcm_token');
     
     // Navigate to login page
     navigate('/login');
