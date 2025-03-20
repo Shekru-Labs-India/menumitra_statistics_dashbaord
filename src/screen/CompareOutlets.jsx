@@ -17,7 +17,7 @@ const CompareOutlets = () => {
         <div className="row mb-4">
         
           <div className="col-12">
-            <h2 className="fw-bold">All Outlets</h2>
+            <h2 className="fw-bold">All Outlets lists</h2>
           </div>
         </div>
         
@@ -50,34 +50,18 @@ const CompareOutlets = () => {
                     <th className="sorting sorting_desc" style={{ minWidth: "180px" }}>
                       OUTLET NAME
                     </th>
-                    <th className="sorting" style={{ minWidth: "120px" }}>
-                      NO OF WAITERS
-                    </th>
                     <th className="sorting" style={{ minWidth: "150px" }}>
-                      AVG ORDER<br />PER WEEK
-                    </th>
-                    <th className="sorting" style={{ minWidth: "120px" }}>
-                      MOST<br />POPULAR ITEM
-                    </th>
-                    <th className="sorting" style={{ minWidth: "120px" }}>
-                      LEAST<br />POPULAR ITEM
+                      LOCATION
                     </th>
                   </tr>
                 </thead>
                 <tbody>
+                  {/* Outlet 1 */}
                   <tr className="odd">
-                    <td
-                      className="control"
-                      tabIndex={0}
-                      style={{ display: "none" }}
-                    />
+                    <td className="control" tabIndex={0} style={{ display: "none" }} />
                     <td className="text-center">
                       <div className="form-check">
-                        <input 
-                          className="form-check-input" 
-                          type="checkbox" 
-                          id="checkbox1"
-                        />
+                        <input className="form-check-input" type="checkbox" id="checkbox1" />
                       </div>
                     </td>
                     <td className="sorting_1">
@@ -90,42 +74,21 @@ const CompareOutlets = () => {
                           </div>
                         </div>
                         <div className="d-flex flex-column">
-                          <span className="fw-medium">Jagdamba</span>
+                          <span className="fw-medium">Jagdamba Restaurant</span>
                         </div>
                       </div>
                     </td>
                     <td>
-                      <span className="fw-medium">12</span>
-                    </td>
-                    <td>
-                      <span className="fw-medium">₹ 86,540</span>
-                    </td>
-                    <td>
-                      <div>
-                        <p className="fw-medium mb-0">Butter Chicken</p>
-                        <small className="text-muted">248 orders</small>
-                      </div>
-                    </td>
-                    <td>
-                      <div>
-                        <p className="fw-medium mb-0">Vegetable Soup</p>
-                        <small className="text-muted">24 orders</small>
-                      </div>
+                      <span className="fw-medium">Andheri East, Mumbai</span>
                     </td>
                   </tr>
+
+                  {/* Outlet 2 */}
                   <tr className="even">
-                    <td
-                      className="control"
-                      tabIndex={0}
-                      style={{ display: "none" }}
-                    />
+                    <td className="control" tabIndex={0} style={{ display: "none" }} />
                     <td className="text-center">
                       <div className="form-check">
-                        <input 
-                          className="form-check-input" 
-                          type="checkbox" 
-                          id="checkbox2"
-                        />
+                        <input className="form-check-input" type="checkbox" id="checkbox2" />
                       </div>
                     </td>
                     <td className="sorting_1">
@@ -138,27 +101,228 @@ const CompareOutlets = () => {
                           </div>
                         </div>
                         <div className="d-flex flex-column">
-                          <span className="fw-medium">Gokul veg</span>
+                          <span className="fw-medium">Gokul Veg</span>
                         </div>
                       </div>
                     </td>
                     <td>
-                      <span className="fw-medium">8</span>
+                      <span className="fw-medium">Bandra West, Mumbai</span>
                     </td>
-                    <td>
-                      <span className="fw-medium">₹ 62,180</span>
+                  </tr>
+
+                  {/* Outlet 3 */}
+                  <tr className="odd">
+                    <td className="control" tabIndex={0} style={{ display: "none" }} />
+                    <td className="text-center">
+                      <div className="form-check">
+                        <input className="form-check-input" type="checkbox" id="checkbox3" />
+                      </div>
                     </td>
-                    <td>
-                      <div>
-                        <p className="fw-medium mb-0">Masala Dosa</p>
-                        <small className="text-muted">186 orders</small>
+                    <td className="sorting_1">
+                      <div className="d-flex justify-content-start align-items-center">
+                        <div className="avatar-wrapper">
+                          <div className="avatar avatar-sm me-3">
+                            <span className="avatar-initial rounded-circle bg-label-danger">
+                              <i className="fas fa-store"></i>
+                            </span>
+                          </div>
+                        </div>
+                        <div className="d-flex flex-column">
+                          <span className="fw-medium">Spice Paradise</span>
+                        </div>
                       </div>
                     </td>
                     <td>
-                      <div>
-                        <p className="fw-medium mb-0">Fruit Salad</p>
-                        <small className="text-muted">31 orders</small>
+                      <span className="fw-medium">Juhu, Mumbai</span>
+                    </td>
+                  </tr>
+
+                  {/* Outlet 4 */}
+                  <tr className="even">
+                    <td className="control" tabIndex={0} style={{ display: "none" }} />
+                    <td className="text-center">
+                      <div className="form-check">
+                        <input className="form-check-input" type="checkbox" id="checkbox4" />
                       </div>
+                    </td>
+                    <td className="sorting_1">
+                      <div className="d-flex justify-content-start align-items-center">
+                        <div className="avatar-wrapper">
+                          <div className="avatar avatar-sm me-3">
+                            <span className="avatar-initial rounded-circle bg-label-info">
+                              <i className="fas fa-store"></i>
+                            </span>
+                          </div>
+                        </div>
+                        <div className="d-flex flex-column">
+                          <span className="fw-medium">Royal Bistro</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span className="fw-medium">Powai, Mumbai</span>
+                    </td>
+                  </tr>
+
+                  {/* Outlet 5 */}
+                  <tr className="odd">
+                    <td className="control" tabIndex={0} style={{ display: "none" }} />
+                    <td className="text-center">
+                      <div className="form-check">
+                        <input className="form-check-input" type="checkbox" id="checkbox5" />
+                      </div>
+                    </td>
+                    <td className="sorting_1">
+                      <div className="d-flex justify-content-start align-items-center">
+                        <div className="avatar-wrapper">
+                          <div className="avatar avatar-sm me-3">
+                            <span className="avatar-initial rounded-circle bg-label-warning">
+                              <i className="fas fa-store"></i>
+                            </span>
+                          </div>
+                        </div>
+                        <div className="d-flex flex-column">
+                          <span className="fw-medium">Taj Flavors</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span className="fw-medium">Malad West, Mumbai</span>
+                    </td>
+                  </tr>
+
+                  {/* Outlet 6 */}
+                  <tr className="even">
+                    <td className="control" tabIndex={0} style={{ display: "none" }} />
+                    <td className="text-center">
+                      <div className="form-check">
+                        <input className="form-check-input" type="checkbox" id="checkbox6" />
+                      </div>
+                    </td>
+                    <td className="sorting_1">
+                      <div className="d-flex justify-content-start align-items-center">
+                        <div className="avatar-wrapper">
+                          <div className="avatar avatar-sm me-3">
+                            <span className="avatar-initial rounded-circle bg-label-secondary">
+                              <i className="fas fa-store"></i>
+                            </span>
+                          </div>
+                        </div>
+                        <div className="d-flex flex-column">
+                          <span className="fw-medium">Green Garden</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span className="fw-medium">Thane, Mumbai</span>
+                    </td>
+                  </tr>
+
+                  {/* Outlet 7 */}
+                  <tr className="odd">
+                    <td className="control" tabIndex={0} style={{ display: "none" }} />
+                    <td className="text-center">
+                      <div className="form-check">
+                        <input className="form-check-input" type="checkbox" id="checkbox7" />
+                      </div>
+                    </td>
+                    <td className="sorting_1">
+                      <div className="d-flex justify-content-start align-items-center">
+                        <div className="avatar-wrapper">
+                          <div className="avatar avatar-sm me-3">
+                            <span className="avatar-initial rounded-circle bg-label-dark">
+                              <i className="fas fa-store"></i>
+                            </span>
+                          </div>
+                        </div>
+                        <div className="d-flex flex-column">
+                          <span className="fw-medium">Curry House</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span className="fw-medium">Vashi, Navi Mumbai</span>
+                    </td>
+                  </tr>
+
+                  {/* Outlet 8 */}
+                  <tr className="even">
+                    <td className="control" tabIndex={0} style={{ display: "none" }} />
+                    <td className="text-center">
+                      <div className="form-check">
+                        <input className="form-check-input" type="checkbox" id="checkbox8" />
+                      </div>
+                    </td>
+                    <td className="sorting_1">
+                      <div className="d-flex justify-content-start align-items-center">
+                        <div className="avatar-wrapper">
+                          <div className="avatar avatar-sm me-3">
+                            <span className="avatar-initial rounded-circle bg-label-primary">
+                              <i className="fas fa-store"></i>
+                            </span>
+                          </div>
+                        </div>
+                        <div className="d-flex flex-column">
+                          <span className="fw-medium">Tandoor Express</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span className="fw-medium">Belapur, Navi Mumbai</span>
+                    </td>
+                  </tr>
+
+                  {/* Outlet 9 */}
+                  <tr className="odd">
+                    <td className="control" tabIndex={0} style={{ display: "none" }} />
+                    <td className="text-center">
+                      <div className="form-check">
+                        <input className="form-check-input" type="checkbox" id="checkbox9" />
+                      </div>
+                    </td>
+                    <td className="sorting_1">
+                      <div className="d-flex justify-content-start align-items-center">
+                        <div className="avatar-wrapper">
+                          <div className="avatar avatar-sm me-3">
+                            <span className="avatar-initial rounded-circle bg-label-success">
+                              <i className="fas fa-store"></i>
+                            </span>
+                          </div>
+                        </div>
+                        <div className="d-flex flex-column">
+                          <span className="fw-medium">Café Delight</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span className="fw-medium">Dadar, Mumbai</span>
+                    </td>
+                  </tr>
+
+                  {/* Outlet 10 */}
+                  <tr className="even">
+                    <td className="control" tabIndex={0} style={{ display: "none" }} />
+                    <td className="text-center">
+                      <div className="form-check">
+                        <input className="form-check-input" type="checkbox" id="checkbox10" />
+                      </div>
+                    </td>
+                    <td className="sorting_1">
+                      <div className="d-flex justify-content-start align-items-center">
+                        <div className="avatar-wrapper">
+                          <div className="avatar avatar-sm me-3">
+                            <span className="avatar-initial rounded-circle bg-label-danger">
+                              <i className="fas fa-store"></i>
+                            </span>
+                          </div>
+                        </div>
+                        <div className="d-flex flex-column">
+                          <span className="fw-medium">Spicy Corner</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span className="fw-medium">Chembur, Mumbai</span>
                     </td>
                   </tr>
                 </tbody>
@@ -166,6 +330,17 @@ const CompareOutlets = () => {
             </div>
           </div>
         </div>
+        
+        {/* Compare button */}
+        <div className="row mt-4 mb-4">
+          <div className="col-12 text-center">
+            <button type="button" className="btn btn-primary btn-lg">
+              <i className="fas fa-chart-bar me-2"></i>
+              Compare Selected Outlets
+            </button>
+          </div>
+        </div>
+        
         <Footer/>
       </div>
 
