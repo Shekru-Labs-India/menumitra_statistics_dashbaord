@@ -10,6 +10,7 @@ import '../assets/css/page-auth.css';
 import logo from "../assets/img/company/MenuMitra_logo.png";
 // Import configuration
 import { menuMitraCompanyInfo, menuMitraSocialLinks, menuMitraAppInfo, apiEndpoint } from '../config/menuMitraConfig';
+import { requestNotificationPermission } from '../config/firebase';
 
 function LoginScreen() {
   const [mobileNumber, setMobileNumber] = useState('');
@@ -103,10 +104,14 @@ function LoginScreen() {
     const enteredOtp = otp.join('');
     
     try {
-      // Make API call to verify OTP
+      // Get FCM token 
+      const fcmToken = await requestNotificationPermission();
+      
+      // Make API call to verify OTP with FCM token
       const response = await axios.post(`${apiEndpoint}verify_otp`, {
         mobile: mobileNumber,
-        otp: parseInt(enteredOtp) // Convert string to number as per API requirement
+        otp: parseInt(enteredOtp),
+        fcm_token: fcmToken
       });
       
       // Check if response is successful
