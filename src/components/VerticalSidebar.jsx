@@ -135,7 +135,14 @@ function VerticalSidebar() {
               <div className="d-block text-truncate overflow-hidden w-100">Home</div>
             </Link>
           </li>
+          <li className="menu-item ">
+            <Link to="/CompareOutlets" className="menu-link">
+              <i className="menu-icon fa-solid fa-code-compare text-black"></i>
+              <div className="d-block text-truncate overflow-hidden w-100">Compare Outlets</div>
+            </Link>
+          </li>
         </ul>
+
       </aside>
       
       {/* Overlay for mobile - only shown when menu is expanded on mobile */}

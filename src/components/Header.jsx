@@ -316,7 +316,13 @@ function Header() {
             <div className="navbar-nav flex-row">
               <li className="nav-item dropdown me-3">
                 <button
-                  className="btn btn-outline-primary dropdown-toggle d-flex align-items-center border border-primary"
+                  className="btn btn-outline-primary dropdown-toggle d-flex align-items-center"
+                  style={{
+                    borderRadius: '8px',
+                    padding: '8px 16px',
+                    fontWeight: 600,
+                    boxShadow: 'rgba(0, 0, 0, 0.05) 0px 1px 2px'
+                  }}
                   type="button"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
@@ -389,58 +395,26 @@ function Header() {
                   )}
                 </ul>
               </li>
+              <li className="nav-item me-3">
+                <Link 
+                  to="/CompareOutlets" 
+                  className="btn btn-primary d-none d-md-flex align-items-center"
+                  style={{
+                    borderRadius: '8px',
+                    padding: '8px 16px',
+                    fontWeight: 600,
+                    boxShadow: 'rgba(105, 108, 255, 0.4) 0px 2px 4px',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <i className="fas fa-code-compare me-2"></i>
+                  Compare Outlets
+                </Link>
+              </li>
             </div>
 
             {/* Right aligned items */}
             <ul className="navbar-nav flex-row align-items-center ms-auto">
-              {/* Theme Mode */}
-              {/* <li className="nav-item dropdown-style-switcher dropdown me-3">
-              <a
-                  className="nav-link btn btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow"
-                  href="javascript:void(0);"
-                  data-bs-toggle="dropdown"
-                >
-                  <i className="fas fa-sun fa-lg" />
-                </a>
-                <ul className="dropdown-menu dropdown-menu-end dropdown-styles">
-                  <li>
-                    <a
-                      className="dropdown-item"
-                      href="javascript:void(0);"
-                      data-theme="light"
-                    >
-                      <span className="align-middle">
-                        <i className="fas fa-sun fa-lg me-3" />
-                        Light
-                      </span>
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      className="dropdown-item"
-                      href="javascript:void(0);"
-                      data-theme="dark"
-                    >
-                      <span className="align-middle">
-                        <i className="fas fa-moon fa-lg me-3" />
-                        Dark
-                      </span>
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      className="dropdown-item"
-                href="javascript:void(0);"
-                      data-theme="system"
-              >
-                      <span className="align-middle">
-                        <i className="fas fa-desktop fa-lg me-3" />
-                        System
-                      </span>
-              </a>
-                  </li>
-                </ul>
-            </li> */}
 
               {/* User Profile */}
               <li className="nav-item navbar-dropdown dropdown-user dropdown">
@@ -520,22 +494,6 @@ function Header() {
                       <span className="align-middle">Settings</span>
                     </Link>
                   </li>
-                  {/* <li>
-                    <a
-                      className="dropdown-item"
-                      href="pages-account-settings-billing.html"
-                    >
-                      <span className="d-flex align-items-center align-middle">
-                        <i className="far fa-file-alt fa-lg me-2" />
-                        <span className="flex-grow-1 align-middle">
-                          Billing
-                        </span>
-                        <span className="flex-shrink-0 badge badge-center rounded-pill bg-danger h-px-20 d-flex align-items-center justify-content-center">
-                          4
-                        </span>
-                      </span>
-                    </a>
-                  </li> */}
                   <li>
                     <div className="dropdown-divider" />
                   </li>
