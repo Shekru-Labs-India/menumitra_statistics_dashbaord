@@ -105,15 +105,6 @@ const CompareOutlets = () => {
                     <table className="table table-bordered">
                       <thead>
                         <tr>
-                          <th className="text-center" style={{ width: "40px" }}>
-                            <div className="form-check">
-                              <input 
-                                className="form-check-input" 
-                                type="checkbox" 
-                                id="selectAll"
-                              />
-                            </div>
-                          </th>
                           <th>OUTLET NAME</th>
                           <th>NO OF WAITERS</th>
                           <th>AVG ORDER<br />PER WEEK</th>
@@ -123,15 +114,6 @@ const CompareOutlets = () => {
                       </thead>
                       <tbody>
                         <tr>
-                          <td className="text-center">
-                            <div className="form-check">
-                              <input 
-                                className="form-check-input" 
-                                type="checkbox" 
-                                id="checkbox1"
-                              />
-                            </div>
-                          </td>
                           <td>
                             <div className="d-flex align-items-center">
                               <span className="avatar-initial rounded-circle bg-label-primary me-2">
@@ -156,15 +138,6 @@ const CompareOutlets = () => {
                           </td>
                         </tr>
                         <tr>
-                          <td className="text-center">
-                            <div className="form-check">
-                              <input 
-                                className="form-check-input" 
-                                type="checkbox" 
-                                id="checkbox2"
-                              />
-                            </div>
-                          </td>
                           <td>
                             <div className="d-flex align-items-center">
                               <span className="avatar-initial rounded-circle bg-label-success me-2">

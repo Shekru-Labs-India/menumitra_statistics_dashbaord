@@ -276,9 +276,9 @@ function Header() {
     } else if (hours > 0) {
       return `${hours} hour${hours === 1 ? '' : 's'} ago`;
     } else if (minutes > 0) {
-      return `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
+      return `${minutes} min${minutes === 1 ? '' : ''} ago`;
     } else {
-      return `${seconds} second${seconds === 1 ? '' : 's'} ago`;
+      return `${seconds} sec${seconds === 1 ? '' : ''} ago`;
     }
   };
 
@@ -426,7 +426,7 @@ function Header() {
                  
                   <div className="flex-grow-1 me-3 text-end">
                   <small className="text-black d-block">
-                      Last updated: {timeElapsed}
+                      Updated: {timeElapsed}
                     </small>
                     <h6 className="mb-0 small fw-bold">{userName}</h6>
                     <small className="text-muted">
