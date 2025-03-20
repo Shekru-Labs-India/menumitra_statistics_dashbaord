@@ -335,21 +335,21 @@ function HomeScreen() {
         <div className="layout-page d-flex flex-column min-vh-100">
           <Header />
           <div className="content-wrapper flex-grow-1">
-            <div className="container-xxl flex-grow-1 p-2">
+            <div className="container-xxl flex-grow-1 container-p-y">
               {error && (
-                <div className="alert alert-danger mb-2" role="alert">
+                <div className="alert alert-danger mb-4" role="alert">
                   {error}
                 </div>
               )}
               {/* Welcome Card Section */}
-              <div className="row mb-2">
+              <div className="row mb-4">
                 <div className="col-12">
                   <div className="card">
-                    <div className="card-header d-flex justify-content-between align-items-md-center align-items-start p-3">
+                    <div className="card-header d-flex justify-content-between align-items-md-center align-items-start p-4">
                       <h5 className="card-title mb-0">
                         Welcome to MenuMitra Owner Dashboard
                       </h5>
-                      <div className="d-flex align-items-center gap-2">
+                      <div className="d-flex align-items-center gap-3">
                         <div className="dropdown">
                           <button
                             type="button"
@@ -432,7 +432,9 @@ function HomeScreen() {
                               : "Click to play animation"
                           }
                         >
+                          {/* Using two separate images - static frame and animated */}
                           {isGifPlaying ? (
+                            // Show animated GIF when playing
                             <img
                               src={aiAnimationGif}
                               alt="AI Animation (Playing)"
@@ -443,6 +445,7 @@ function HomeScreen() {
                               }}
                             />
                           ) : (
+                            // Show static frame when not playing
                             <img
                               src={aiAnimationStillFrame}
                               alt="AI Animation (Click to play)"
@@ -459,7 +462,7 @@ function HomeScreen() {
                     </div>
 
                     {showDatePicker && (
-                      <div className="card-body px-3 py-2">
+                      <div className="card-body px-4 py-3">
                         <div className="d-flex flex-column gap-2">
                           <label>Select Date Range:</label>
                           <div className="d-flex gap-2 flex-wrap">
@@ -498,17 +501,18 @@ function HomeScreen() {
                       </div>
                     )}
 
-                    <div className="card-body p-3">
-                      <p className="mb-2">
+                    <div className="card-body p-4">
+                      <p className="mb-4">
                         Select an outlet from the search menu above to view
                         detailed analytics and reports.
                       </p>
                       {/* Stats Cards */}
-                      <div className="row g-2">
+                      <div className="row g-4">
                         {loading ? (
                           <>
                             <StatCardSkeleton color="primary" />
                             <StatCardSkeleton color="success" />
+                            {/* <StatCardSkeleton color="warning" /> */}
                             <StatCardSkeleton color="info" />
                             <StatCardSkeleton color="danger" />
                           </>
@@ -528,6 +532,12 @@ function HomeScreen() {
                               color="success"
                               isPrice={true}
                             />
+                            {/* <StatCard
+                              title="Customers count"
+                              value={statistics.customer_count}
+                              icon="fas fa-users"
+                              color="warning"
+                            /> */}
                             <StatCard
                               title="Average Order Value"
                               value={statistics.average_order_value}
@@ -551,13 +561,18 @@ function HomeScreen() {
               </div>
 
               {/* Charts Section */}
-              <div className="row g-2 mb-2">
-                <div className="col-12 col-md-6">
+              <div className="row g-4 mb-4">
+                <div className="col-12 col-md-6 col-lg-6">
                   <div className="h-100">
                     <PaymentMethodsChart />
                   </div>
                 </div>
-                <div className="col-12 col-md-6">
+                {/* <div className="col-12 col-md-6 col-lg-6">
+                  <div className="h-100">
+                    <RevenueLossWidget />
+                  </div>
+                </div> */}
+                <div className="col-12 col-md-6 col-lg-6">
                   <div className="h-100">
                     <OrderStat />
                   </div>
@@ -565,13 +580,13 @@ function HomeScreen() {
               </div>
 
               {/* Sales Section */}
-              <div className="row g-2 mb-2">
-                <div className="col-12 col-md-6">
+              <div className="row g-4 mb-4">
+                <div className="col-12 col-md-6 col-lg-6">
                   <div className="h-100">
                     <TopSell />
                   </div>
                 </div>
-                <div className="col-12 col-md-6">
+                <div className="col-12 col-md-6 col-lg-6">
                   <div className="h-100">
                     <FoodTypeGraph />
                   </div>
@@ -579,21 +594,19 @@ function HomeScreen() {
               </div>
 
               {/* Analytics Section */}
-              <div className="row g-2 mb-2">
-                <div className="col-12 col-md-6">
+              <div className="row g-4">
+                <div className="col-12 col-md-6 col-lg-6">
                   <div className="h-100">
                     <OrderType />
                   </div>
                 </div>
-                <div className="col-12 col-md-6">
+                <div className="col-12 col-md-6 col-lg-6">
                   <div className="h-100">
                     <WeeklyOrderStat />
                   </div>
                 </div>
-              </div>
 
-              <div className="row mt-2">
-                <div className="col-12">
+                <div className="row mt-4">
                   <OrderAnalytics />
                 </div>
               </div>
