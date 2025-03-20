@@ -13,7 +13,7 @@ const CompareOutlets = () => {
         <VerticalSidebar />
         <div className="layout-page d-flex flex-column min-vh-100">
           <Header />
-          <div className="container-xxl flex-grow-1 container-p-y">
+          <div className="container-fluid flex-grow-1 container-p-y">
         <div className="row mb-4">
         
           <div className="col-12">
