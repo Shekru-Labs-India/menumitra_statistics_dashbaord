@@ -132,11 +132,11 @@ function VerticalSidebar() {
             <div className="sidebar-pin-toggle">
               {isDocked ? (
                 <button className="btn" onClick={handleUnpinClick} title="Unpin">
-                  <i className="ri-pushpin-fill"></i>
+                  <i className="fas fa-thumbtack"></i>
                 </button>
               ) : showPinButton && (
                 <button className="btn" onClick={handlePinClick} title="Pin">
-                  <i className="ri-pushpin-line"></i>
+                  <i className="fas fa-thumbtack"></i>
                 </button>
               )}
             </div>

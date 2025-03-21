@@ -414,7 +414,7 @@ const OrderAnalytics = () => {
                     className="icon-bg bg-primary rounded-circle d-flex align-items-center justify-content-center"
                     style={{ width: "40px", height: "40px" }}
                   >
-                    <i className="ri-time-line ri-lg text-white"></i>
+                    <i className="fas fa-clock text-white"></i>
                   </div>
                   <div className="ms-4 d-flex flex-column">
                     <h5 className="mb-0">Avg First Order Time</h5>
@@ -429,7 +429,7 @@ const OrderAnalytics = () => {
                     className="icon-bg bg-success rounded-circle d-flex align-items-center justify-content-center"
                     style={{ width: "40px", height: "40px" }}
                   >
-                    <i className="ri-timer-line ri-lg text-white"></i>
+                    <i className="fas fa-hourglass-half text-white"></i>
                   </div>
                   <div className="ms-4 d-flex flex-column">
                     <h5 className="mb-0">Avg Last Order Time</h5>
@@ -444,7 +444,7 @@ const OrderAnalytics = () => {
                     className="icon-bg bg-warning rounded-circle d-flex align-items-center justify-content-center"
                     style={{ width: "40px", height: "40px" }}
                   >
-                    <i className="ri-dashboard-line ri-lg text-white"></i>
+                    <i className="fas fa-tachometer-alt text-white"></i>
                   </div>
                   <div className="ms-4 d-flex flex-column">
                     <h5 className="mb-0">Avg Order Time</h5>
@@ -459,7 +459,7 @@ const OrderAnalytics = () => {
                     className="icon-bg bg-danger rounded-circle d-flex align-items-center justify-content-center"
                     style={{ width: "40px", height: "40px" }}
                   >
-                    <i className="ri-restaurant-line ri-lg text-white"></i>
+                    <i className="fas fa-utensils text-white"></i>
                   </div>
                   <div className="ms-4 d-flex flex-column">
                     <h5 className="mb-0">Avg Cooking Time</h5>
