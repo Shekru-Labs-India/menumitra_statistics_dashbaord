@@ -14,7 +14,8 @@ function Header() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [timeElapsed, setTimeElapsed] = useState('0 seconds ago');
-  const [startTime] = useState(new Date());
+  const [startTime, setStartTime] = useState(new Date());
+  const [isRotating, setIsRotating] = useState(false);
   const navigate = useNavigate();
 
   // Fetch outlets from API
@@ -292,6 +293,18 @@ function Header() {
     return () => clearInterval(timer);
   }, [startTime]);
 
+  // Add refresh function with rotation
+  const handleRefresh = () => {
+    setIsRotating(true);
+    setStartTime(new Date());
+    fetchOutlets(); // Refresh outlets data
+    
+    // Reset rotation after animation completes
+    setTimeout(() => {
+      setIsRotating(false);
+    }, 1000); // Match this with the CSS animation duration
+  };
+
   return (
     <div>
       <nav
@@ -308,6 +321,21 @@ function Header() {
           marginBottom: '1.5rem'
         }}
       >
+        <style>
+          {`
+            @keyframes rotate {
+              from {
+                transform: rotate(0deg);
+              }
+              to {
+                transform: rotate(360deg);
+              }
+            }
+            .rotate-animation {
+              animation: rotate 1s linear;
+            }
+          `}
+        </style>
         <div 
           className="container-xxl" 
           style={{ 
@@ -434,6 +462,21 @@ function Header() {
 
             {/* Right aligned items */}
             <ul className="navbar-nav flex-row align-items-center ms-auto">
+              {/* Updated Time */}
+              <li className="nav-item me-3 mb-4">
+                <div className="d-flex flex-column align-items-start">
+                  <button 
+                    className="btn btn-icon btn-sm btn-ghost-secondary mb-0"
+                    onClick={handleRefresh}
+                    style={{ padding: '4px' }}
+                  >
+                    <i className={`fas fa-sync-alt ${isRotating ? 'rotate-animation' : ''}`}></i>
+                  </button>
+                  <small className="text-black">
+                    Updated {timeElapsed}
+                  </small>
+                </div>
+              </li>
 
               {/* User Profile */}
               <li className="nav-item navbar-dropdown dropdown-user dropdown">
@@ -442,16 +485,11 @@ function Header() {
                   href="javascript:void(0);"
                   data-bs-toggle="dropdown"
                 >
-                 
                   <div className="flex-grow-1 me-3 text-end">
-                  <small className="text-black d-block">
-                      Updated {timeElapsed}
-                    </small>
                     <h6 className="mb-0 small fw-bold">{userName}</h6>
                     <small className="text-muted">
                       {storedRole.toUpperCase()}
                     </small>
-                    
                   </div>
                   <div className="avatar ms-2">
                     <img
