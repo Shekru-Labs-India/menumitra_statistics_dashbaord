@@ -297,13 +297,31 @@ function Header() {
       <nav
         className="layout-navbar navbar navbar-expand-xl align-items-center bg-navbar-theme"
         id="layout-navbar"
+        style={{
+          backgroundColor: 'white',
+          borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
+          boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08)',
+          position: 'relative',
+          zIndex: 1000,
+          paddingTop: '2.5rem',
+          paddingBottom: '2.5rem',
+          marginBottom: '1.5rem'
+        }}
       >
-        <div className="container-xxl">
+        <div 
+          className="container-xxl" 
+          style={{ 
+            padding: '0 1.5rem',
+            marginTop: '0.5rem',
+            marginBottom: '0.5rem'
+          }}
+        >
           <div className="layout-menu-toggle navbar-nav align-items-xl-center me-4 me-xl-0 d-xl-none">
             <a
               className="nav-item nav-link px-0 me-xl-6"
               href="javascript:void(0)"
               onClick={toggleMenu}
+              style={{ padding: '0.75rem' }}
             >
               <i className={`fas fa-${isMenuCollapsed ? "bars" : "times"}`} />
             </a>
@@ -311,6 +329,7 @@ function Header() {
           <div
             className="navbar-nav-right d-flex align-items-center"
             id="navbar-collapse"
+            style={{ padding: '0.5rem 0' }}
           >
             {/* Outlet Selector Dropdown */}
             <div className="navbar-nav flex-row">
@@ -426,7 +445,7 @@ function Header() {
                  
                   <div className="flex-grow-1 me-3 text-end">
                   <small className="text-black d-block">
-                      Updated: {timeElapsed}
+                      Updated {timeElapsed}
                     </small>
                     <h6 className="mb-0 small fw-bold">{userName}</h6>
                     <small className="text-muted">
