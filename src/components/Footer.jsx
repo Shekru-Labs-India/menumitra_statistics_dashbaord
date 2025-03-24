@@ -24,36 +24,7 @@ const Footer = () => {
           </a>
          
         </div>
-        {/* <div className="d-none d-lg-inline-block">
-          <a
-            href="https://themeselection.com/license/"
-            className="footer-link me-4"
-            target="_blank"
-          >
-            Terms & Conditions
-          </a>
-          <a
-            href="https://themeselection.com/"
-            target="_blank"
-            className="footer-link me-4"
-          >
-            Privacy Policy
-          </a>
-          <a
-            href="https://demos.themeselection.com/materio-bootstrap-html-admin-template/documentation/"
-            target="_blank"
-            className="footer-link me-4"
-          >
-            Help
-          </a>
-          <a
-            href="https://themeselection.com/support/"
-            target="_blank"
-            className="footer-link d-none d-sm-inline-block"
-          >
-            Contact Us
-          </a>
-        </div> */}
+        
       </div>
     </div>
   </footer>
