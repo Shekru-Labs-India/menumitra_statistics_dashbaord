@@ -6,7 +6,11 @@ import axios from "axios";
 import aiAnimationGif from "../assets/img/gif/AI-animation-unscreen.gif";
 import aiAnimationStillFrame from "../assets/img/gif/AI-animation-unscreen-still-frame.gif";
 
+// API configuration
+const API_ENDPOINT = "https://men4u.xyz/";
+
 function TopSell() {
+  // State management 
   const [selectedTab, setSelectedTab] = useState("top");
   const [dateRange, setDateRange] = useState("All Time");
   const [loading, setLoading] = useState(false);
@@ -20,47 +24,7 @@ function TopSell() {
   });
   const [error, setError] = useState(null);
 
-  // API endpoint
-  const apiEndpoint = "https://men4u.xyz/";
-
-  // Helper function to get auth headers
-  const getAuthHeaders = (includeAuth = true) => {
-    const headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    };
-    
-    // Only add Authorization header if includeAuth is true and token exists
-    if (includeAuth) {
-      const accessToken = localStorage.getItem('access');
-      if (accessToken) {
-        headers['Authorization'] = `Bearer ${accessToken}`;
-      }
-    }
-    
-    return headers;
-  };
-
-  // Function to handle API errors
-  const handleApiError = (error) => {
-    console.error('API Error:', error);
-    
-    if (error.response) {
-      // Handle specific error status codes
-      if (error.response.status === 401) {
-        console.error('Unauthorized access');
-        // You may want to redirect to login page here
-      }
-      
-      return error.response.data?.message || 'An error occurred. Please try again.';
-    } else if (error.request) {
-      return 'No response from server. Please check your internet connection.';
-    } else {
-      return 'Error setting up request. Please try again.';
-    }
-  };
-
-  // Fetch data on component mount
+  // Load data on initial render
   useEffect(() => {
     fetchData(dateRange);
   }, []);
@@ -77,63 +41,26 @@ function TopSell() {
     }
   }, [isGifPlaying]);
 
+  // Format date for display (e.g., "01 Jan 2023")
   const formatDate = (date) => {
     if (!date) return "";
     const day = date.getDate().toString().padStart(2, "0");
-    const months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ];
-    const month = months[date.getMonth()];
-    const year = date.getFullYear();
-    return `${day} ${month} ${year}`;
+    const month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][date.getMonth()];
+    return `${day} ${month} ${date.getFullYear()}`;
   };
 
-  const formatDateForAPI = (date) => {
-    if (!date) return "";
-    const day = date.getDate();
-    const months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ];
-    const month = months[date.getMonth()];
-    const year = date.getFullYear();
-    return `${day} ${month} ${year}`;
-  };
-
-  const getDateRangeForAPI = (range) => {
-    let start, end;
+  // Get date range parameters based on selected option
+  const getDateRange = (range) => {
     const today = new Date();
+    let start, end;
     
     switch (range) {
       case "Today":
-        start = new Date();
-        end = new Date();
+        start = end = new Date();
         break;
       case "Yesterday":
-        start = new Date();
+        start = end = new Date();
         start.setDate(start.getDate() - 1);
-        end = new Date(start);
         break;
       case "Last 7 Days":
         end = new Date();
@@ -157,92 +84,87 @@ function TopSell() {
         start = startDate;
         end = endDate;
         break;
-      default:
-        start = new Date();
-        end = new Date();
+      default: // All Time
+        return null;
     }
     
-    return { start, end };
+    return { 
+      start_date: formatDate(start),
+      end_date: formatDate(end)
+    };
   };
 
-  const handleDateRangeChange = (range) => {
-    setDateRange(range);
-    setShowDatePicker(range === "Custom Range");
-    if (range !== "Custom Range") {
-      fetchData(range);
-    }
-  };
-
-  const handleReload = () => {
-    setLoading(true);
-    fetchData(dateRange);
-  };
-
+  // Fetch data from API
   const fetchData = async (range) => {
+    // Skip if custom range selected but dates not set
+    if (range === "Custom Range" && (!startDate || !endDate)) {
+      return;
+    }
+    
     setLoading(true);
     setError(null);
     
     try {
-      // Skip API call if custom range but dates not selected
-      if (range === "Custom Range" && (!startDate || !endDate)) {
-        setLoading(false);
-        return;
-      }
-      
       // Get outlet ID from localStorage
       const outletId = localStorage.getItem('outlet_id');
-      
       if (!outletId) {
-        console.error('No outlet ID found in localStorage');
         setError('No outlet ID found. Please log in again.');
-        setLoading(false);
         return;
       }
       
-      // Initialize request data with outlet_id
-      const requestData = {
-        outlet_id: outletId
-      };
+      // Prepare request data
+      const requestData = { outlet_id: outletId };
       
-      // Only add date parameters if not "All Time"
-      if (range !== "All Time") {
-        const { start, end } = getDateRangeForAPI(range);
-        requestData.start_date = formatDateForAPI(start);
-        requestData.end_date = formatDateForAPI(end);
+      // Add date range if not "All Time"
+      const dateParams = getDateRange(range);
+      if (dateParams) {
+        Object.assign(requestData, dateParams);
       }
       
-      console.log('Sending request to sales_performance with data:', requestData);
+      // Get authentication token
+      const accessToken = localStorage.getItem('access');
       
+      // Make API request
       const response = await axios.post(
-        `${apiEndpoint}outlet_statistics/sales_performance`, 
+        `${API_ENDPOINT}outlet_statistics/sales_performance`, 
         requestData, 
         {
-          headers: getAuthHeaders()
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': accessToken ? `Bearer ${accessToken}` : ''
+          }
         }
       );
       
-      console.log('API Response:', response.data);
-      
+      // Parse and store response data
       if (response.data) {
+        // Handle nested data structure
+        const responseData = response.data.data || response.data;
         setSalesData({
-          top_selling: response.data.top_selling || [],
-          low_selling: response.data.low_selling || []
+          top_selling: responseData.top_selling || [],
+          low_selling: responseData.low_selling || []
         });
       }
     } catch (err) {
-      console.error("Error fetching sales performance data:", err);
-      const errorMessage = handleApiError(err);
-      setError(errorMessage || "Failed to load sales data. Please try again.");
-      // Fall back to empty data
-      setSalesData({
-        top_selling: [],
-        low_selling: []
-      });
+      console.error("Error fetching data:", err);
+      setError("Failed to load sales data. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
+  // Handle date range selection
+  const handleDateRangeChange = (range) => {
+    setDateRange(range);
+    setShowDatePicker(range === "Custom Range");
+    
+    if (range !== "Custom Range") {
+      fetchData(range);
+    }
+  };
+
+  // Handle custom date selection
   const handleCustomDateSelect = () => {
     if (startDate && endDate) {
       setDateRange(`${formatDate(startDate)} - ${formatDate(endDate)}`);
@@ -251,59 +173,103 @@ function TopSell() {
     }
   };
 
+  // Get the current data to display based on selected tab
+  const getCurrentData = () => {
+    return salesData[selectedTab === "top" ? "top_selling" : "low_selling"];
+  };
+
+  // Render data table
+  const renderDataTable = () => {
+    const data = getCurrentData();
+    
+    if (data.length === 0) {
+      return (
+        <div className="text-center text-muted p-3">
+          No products data available for the selected period
+        </div>
+      );
+    }
+    
+    // Check if total_quantity exists in the data
+    const hasQuantity = data.length > 0 && 'total_quantity' in data[0];
+    
+    return (
+      <div className="table-responsive">
+        <table className="table table-hover">
+          <thead>
+            <tr>
+              <th>Product Name</th>
+              <th>Sales Count</th>
+              {hasQuantity && <th>Total Quantity</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((product) => (
+              <tr key={product.item_id}>
+                <td>{product.name}</td>
+                <td>{product.sales_count}</td>
+                {hasQuantity && <td>{product.total_quantity}</td>}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+
+  // Render date options dropdown
+  const renderDateOptions = () => {
+    const dateOptions = [
+      "All Time",
+      "Today",
+      "Yesterday",
+      "Last 7 Days",
+      "Last 30 Days",
+      "Current Month",
+      "Last Month",
+      "Custom Range"
+    ];
+    
+    return (
+      <div className="dropdown">
+        <button
+          type="button"
+          className="btn btn-outline-primary dropdown-toggle"
+          data-bs-toggle="dropdown"
+        >
+          <i className="fas fa-calendar me-2"></i>
+          {dateRange}
+        </button>
+        <ul className="dropdown-menu dropdown-menu-end">
+          {dateOptions.map((option) => (
+            <li key={option}>
+              <a
+                href="javascript:void(0);"
+                className="dropdown-item"
+                onClick={() => handleDateRangeChange(option)}
+              >
+                {option}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
+
   return (
     <div className="card">
-      <div className="card-header d-flex justify-content-between align-items-md-center align-items-start">
+      {/* Header */}
+      <div className="card-header d-flex justify-content-between align-items-center">
         <h5 className="card-title mb-0">Products Analysis</h5>
         <div className="d-flex align-items-center gap-3">
-          <div className="dropdown">
-            <button
-              type="button"
-              className="btn btn-outline-primary dropdown-toggle"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              <i className="fas fa-calendar me-2"></i>
-              {dateRange}
-            </button>
-            <ul className="dropdown-menu dropdown-menu-end">
-              {[
-                "All Time",
-                "Today",
-                "Yesterday",
-                "Last 7 Days",
-                "Last 30 Days",
-                "Current Month",
-                "Last Month",
-              ].map((range) => (
-                <li key={range}>
-                  <a
-                    href="javascript:void(0);"
-                    className="dropdown-item d-flex align-items-center"
-                    onClick={() => handleDateRangeChange(range)}
-                  >
-                    {range}
-                  </a>
-                </li>
-              ))}
-              <li>
-                <hr className="dropdown-divider" />
-              </li>
-              <li>
-                <a
-                  href="javascript:void(0);"
-                  className="dropdown-item d-flex align-items-center"
-                  onClick={() => handleDateRangeChange("Custom Range")}
-                >
-                  Custom Range
-                </a>
-              </li>
-            </ul>
-          </div>
+          {renderDateOptions()}
+          
+          {/* Reload button */}
           <button
             type="button"
-            className={`btn btn-icon p-0 ${loading ? "disabled" : ""}`}
-            onClick={handleReload}
+            className="btn btn-icon p-0"
+            onClick={() => fetchData(dateRange)}
             disabled={loading}
             style={{ border: "1px solid var(--bs-primary)" }}
           >
@@ -358,33 +324,34 @@ function TopSell() {
         </div>
       </div>
 
+      {/* Custom date picker */}
       {showDatePicker && (
-        <div className="card-body">
+        <div className="card-body border-bottom">
           <div className="d-flex flex-column gap-2">
             <label>Select Date Range:</label>
             <div className="d-flex gap-2">
               <DatePicker
                 selected={startDate}
-                onChange={(date) => setStartDate(date)}
+                onChange={setStartDate}
                 selectsStart
                 startDate={startDate}
                 endDate={endDate}
                 maxDate={new Date()}
-                placeholderText="DD MMM YYYY"
                 className="form-control"
                 dateFormat="dd MMM yyyy"
+                placeholderText="Start Date"
               />
               <DatePicker
                 selected={endDate}
-                onChange={(date) => setEndDate(date)}
+                onChange={setEndDate}
                 selectsEnd
                 startDate={startDate}
                 endDate={endDate}
                 minDate={startDate}
                 maxDate={new Date()}
-                placeholderText="DD MMM YYYY"
                 className="form-control"
                 dateFormat="dd MMM yyyy"
+                placeholderText="End Date"
               />
             </div>
             <button
@@ -398,7 +365,9 @@ function TopSell() {
         </div>
       )}
 
+      {/* Body */}
       <div className="card-body">
+        {/* Tabs */}
         <div className="nav nav-tabs mb-3">
           <button
             className={`nav-link ${selectedTab === 'top' ? 'active' : ''}`}
@@ -426,48 +395,21 @@ function TopSell() {
           </button>
         </div>
 
+        {/* Error message */}
         {error && (
           <div className="alert alert-danger" role="alert">
             {error}
           </div>
         )}
 
+        {/* Content */}
         {loading ? (
           <div className="text-center p-3">
             <div className="spinner-border text-primary" role="status">
               <span className="visually-hidden">Loading...</span>
             </div>
           </div>
-        ) : (
-          <div className="tab-content">
-            {salesData[selectedTab === "top" ? "top_selling" : "low_selling"].length > 0 ? (
-              <div className="table-responsive">
-                <table className="table table-hover">
-                  <thead>
-                    <tr>
-                      <th>Product Name</th>
-                      <th>Sales Count</th>
-                      <th>Total Quantity</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {salesData[selectedTab === "top" ? "top_selling" : "low_selling"].map((product) => (
-                      <tr key={product.item_id}>
-                        <td>{product.name}</td>
-                        <td>{product.sales_count}</td>
-                        <td>{product.total_quantity}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="text-center text-muted p-3">
-                {loading ? "Loading..." : "No products data available for the selected period"}
-              </div>
-            )}
-          </div>
-        )}
+        ) : renderDataTable()}
       </div>
     </div>
   );
