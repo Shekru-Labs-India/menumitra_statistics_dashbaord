@@ -442,7 +442,7 @@ function Header() {
                   )}
                 </ul>
               </li>
-              <li className="nav-item me-3">
+              {/* <li className="nav-item me-3">
                 <Link 
                   to="/compare-outlets" 
                   className="btn btn-primary d-none d-md-flex align-items-center"
@@ -457,7 +457,7 @@ function Header() {
                   <i className="fas fa-code-compare me-2"></i>
                   Compare Outlets
                 </Link>
-              </li>
+              </li> */}
             </div>
 
             {/* Right aligned items */}

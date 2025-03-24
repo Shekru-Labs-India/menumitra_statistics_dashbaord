@@ -151,12 +151,12 @@ function VerticalSidebar() {
               <div className="d-block text-black overflow-hidden w-100">Home</div>
             </Link>
           </li>
-          <li className="menu-item ">
+          {/* <li className="menu-item ">
             <Link to="/compare-outlets" className="menu-link">
               <i className="menu-icon fa-solid fa-code-compare text-dark"></i>
               <div className="d-block text-truncate overflow-hidden w-100">Compare Outlets</div>
             </Link>
-          </li>
+          </li> */}
         </ul>
 
       </aside>
