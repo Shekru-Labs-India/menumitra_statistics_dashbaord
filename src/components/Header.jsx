@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import img from '../assets/img/avatars/1.png'
 import 'animate.css'
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 function Header() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -16,7 +18,43 @@ function Header() {
   const [timeElapsed, setTimeElapsed] = useState('0 seconds ago');
   const [startTime, setStartTime] = useState(new Date());
   const [isRotating, setIsRotating] = useState(false);
+  const [selectOutletError, setSelectOutletError] = useState(null);
   const navigate = useNavigate();
+
+  // Function to show toast notifications
+  const showToast = (message, type = 'error') => {
+    const options = {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored", // Colored theme matches Materio's look
+      className: "materio-toast",
+      style: {
+        borderRadius: '0.5rem',
+        boxShadow: '0 0.25rem 1rem rgba(161, 172, 184, 0.45)'
+      }
+    };
+
+    switch(type) {
+      case 'success':
+        toast.success(message, options);
+        break;
+      case 'warning':
+        toast.warning(message, options);
+        break;
+      case 'info':
+        toast.info(message, options);
+        break;
+      case 'error':
+      default:
+        toast.error(message, options);
+        break;
+    }
+  };
 
   // Fetch outlets from API
   const fetchOutlets = async () => {
@@ -62,14 +100,18 @@ function Header() {
           name: outlet.name,
           location: outlet.address,
           status: outlet.is_open ? 'open' : 'closed',
-          outlet_id: outlet.outlet_id
+          outlet_id: outlet.outlet_id,
+          is_active: outlet.is_active
         }));
-        setOutlets(transformedOutlets);
+        
+        // Filter out inactive outlets or handle them differently
+        const activeOutlets = transformedOutlets.filter(outlet => outlet.is_active !== false);
+        setOutlets(activeOutlets);
         
         // If there's a stored outlet_id, update UI
         const storedOutletId = localStorage.getItem('outlet_id');
         if (storedOutletId) {
-          const matchingOutlet = transformedOutlets.find(o => o.outlet_id.toString() === storedOutletId);
+          const matchingOutlet = activeOutlets.find(o => o.outlet_id.toString() === storedOutletId);
           if (matchingOutlet) {
             // Just update the UI without calling handleOutletSelect
             const truncatedName = truncateText(matchingOutlet.name, 20);
@@ -77,6 +119,12 @@ function Header() {
             setOutletId(matchingOutlet.outlet_id.toString());
           }
         }
+      } else if (data.st === 2) {
+        // Handle inactive outlet specifically
+        console.log('Outlet inactive status received:', data.msg);
+        setOutlets([]); // Clear outlets to show "No outlets found"
+        // Optional: Show a more specific message
+        setError(data.msg || 'No active outlets available');
       } else {
         setError(data.msg || 'Failed to fetch outlets');
       }
@@ -133,7 +181,7 @@ function Header() {
 
   const handleOutletSelect = async (outlet) => {
     try {
-      // Check if the selected outlet is already selected - avoid unnecessary API call
+      // Check if already selected
       const currentOutletId = localStorage.getItem('outlet_id');
       if (currentOutletId && currentOutletId === outlet.outlet_id.toString()) {
         // Already selected, just update UI and return
@@ -150,7 +198,7 @@ function Header() {
       const accessToken = localStorage.getItem('access');
       
       if (!userId || !accessToken) {
-        setError('Authentication failed. Please login again.');
+        showToast('Authentication failed. Please login again.', 'error');
         return;
       }
       
@@ -170,7 +218,7 @@ function Header() {
       
       if (!response.ok) {
         if (response.status === 401) {
-          setError('Session expired. Please login again.');
+          showToast('Session expired. Please login again.', 'error');
           navigate('/login');
           return;
         }
@@ -180,7 +228,7 @@ function Header() {
       const data = await response.json();
       
       if (data.st === 1) {
-        // Update UI with selected outlet
+        // Success - update UI with selected outlet
         const truncatedName = truncateText(outlet.name, 20);
         setSelectedOutlet(truncatedName);
         setOutletId(outlet.outlet_id.toString());
@@ -188,15 +236,23 @@ function Header() {
         // Store outlet_id in localStorage
         localStorage.setItem('outlet_id', outlet.outlet_id.toString());
         
-        // Use a simpler approach - set window.location directly to dashboard 
-        // This causes a full page load without the navigation transition that can cause the loop
-        window.location.href = '/dashboard';
+        // Show success toast
+        showToast(`Outlet "${outlet.name}" selected successfully!`, 'success');
+        
+        // Add a small delay to ensure toast is visible
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 800);
+      } else if (data.st === 2) {
+        // Handle inactive outlet with toast
+        showToast(data.msg || 'This outlet is inactive', 'warning');
       } else {
-        setError(data.msg || 'Failed to select outlet');
+        // Handle general error with toast
+        showToast(data.msg || 'Failed to select outlet', 'error');
       }
     } catch (err) {
       console.error('Error selecting outlet:', err);
-      setError('Failed to connect to server. Please check your internet connection and try again.');
+      showToast('Failed to connect to server. Please check your internet connection and try again.', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -307,6 +363,45 @@ function Header() {
 
   return (
     <div>
+      {/* Add custom CSS for React-Toastify to match Materio */}
+      <style>
+        {`
+          /* Custom styling for toasts to match Materio theme */
+          .Toastify__toast-theme--colored.Toastify__toast--success {
+            background-color: #28c76f !important;
+          }
+          .Toastify__toast-theme--colored.Toastify__toast--error {
+            background-color: #ea5455 !important;
+          }
+          .Toastify__toast-theme--colored.Toastify__toast--warning {
+            background-color: #ff9f43 !important;
+          }
+          .Toastify__toast-theme--colored.Toastify__toast--info {
+            background-color: #00cfe8 !important;
+          }
+          .Toastify__progress-bar {
+            height: 3px !important;
+          }
+          .materio-toast {
+            font-family: inherit;
+          }
+        `}
+      </style>
+
+      {/* Add ToastContainer component at the root level */}
+      <ToastContainer 
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
+
       <nav
         className="layout-navbar navbar navbar-expand-xl align-items-center bg-navbar-theme"
         id="layout-navbar"
