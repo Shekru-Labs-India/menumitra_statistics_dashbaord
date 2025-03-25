@@ -213,26 +213,26 @@ const OrderStat = () => {
 
     // Generate metrics based on API response data
     const getMetrics = () => [
-        { 
-            title: 'Success Order', 
-            value: orderStats.success_orders.toString(), 
-            subtitle: 'Success Order' 
-        },
-        { 
-            title: 'Cancelled Order', 
-            value: orderStats.cancelled_orders.toString(), 
-            subtitle: 'Cancelled Order' 
-        },
-        { 
-            title: 'Complimentary Order', 
-            value: orderStats.complementary_orders.toString(), 
-            subtitle: 'Complimentary Order' 
-        },
-        { 
-            title: 'Kitchen Order token (KOT)', 
-            value: orderStats.KOT_orders.toString(), 
-            subtitle: 'Kitchen Order token' 
-        }
+      {
+        title: "Success Order",
+        value: orderStats.success_orders.toString(),
+        // subtitle: "Success Order",
+      },
+      {
+        title: "Cancelled Order",
+        value: orderStats.cancelled_orders.toString(),
+        // subtitle: "Cancelled Order",
+      },
+      {
+        title: "Complimentary Order",
+        value: orderStats.complementary_orders.toString(),
+        // subtitle: "Complimentary Order",
+      },
+      {
+        title: "Kitchen Order token (KOT)",
+        value: orderStats.KOT_orders.toString(),
+        // subtitle: "Kitchen Order token",
+      },
     ];
 
     return (
