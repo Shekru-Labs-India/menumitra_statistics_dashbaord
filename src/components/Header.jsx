@@ -252,7 +252,7 @@ function Header() {
       }
     } catch (err) {
       console.error('Error selecting outlet:', err);
-      showToast('Failed to connect to server. Please check your internet connection and try again.', 'error');
+      showToast("This outlet is inactive. Please contact support.", "error");
     } finally {
       setIsLoading(false);
     }
