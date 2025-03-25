@@ -596,9 +596,9 @@ function Header() {
                 </a>
                 <ul className="dropdown-menu dropdown-menu-end mt-3 py-2">
                   <li>
-                    <a
+                    <Link
                       className="dropdown-item"
-                      href="pages-account-settings-account.html"
+                      to="/profile"
                     >
                       <div className="d-flex align-items-center">
                         <div className="flex-shrink-0 me-2">
@@ -617,7 +617,7 @@ function Header() {
                           </small>
                         </div>
                       </div>
-                    </a>
+                    </Link>
                   </li>
                   <li>
                     <div className="dropdown-divider" />
