@@ -629,13 +629,13 @@ function Header() {
                     </Link>
                   </li>
                   <li>
-                    <a
+                    <Link
                       className="dropdown-item"
-                      href="pages-account-settings-account.html"
+                      to="/dashboard"
                     >
                       <i className="fas fa-tasks fa-lg me-2" />
                       <span className="align-middle">My activity</span>
-                    </a>
+                    </Link>
                   </li>
                   <li>
                     <Link
