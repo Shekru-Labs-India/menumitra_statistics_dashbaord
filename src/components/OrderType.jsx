@@ -295,89 +295,105 @@ const OrderType = () => {
   return (
     <div className="card">
       <div className="card-header d-flex align-items-center justify-content-between">
-        <h5 className="card-title mb-0">Order Types Overview</h5>
+        <h5 className="card-title mb-0">Order Type Statistics</h5>
         <div className="d-flex gap-2">
           <div className="dropdown">
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="btn btn-outline-primary dropdown-toggle"
-              data-bs-toggle="dropdown" 
+              data-bs-toggle="dropdown"
               aria-expanded="false"
             >
               <i className="fas fa-calendar me-2"></i>
               {dateRange}
             </button>
             <ul className="dropdown-menu dropdown-menu-end">
-              {['All Time', 'Today', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Current Month', 'Last Month'].map((range) => (
+              {[
+                "All Time",
+                "Today",
+                "Yesterday",
+                "Last 7 Days",
+                "Last 30 Days",
+                "Current Month",
+                "Last Month",
+              ].map((range) => (
                 <li key={range}>
-                  <a href="javascript:void(0);"
+                  <a
+                    href="javascript:void(0);"
                     className="dropdown-item d-flex align-items-center"
-                    onClick={() => handleDateRangeChange(range)}>
+                    onClick={() => handleDateRangeChange(range)}
+                  >
                     {range}
                   </a>
                 </li>
               ))}
-              <li><hr className="dropdown-divider" /></li>
               <li>
-                <a href="javascript:void(0);"
+                <hr className="dropdown-divider" />
+              </li>
+              <li>
+                <a
+                  href="javascript:void(0);"
                   className="dropdown-item d-flex align-items-center"
-                  onClick={() => handleDateRangeChange('Custom Range')}>
+                  onClick={() => handleDateRangeChange("Custom Range")}
+                >
                   Custom Range
                 </a>
               </li>
             </ul>
           </div>
-          <button 
-            type="button" 
-            className={`btn btn-icon p-0 ${loading ? 'disabled' : ''}`}
+          <button
+            type="button"
+            className={`btn btn-icon p-0 ${loading ? "disabled" : ""}`}
             onClick={handleReload}
             disabled={loading}
-            style={{ border: '1px solid var(--bs-primary)' }}
+            style={{ border: "1px solid var(--bs-primary)" }}
           >
-            <i className={`fas fa-sync-alt ${loading ? 'fa-spin' : ''}`}></i>
+            <i className={`fas fa-sync-alt ${loading ? "fa-spin" : ""}`}></i>
           </button>
 
           <button
             type="button"
             className="btn btn-icon btn-sm p-0"
-            style={{ 
-              width: '40px', 
-              height: '40px', 
-              borderRadius: '50%', 
-              display: 'flex', 
-              justifyContent: 'center', 
-              alignItems: 'center',
-              overflow: 'hidden',
-              position: 'relative',
-              border: '1px solid #e9ecef'
+            style={{
+              width: "40px",
+              height: "40px",
+              borderRadius: "50%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              overflow: "hidden",
+              position: "relative",
+              border: "1px solid #e9ecef",
             }}
             onClick={() => setIsGifPlaying(true)}
-            title={isGifPlaying ? "Animation playing" : "Click to play animation"}
+            title={
+              isGifPlaying ? "Animation playing" : "Click to play animation"
+            }
           >
             {/* Using two separate images - static frame and animated */}
             {isGifPlaying ? (
-                // Show animated GIF when playing
-                <img 
-                    src={aiAnimationGif} 
-                    alt="AI Animation (Playing)"
-                    style={{ 
-                        width: '24px', 
-                        height: '24px',
-                        objectFit: 'contain'
-                    }}
-                />
+              // Show animated GIF when playing
+              <img
+                src={aiAnimationGif}
+                alt="AI Animation (Playing)"
+                style={{
+                  width: "24px",
+                  height: "24px",
+                  objectFit: "contain",
+                }}
+              />
             ) : (
-                // Show static frame when not playing
-                <img 
-                    src={aiAnimationStillFrame} 
-                    alt="AI Animation (Click to play)"
-                    style={{ 
-                        width: '24px', 
-                        height: '24px',
-                        objectFit: 'contain',
-                        opacity: 0.9
-                    }}
-                />
+              // Show static frame when not playing
+              <img
+                src={aiAnimationStillFrame}
+                alt="AI Animation (Click to play)"
+                style={{
+                  width: "24px",
+                  height: "24px",
+                  objectFit: "contain",
+                  opacity: 0.9,
+                }}
+              />
             )}
           </button>
         </div>
@@ -412,7 +428,11 @@ const OrderType = () => {
                 dateFormat="dd MMM yyyy"
               />
             </div>
-            <button className="btn btn-primary mt-2" onClick={handleCustomDateSelect} disabled={!startDate || !endDate}>
+            <button
+              className="btn btn-primary mt-2"
+              onClick={handleCustomDateSelect}
+              disabled={!startDate || !endDate}
+            >
               Apply
             </button>
           </div>
@@ -429,55 +449,101 @@ const OrderType = () => {
 
       <div className="card-body">
         <div className="row g-3">
-          {loading ? (
-            // Display skeleton loading for 4 order type cards
-            Array(4).fill(0).map((_, index) => (
-              <div key={index} className="col-md-4 col-sm-6">
-                <div className="card shadow-none bg-label-secondary h-100 position-relative overflow-hidden">
-                  <div className="card-body">
-                    <div className="d-flex align-items-center mb-2">
-                      <div className="rounded-2 avatar avatar-sm me-2 bg-secondary d-flex align-items-center justify-content-center" style={{ width: '35px', height: '35px', opacity: 0.5 }}></div>
-                      <span className="bg-secondary" style={{ width: '80px', height: '20px', opacity: 0.5 }}></span>
-                    </div>
-                    <div className="d-flex align-items-center mt-3">
-                      <div className="bg-secondary me-2" style={{ width: '30px', height: '24px', opacity: 0.5 }}></div>
-                      <div className="bg-secondary" style={{ width: '50px', height: '20px', opacity: 0.5 }}></div>
-                    </div>
-                    <div className="bg-secondary mt-1" style={{ width: '70px', height: '15px', opacity: 0.5 }}></div>
-                  </div>
-                  <div className="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center">
-                    <div className="spinner-border text-primary" role="status">
-                      <span className="visually-hidden">Loading...</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))
-          ) : (
-            // Display actual order type data
-            orderTypes.map((order, index) => (
-              <div key={index} className="col-md-4 col-sm-6">
-                <div className={`card shadow-none bg-label-${order.color} h-100`}>
-                  <div className="card-body">
-                    <div className="d-flex align-items-center mb-2">
-                      <div className={`rounded-2 avatar avatar-sm me-2 bg-${order.color} d-flex align-items-center justify-content-center`} style={{ width: '35px', height: '35px' }}>
-                        <i className={`${order.icon} text-white`} style={{ fontSize: '1rem' }}></i>
+          {loading
+            ? // Display skeleton loading for 4 order type cards
+              Array(4)
+                .fill(0)
+                .map((_, index) => (
+                  <div key={index} className="col-md-4 col-sm-6">
+                    <div className="card shadow-none bg-label-secondary h-100 position-relative overflow-hidden">
+                      <div className="card-body">
+                        <div className="d-flex align-items-center mb-2">
+                          <div
+                            className="rounded-2 avatar avatar-sm me-2 bg-secondary d-flex align-items-center justify-content-center"
+                            style={{
+                              width: "35px",
+                              height: "35px",
+                              opacity: 0.5,
+                            }}
+                          ></div>
+                          <span
+                            className="bg-secondary"
+                            style={{
+                              width: "80px",
+                              height: "20px",
+                              opacity: 0.5,
+                            }}
+                          ></span>
+                        </div>
+                        <div className="d-flex align-items-center mt-3">
+                          <div
+                            className="bg-secondary me-2"
+                            style={{
+                              width: "30px",
+                              height: "24px",
+                              opacity: 0.5,
+                            }}
+                          ></div>
+                          <div
+                            className="bg-secondary"
+                            style={{
+                              width: "50px",
+                              height: "20px",
+                              opacity: 0.5,
+                            }}
+                          ></div>
+                        </div>
+                        <div
+                          className="bg-secondary mt-1"
+                          style={{
+                            width: "70px",
+                            height: "15px",
+                            opacity: 0.5,
+                          }}
+                        ></div>
                       </div>
-                      <span className="fw-semibold">{order.name}</span>
+                      <div className="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center">
+                        <div
+                          className="spinner-border text-primary"
+                          role="status"
+                        >
+                          <span className="visually-hidden">Loading...</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="d-flex align-items-center mt-3">
-                      <h4 className="mb-0 me-2">{order.count}</h4>
-                      {/* <small className={`${order.trendUp ? 'text-success' : 'text-danger'} fw-semibold`}>
+                  </div>
+                ))
+            : // Display actual order type data
+              orderTypes.map((order, index) => (
+                <div key={index} className="col-md-4 col-sm-6">
+                  <div
+                    className={`card shadow-none bg-label-${order.color} h-100`}
+                  >
+                    <div className="card-body">
+                      <div className="d-flex align-items-center mb-2">
+                        <div
+                          className={`rounded-2 avatar avatar-sm me-2 bg-${order.color} d-flex align-items-center justify-content-center`}
+                          style={{ width: "35px", height: "35px" }}
+                        >
+                          <i
+                            className={`${order.icon} text-white`}
+                            style={{ fontSize: "1rem" }}
+                          ></i>
+                        </div>
+                        <span className="fw-semibold">{order.name}</span>
+                      </div>
+                      <div className="d-flex align-items-center mt-3">
+                        <h4 className="mb-0 me-2">{order.count}</h4>
+                        {/* <small className={`${order.trendUp ? 'text-success' : 'text-danger'} fw-semibold`}>
                         <i className={`fas fa-arrow-${order.trendUp ? 'up' : 'down'}`}></i>
                         {order.trend}
                       </small> */}
+                      </div>
+                      <small className="text-muted">Total Orders</small>
                     </div>
-                    <small className="text-muted">Total Orders</small>
                   </div>
                 </div>
-              </div>
-            ))
-          )}
+              ))}
         </div>
       </div>
     </div>

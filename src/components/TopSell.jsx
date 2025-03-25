@@ -198,7 +198,7 @@ function TopSell() {
         <table className="table table-hover">
           <thead>
             <tr>
-              <th>Product Name</th>
+              <th>Menu Name</th>
               <th>Sales Count</th>
               {hasQuantity && <th>Total Quantity</th>}
             </tr>
