@@ -6,10 +6,18 @@ import 'react-datepicker/dist/react-datepicker.css';
 // Import both GIFs - static and animated
 import aiAnimationGif from '../assets/img/gif/AI-animation-unscreen.gif';
 import aiAnimationStillFrame from '../assets/img/gif/AI-animation-unscreen-still-frame.gif';
+import { useDashboard } from '../context/DashboardContext'; // Import context
 
 const OrderAnalytics = () => {
+  // Get data from context
+  const { 
+    orderAnalytics_from_context,
+    loading: contextLoading,
+    error: contextError
+  } = useDashboard();
+
   const [dateRange, setDateRange] = useState('All Time');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -21,6 +29,7 @@ const OrderAnalytics = () => {
     avg_order_time: 0,
     avg_cooking_time: 0
   });
+  const [userInteracted, setUserInteracted] = useState(false); // Flag to track user interaction
 
   // Helper function to get auth headers
   const getAuthHeaders = (includeAuth = true) => {
@@ -71,6 +80,25 @@ const OrderAnalytics = () => {
     }
   }, [isGifPlaying]);
 
+  // Use context data when component mounts
+  useEffect(() => {
+    if (orderAnalytics_from_context) {
+      setAnalyticsData({
+        avg_first_order_time: orderAnalytics_from_context.first_order_time || '0 mins',
+        avg_last_order_time: orderAnalytics_from_context.last_order_time || '0 mins',
+        avg_order_time: orderAnalytics_from_context.average_order_time || '0 mins',
+        avg_cooking_time: orderAnalytics_from_context.average_cooking_time || '0 mins'
+      });
+    }
+  }, [orderAnalytics_from_context]);
+
+  // Set error from context if available
+  useEffect(() => {
+    if (contextError && !userInteracted) {
+      setError(contextError);
+    }
+  }, [contextError, userInteracted]);
+
   const formatDate = (date) => {
     if (!date) return '';
     const day = date.getDate().toString().padStart(2, '0');
@@ -89,7 +117,7 @@ const OrderAnalytics = () => {
   };
 
   const handleReload = () => {
-    setLoading(true);
+    // Always hit the API directly on reload
     fetchData(dateRange);
   };
 
@@ -97,6 +125,8 @@ const OrderAnalytics = () => {
     try {
       setLoading(true);
       setError('');
+      // Set user interaction flag to true
+      setUserInteracted(true);
       
       let requestData = {};
       const today = new Date();
@@ -215,16 +245,10 @@ const OrderAnalytics = () => {
     }
   };
 
-  // Initial data fetch on component mount
-  useEffect(() => {
-    const outletId = localStorage.getItem('outlet_id');
-    if (outletId) {
-      fetchData('All Time');
-    } else {
-      setError('No outlet ID found. Please log in again.');
-      setLoading(false);
-    }
-  }, []);
+  // Determine current loading state
+  const isLoading = userInteracted ? loading : contextLoading;
+  // Determine current error state
+  const currentError = userInteracted ? error : contextError;
 
   return (
     <div className="col-12 col-md-6 col-lg-6">
@@ -279,12 +303,12 @@ const OrderAnalytics = () => {
 
             <button
               type="button"
-              className={`btn btn-icon p-0 ${loading ? "disabled" : ""}`}
+              className={`btn btn-icon p-0 ${isLoading ? "disabled" : ""}`}
               onClick={handleReload}
-              disabled={loading}
+              disabled={isLoading}
               style={{ border: '1px solid var(--bs-primary)' }}
             >
-              <i className={`fas fa-sync-alt ${loading ? "fa-spin" : ""}`}></i>
+              <i className={`fas fa-sync-alt ${isLoading ? "fa-spin" : ""}`}></i>
             </button>
 
             <button
@@ -375,16 +399,16 @@ const OrderAnalytics = () => {
           </div>
         )}
 
-        {error && (
+        {currentError && (
           <div className="card-body">
             <div className="alert alert-danger" role="alert">
-              {error}
+              {currentError}
             </div>
           </div>
         )}
 
         <div className="card-body">
-          {loading ? (
+          {isLoading ? (
             // Loading skeleton for analytics cards
             <div className="row g-4">
               {Array(4).fill(0).map((_, index) => (
