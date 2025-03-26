@@ -6,10 +6,17 @@ import axios from 'axios';
 // Import both GIFs - static and animated
 import aiAnimationGif from '../assets/img/gif/AI-animation-unscreen.gif';
 import aiAnimationStillFrame from '../assets/img/gif/AI-animation-unscreen-still-frame.gif';
+import { useDashboard } from '../context/DashboardContext'; // Import context
 
 const PaymentMethodsChart = () => {
+  // Get data from context
+  const { 
+    totalCollectionSource_from_context,
+    loading: contextLoading
+  } = useDashboard();
+
   const [dateRange, setDateRange] = useState('All Time');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -24,6 +31,7 @@ const PaymentMethodsChart = () => {
     complemenatry_amount: 0,
     complemenatry_orders: 0
   });
+  const [userInteracted, setUserInteracted] = useState(false); // Flag to track user interaction
   
   // Helper function to get auth headers
   const getAuthHeaders = (includeAuth = true) => {
@@ -66,9 +74,15 @@ const PaymentMethodsChart = () => {
     }
   }, [isGifPlaying]);
 
+  // Use context data when component mounts
   useEffect(() => {
-    fetchData(dateRange);
-  }, []);
+    if (totalCollectionSource_from_context) {
+      setPaymentData(totalCollectionSource_from_context);
+    }
+  }, [totalCollectionSource_from_context]);
+
+  // REMOVED: Don't fetch data on initial mount, rely only on context data
+  // We will only make API calls when user interacts with the component
 
   const formatDate = (date) => {
     if (!date) return '';
@@ -88,13 +102,15 @@ const PaymentMethodsChart = () => {
   };
 
   const handleReload = () => {
-    setLoading(true);
+    // Always hit the API directly on reload
     fetchData(dateRange);
   };
 
   const fetchData = async (range) => {
     try {
       setLoading(true);
+      // Set user interaction flag to true
+      setUserInteracted(true);
       
       // Get values from localStorage
       const outlet_id = localStorage.getItem('outlet_id') ? parseInt(localStorage.getItem('outlet_id')) : 74;
@@ -207,6 +223,9 @@ const PaymentMethodsChart = () => {
 
   const total = data.reduce((sum, item) => sum + item.value, 0);
 
+  // Determine current loading state
+  const isLoading = userInteracted ? loading : contextLoading;
+
   return (
     <div className="card">
       <div className="card-header d-flex justify-content-between align-items-md-center align-items-start">
@@ -259,12 +278,12 @@ const PaymentMethodsChart = () => {
 
           <button
             type="button"
-            className={`btn btn-icon p-0 ${loading ? "disabled" : ""}`}
+            className={`btn btn-icon p-0 ${isLoading ? "disabled" : ""}`}
             onClick={handleReload}
-            disabled={loading}
+            disabled={isLoading}
             style={{ border: "1px solid var(--bs-primary)" }}
           >
-            <i className={`fas fa-sync-alt ${loading ? "fa-spin" : ""}`}></i>
+            <i className={`fas fa-sync-alt ${isLoading ? "fa-spin" : ""}`}></i>
           </button>
 
           <button
