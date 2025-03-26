@@ -225,7 +225,7 @@ const MyProfile = () => {
 
                   {/* Profile Details and Edit Button */}
                   <div className="d-flex justify-content-between align-items-center mt-4 mb-2 ps-2">
-                    <div className="ms-5 ps-3">
+                    <div className="ms-5 ">
                       <h3 className="mb-2 fw-bold">{userDetails.name}</h3>
                       {/* <div className="d-flex flex-wrap gap-3">
                         <span className="text-muted">
