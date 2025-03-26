@@ -278,36 +278,36 @@ const MyProfile = () => {
                       {!editMode ? (
                         <div className="ps-2">
                           <div className="mb-4">
-                            <div className="fs-5">{userDetails.name}</div>
-                            <div className="text-muted small mb-1">Name:</div>
+                            <div className="fs-5 fw-bold">{userDetails.name}</div>
+                            <div className="text-muted small mb-1">Name</div>
                           </div>
 
                           <div className="mb-4">
-                            <div className="fs-5">
+                            <div className="fs-5 fw-bold">
                               {userDetails.email || "Not provided"}
                             </div>
-                            <div className="text-muted small mb-1">Email:</div>
+                            <div className="text-muted small mb-1">Email</div>
                           </div>
 
                           <div className="mb-4">
-                            <div className="fs-5">
+                            <div className="fs-5 fw-bold">
                               {userDetails.mobile_number}
                             </div>
-                            <div className="text-muted small mb-1">Mobile:</div>
+                            <div className="text-muted small mb-1">Mobile</div>
                           </div>
 
                           <div className="mb-4">
-                            <div className="fs-5">
+                            <div className="fs-5 fw-bold">
                               {userDetails.aadhar_number}
                             </div>
                             <div className="text-muted small mb-1">
-                              Aadhar Number:
+                              Aadhar Number
                             </div>
                           </div>
 
                           <div className="mb-4">
-                            <div className="fs-5">{userDetails.role}</div>
-                            <div className="text-muted small mb-1">Role:</div>
+                            <div className="fs-5 fw-bold">{userDetails.role}</div>
+                            <div className="text-muted small mb-1">Role</div>
                           </div>
                         </div>
                       ) : (
@@ -405,103 +405,109 @@ const MyProfile = () => {
                   <div className="card h-100 shadow-sm">
                     <div className="card-body p-4">
                       <h5 className="card-title text-uppercase mb-4 fw-bold">
-                        <i className="fas fa-id-card me-2 text-primary"></i>
+                        <i className="fas fa-store me-2 text-primary"></i>
                         OUTLET DETAILS
                       </h5>
 
                       <div className="ps-2">
-                        {/* <div className="mb-4">
-                          <div className="text-muted small mb-1">User ID:</div>
-                          <div className="fs-5">{userDetails.user_id}</div>
-                        </div> */}
-
-                        <div className="mb-4">
-                          <div className="fs-5">
-                            {userDetails.subscription_outlet[0]?.outlet_name ||
-                              "Not available"}
+                        {userDetails.subscription_outlet.length > 0 ? (
+                          <div className="row g-3">
+                            {userDetails.subscription_outlet.map((outlet) => (
+                              <div
+                                key={outlet.outlet_id}
+                                className="col-12 col-md-6"
+                              >
+                                <div className="card p-0 h-100">
+                                  <div className="card-header py-2 px-3 d-flex justify-content-between align-items-center flex-wrap">
+                                    <h6 className="card-title mb-0 fw-bold">
+                                      {outlet.outlet_name}
+                                    </h6>
+                                    <div className="meta">
+                                      <span className="badge rounded-pill bg-label-primary small me-2">
+                                        {outlet.subscription_name}
+                                      </span>
+                                      <span
+                                        className={`badge rounded-pill bg-label-${
+                                          outlet.days_until_expiry > 30
+                                            ? "success"
+                                            : "warning"
+                                        } small`}
+                                      >
+                                        {outlet.days_until_expiry > 30
+                                          ? "Active"
+                                          : "Expiring Soon"}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="card-body py-2 px-3">
+                                    <div className="row g-2">
+                                      <div className="col-8">
+                                        <div className="d-flex align-items-center">
+                                          <i className="fas fa-calendar-alt text-primary me-2 small"></i>
+                                          <div>
+                                            <small className="d-block  fw-bold">
+                                              {outlet.subscription_date} to{" "}
+                                              {outlet.expiry_date}
+                                            </small>
+                                            <small className="text-muted d-block">
+                                              Subscription Period
+                                            </small>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div className="col-4">
+                                        <div className="d-flex align-items-center">
+                                          <i className="fas fa-clock text-primary me-2 small"></i>
+                                          <div>
+                                            <small className="d-block fw-bold">
+                                              {outlet.days_until_expiry} days
+                                            </small>
+                                            <small className="text-muted d-block">
+                                              Days Until Expiry
+                                            </small>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div className="col-8">
+                                        <div className="d-flex align-items-center">
+                                          <i className="fas fa-hourglass-half text-primary me-2 small"></i>
+                                          <div>
+                                            <small className="d-block fw-bold">
+                                              {outlet.tenure} months
+                                            </small>
+                                            <small className="text-muted d-block">
+                                              Tenure
+                                            </small>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div className="col-4">
+                                        <div className="d-flex align-items-center">
+                                          <i className="fas fa-rupee-sign text-primary me-2 small"></i>
+                                          <div>
+                                            <small className="d-block fw-bold">
+                                              ₹{outlet.price}
+                                            </small>
+                                            <small className="text-muted d-block">
+                                              Price
+                                            </small>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
                           </div>
-                          <div className="text-muted small mb-1">
-                            Outlet Name:
+                        ) : (
+                          <div className="text-center py-4">
+                            <i className="fas fa-store fa-3x text-muted mb-3"></i>
+                            <p className="text-muted mb-0">
+                              No outlets available
+                            </p>
                           </div>
-                        </div>
-
-                        <div className="mb-4">
-                          <div className="fs-5">
-                            {userDetails.subscription_outlet[0]
-                              ?.subscription_name || "Not available"}
-                          </div>
-                          <div className="text-muted small mb-1">
-                            Subscription Plan:
-                          </div>
-                        </div>
-
-                        <div className="mb-4">
-                          <div className="fs-5">
-                            <span
-                              className={`badge bg-${
-                                userDetails.subscription_outlet[0]
-                                  ?.days_until_expiry > 30
-                                  ? "success"
-                                  : "warning"
-                              }`}
-                            >
-                              {userDetails.subscription_outlet[0]
-                                ?.days_until_expiry > 30
-                                ? "Active"
-                                : "Expiring Soon"}
-                            </span>
-                            <div className="text-muted small mb-1">
-                              Subscription Status:
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="mb-4">
-                          <div className="fs-5">
-                            {
-                              userDetails.subscription_outlet[0]
-                                ?.subscription_date
-                            }{" "}
-                            to {userDetails.subscription_outlet[0]?.expiry_date}
-                          </div>
-                          <div className="text-muted small mb-1">
-                            Subscription Period:
-                          </div>
-                        </div>
-
-                        <div className="mb-4">
-                          <div className="fs-5">
-                            {userDetails.subscription_outlet[0]
-                              ?.days_until_expiry || "0"}{" "}
-                            days
-                          </div>
-                          <div className="text-muted small mb-1">
-                            Days Until Expiry:
-                          </div>
-                        </div>
-
-                        <div className="mb-4">
-                          <div className="fs-5">
-                            {userDetails.last_login || "Not available"}
-                          </div>
-                          <div className="text-muted small mb-1">
-                            Last Login:
-                          </div>
-                        </div>
-
-                        <div className="mb-4">
-                          <div className="fs-5">
-                            {userDetails.created_on || "Not available"}
-                          </div>
-                          <div className="text-muted small mb-1">
-                            Account Created:
-                          </div>
-                        </div>
-
-                        {/* <div className="mb-4">
-                          <div className="text-muted small mb-1">Created By:</div>
-                          <div className="fs-5">{userDetails.created_by || 'Not available'}</div>
-                        </div> */}
+                        )}
                       </div>
                     </div>
                   </div>
