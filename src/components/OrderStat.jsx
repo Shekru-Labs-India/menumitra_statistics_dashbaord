@@ -112,6 +112,9 @@ const OrderStat = () => {
         setDateRange(range);
         setShowDatePicker(range === 'Custom Range');
         if (range !== 'Custom Range') {
+            // Reset custom date range when another option is selected
+            setStartDate(null);
+            setEndDate(null);
             fetchData(range);
         }
     };
