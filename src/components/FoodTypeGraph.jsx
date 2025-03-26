@@ -78,9 +78,9 @@ const FoodTypeGraph = () => {
 
     // Use context data when component mounts
     useEffect(() => {
-      if (foodTypeStatistics_from_context && foodTypeStatistics_from_context.weeks) {
-        // Map the context data to the chart format
-        const weeks = foodTypeStatistics_from_context.weeks;
+      if (foodTypeStatistics_from_context && Array.isArray(foodTypeStatistics_from_context)) {
+        // The context data is already an array of weeks
+        const weeks = foodTypeStatistics_from_context;
         
         // Map the API weeks data to our chart format
         const chartData = weeks.map(week => ({
