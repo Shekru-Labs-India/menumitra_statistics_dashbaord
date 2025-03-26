@@ -278,42 +278,41 @@ const MyProfile = () => {
                       {!editMode ? (
                         <div className="ps-2">
                           <div className="mb-4">
-                            <div className="text-muted small mb-1">Name:</div>
                             <div className="fs-5">{userDetails.name}</div>
+                            <div className="text-muted small mb-1">Name:</div>
                           </div>
 
                           <div className="mb-4">
-                            <div className="text-muted small mb-1">Email:</div>
                             <div className="fs-5">
                               {userDetails.email || "Not provided"}
                             </div>
+                            <div className="text-muted small mb-1">Email:</div>
                           </div>
 
                           <div className="mb-4">
-                            <div className="text-muted small mb-1">Mobile:</div>
                             <div className="fs-5">
                               {userDetails.mobile_number}
                             </div>
+                            <div className="text-muted small mb-1">Mobile:</div>
                           </div>
 
                           <div className="mb-4">
-                            <div className="text-muted small mb-1">
-                              Aadhar Number:
-                            </div>
                             <div className="fs-5">
                               {userDetails.aadhar_number}
                             </div>
+                            <div className="text-muted small mb-1">
+                              Aadhar Number:
+                            </div>
                           </div>
 
                           <div className="mb-4">
-                            <div className="text-muted small mb-1">Role:</div>
                             <div className="fs-5">{userDetails.role}</div>
+                            <div className="text-muted small mb-1">Role:</div>
                           </div>
                         </div>
                       ) : (
                         <form onSubmit={handleSubmit} className="px-2">
                           <div className="mb-4">
-                            <label className="form-label">Name</label>
                             <input
                               type="text"
                               className="form-control form-control-lg"
@@ -322,10 +321,10 @@ const MyProfile = () => {
                               onChange={handleInputChange}
                               placeholder="Enter your name"
                             />
+                            <label className="form-label">Name</label>
                           </div>
 
                           <div className="mb-4">
-                            <label className="form-label">Email</label>
                             <input
                               type="email"
                               className="form-control form-control-lg"
@@ -334,10 +333,10 @@ const MyProfile = () => {
                               onChange={handleInputChange}
                               placeholder="Enter your email"
                             />
+                            <label className="form-label">Email</label>
                           </div>
 
                           <div className="mb-4">
-                            <label className="form-label">Mobile Number</label>
                             <input
                               type="tel"
                               className="form-control form-control-lg"
@@ -347,14 +346,15 @@ const MyProfile = () => {
                               placeholder="Enter mobile number"
                               disabled
                             />
-                            <small className="text-muted">
-                              Mobile number cannot be changed as it's used for
-                              login.
+                            <label className="form-label">Mobile Number</label>
+
+                            <small className="text-danger ms-2">
+                              (Mobile number cannot be changed as it's used for
+                              login.)
                             </small>
                           </div>
 
                           <div className="mb-4">
-                            <label className="form-label">Aadhar Number</label>
                             <input
                               type="text"
                               className="form-control form-control-lg"
@@ -363,16 +363,17 @@ const MyProfile = () => {
                               onChange={handleInputChange}
                               placeholder="Enter your aadhar number"
                             />
+                            <label className="form-label">Aadhar Number</label>
                           </div>
 
                           <div className="mb-4">
-                            <label className="form-label">Role</label>
                             <input
                               type="text"
                               className="form-control form-control-lg"
                               value={formData.role || ""}
                               onChange={handleInputChange}
                             />
+                            <label className="form-label">Role</label>
                           </div>
 
                           <div className="mt-5">
@@ -415,29 +416,26 @@ const MyProfile = () => {
                         </div> */}
 
                         <div className="mb-4">
-                          <div className="text-muted small mb-1">
-                            Outlet Name:
-                          </div>
                           <div className="fs-5">
                             {userDetails.subscription_outlet[0]?.outlet_name ||
                               "Not available"}
                           </div>
+                          <div className="text-muted small mb-1">
+                            Outlet Name:
+                          </div>
                         </div>
 
                         <div className="mb-4">
-                          <div className="text-muted small mb-1">
-                            Subscription Plan:
-                          </div>
                           <div className="fs-5">
                             {userDetails.subscription_outlet[0]
                               ?.subscription_name || "Not available"}
                           </div>
+                          <div className="text-muted small mb-1">
+                            Subscription Plan:
+                          </div>
                         </div>
 
                         <div className="mb-4">
-                          <div className="text-muted small mb-1">
-                            Subscription Status:
-                          </div>
                           <div className="fs-5">
                             <span
                               className={`badge bg-${
@@ -452,13 +450,13 @@ const MyProfile = () => {
                                 ? "Active"
                                 : "Expiring Soon"}
                             </span>
+                            <div className="text-muted small mb-1">
+                              Subscription Status:
+                            </div>
                           </div>
                         </div>
 
                         <div className="mb-4">
-                          <div className="text-muted small mb-1">
-                            Subscription Period:
-                          </div>
                           <div className="fs-5">
                             {
                               userDetails.subscription_outlet[0]
@@ -466,34 +464,37 @@ const MyProfile = () => {
                             }{" "}
                             to {userDetails.subscription_outlet[0]?.expiry_date}
                           </div>
+                          <div className="text-muted small mb-1">
+                            Subscription Period:
+                          </div>
                         </div>
 
                         <div className="mb-4">
-                          <div className="text-muted small mb-1">
-                            Days Until Expiry:
-                          </div>
                           <div className="fs-5">
                             {userDetails.subscription_outlet[0]
                               ?.days_until_expiry || "0"}{" "}
                             days
                           </div>
+                          <div className="text-muted small mb-1">
+                            Days Until Expiry:
+                          </div>
                         </div>
 
                         <div className="mb-4">
-                          <div className="text-muted small mb-1">
-                            Last Login:
-                          </div>
                           <div className="fs-5">
                             {userDetails.last_login || "Not available"}
                           </div>
+                          <div className="text-muted small mb-1">
+                            Last Login:
+                          </div>
                         </div>
 
                         <div className="mb-4">
-                          <div className="text-muted small mb-1">
-                            Account Created:
-                          </div>
                           <div className="fs-5">
                             {userDetails.created_on || "Not available"}
+                          </div>
+                          <div className="text-muted small mb-1">
+                            Account Created:
                           </div>
                         </div>
 
