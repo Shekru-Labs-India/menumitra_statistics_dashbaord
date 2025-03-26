@@ -137,21 +137,52 @@ const WeeklyOrderStat = () => {
         { headers: getAuthHeaders() }
       );
 
-      if (response.data?.message === 'success' && response.data?.data) {
+      // Handle both success and "No orders found" responses
+      if (response.data?.data?.orderStats) {
         const { orderStats } = response.data.data;
         
         setDays(orderStats.days || days);
         setOrderData(orderStats.orderCounts || []);
         
-        // Set peak and low peak information
-        if (orderStats.peakInfo) {
-          setPeakDay(orderStats.peakInfo.day);
-          setMaxOrders(orderStats.peakInfo.count);
+        // Check if all order counts are zero
+        const allZeros = orderStats.orderCounts.every(count => count === 0);
+        
+        if (allZeros) {
+          // Reset peak and low peak when there are no orders
+          setPeakDay('');
+          setLowPeakDay('');
+          setMaxOrders(0);
+          setMinOrders(0);
+        } else {
+          // If we have orderStats.peakInfo and lowPeakInfo, use them
+          if (orderStats.peakInfo) {
+            setPeakDay(orderStats.peakInfo.day);
+            setMaxOrders(orderStats.peakInfo.count);
+          } else {
+            // Calculate peak day manually
+            const max = Math.max(...orderStats.orderCounts);
+            const peakDayIndex = orderStats.orderCounts.indexOf(max);
+            setPeakDay(orderStats.days[peakDayIndex]);
+            setMaxOrders(max);
+          }
+          
+          if (orderStats.lowPeakInfo) {
+            setLowPeakDay(orderStats.lowPeakInfo.day);
+            setMinOrders(orderStats.lowPeakInfo.count);
+          } else {
+            // Calculate low peak day manually
+            const min = Math.min(...orderStats.orderCounts);
+            const lowPeakDayIndex = orderStats.orderCounts.indexOf(min);
+            setLowPeakDay(orderStats.days[lowPeakDayIndex]);
+            setMinOrders(min);
+          }
         }
         
-        if (orderStats.lowPeakInfo) {
-          setLowPeakDay(orderStats.lowPeakInfo.day);
-          setMinOrders(orderStats.lowPeakInfo.count);
+        // Display message if no orders found
+        if (response.data?.message === "No orders found for the given period") {
+          setError("No orders found for the selected period");
+        } else {
+          setError('');
         }
       }
     } catch (error) {
@@ -177,7 +208,7 @@ const WeeklyOrderStat = () => {
     const orderCounts = [];
     
     // Generate random data between 100-500 for each day
-    days.forEach(day => {
+    days.forEach(() => {
       // Generate a random value between 100 and 500
       const randomValue = Math.floor(Math.random() * 400) + 100;
       orderCounts.push(randomValue);
