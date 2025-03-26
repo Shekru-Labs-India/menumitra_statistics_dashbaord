@@ -6,10 +6,18 @@ import 'react-datepicker/dist/react-datepicker.css';
 // Import both GIFs - static and animated
 import aiAnimationGif from '../assets/img/gif/AI-animation-unscreen.gif';
 import aiAnimationStillFrame from '../assets/img/gif/AI-animation-unscreen-still-frame.gif';
+import { useDashboard } from '../context/DashboardContext'; // Import context
 
 const OrderStat = () => {
+    // Get data from context
+    const { 
+      orderStatistics_from_context,
+      loading: contextLoading,
+      error: contextError
+    } = useDashboard();
+
     const [dateRange, setDateRange] = useState('All Time');
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const [showDatePicker, setShowDatePicker] = useState(false);
@@ -21,6 +29,7 @@ const OrderStat = () => {
         complementary_orders: 0,
         KOT_orders: 0
     });
+    const [userInteracted, setUserInteracted] = useState(false); // Flag to track user interaction
   
     // Helper function to get auth headers
     const getAuthHeaders = (includeAuth = true) => {
@@ -58,6 +67,25 @@ const OrderStat = () => {
             return 'Error setting up request. Please try again.';
         }
     };
+
+    // Use context data when component mounts
+    useEffect(() => {
+        if (orderStatistics_from_context) {
+            setOrderStats({
+                success_orders: orderStatistics_from_context.success_orders || 0,
+                cancelled_orders: orderStatistics_from_context.cancelled_orders || 0,
+                complementary_orders: orderStatistics_from_context.complementary_orders || 0,
+                KOT_orders: orderStatistics_from_context.KOT_orders || 0
+            });
+        }
+    }, [orderStatistics_from_context]);
+
+    // Set error from context if available
+    useEffect(() => {
+        if (contextError && !userInteracted) {
+            setError(contextError);
+        }
+    }, [contextError, userInteracted]);
 
     // Simplified effect to handle the animation timing
     useEffect(() => {
@@ -97,6 +125,8 @@ const OrderStat = () => {
         try {
             setLoading(true);
             setError('');
+            // Set user interaction flag to true
+            setUserInteracted(true);
             
             let requestData = {};
             const today = new Date();
@@ -200,16 +230,10 @@ const OrderStat = () => {
         }
     };
 
-    // Initial data fetch on component mount
-    useEffect(() => {
-        const outletId = localStorage.getItem('outlet_id');
-        if (outletId) {
-            fetchData('All Time');
-        } else {
-            setError('No outlet ID found. Please log in again.');
-            setLoading(false);
-        }
-    }, []);
+    // Determine current loading state
+    const isLoading = userInteracted ? loading : contextLoading;
+    // Determine current error state
+    const currentError = userInteracted ? error : contextError;
 
     // Generate metrics based on API response data
     const getMetrics = () => [
@@ -273,12 +297,12 @@ const OrderStat = () => {
 
                     <button
                         type="button"
-                        className={`btn btn-icon p-0 ${loading ? 'disabled' : ''}`}
+                        className={`btn btn-icon p-0 ${isLoading ? 'disabled' : ''}`}
                         onClick={handleReload}
-                        disabled={loading}
+                        disabled={isLoading}
                         style={{ border: '1px solid var(--bs-primary)' }}
                     >
-                        <i className={`fas fa-sync-alt ${loading ? 'fa-spin' : ''}`}></i>
+                        <i className={`fas fa-sync-alt ${isLoading ? 'fa-spin' : ''}`}></i>
                     </button>
 
                     <button
@@ -363,17 +387,17 @@ const OrderStat = () => {
                 </div>
             )}
 
-            {error && (
+            {currentError && (
                 <div className="card-body">
                     <div className="alert alert-danger" role="alert">
-                        {error}
+                        {currentError}
                     </div>
                 </div>
             )}
 
             <div className="card-body">
                 <div className="row g-4">
-                    {loading ? (
+                    {isLoading ? (
                         // Loading skeletons for metrics
                         Array(4).fill(0).map((_, index) => (
                             <div key={index} className="col-md-6">
