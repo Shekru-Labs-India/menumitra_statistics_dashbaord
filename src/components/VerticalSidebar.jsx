@@ -5,7 +5,10 @@ import './VerticalSidebar.css';
 
 function VerticalSidebar() {
   const location = useLocation()
-  const [isDocked, setIsDocked] = useState(false)
+  const [isDocked, setIsDocked] = useState(() => {
+    // Initialize from localStorage, default to false if not found
+    return localStorage.getItem('sidebar_pinned') === 'true';
+  });
   const [isHovered, setIsHovered] = useState(false)
   const [isSmallScreen, setIsSmallScreen] = useState(false)
   const [showPinButton, setShowPinButton] = useState(false)
@@ -40,6 +43,8 @@ function VerticalSidebar() {
   // Add useEffect to update class when isDocked changes
   useEffect(() => {
     updateLayoutMenuUnpinnedClass(isDocked);
+    // Save to localStorage whenever isDocked changes
+    localStorage.setItem('sidebar_pinned', isDocked.toString());
   }, [isDocked]);
 
   const updateLayoutMenuUnpinnedClass = (docked) => {
