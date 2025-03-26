@@ -4,6 +4,7 @@ import img from '../assets/img/avatars/1.png'
 import 'animate.css'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { useDashboard } from '../context/DashboardContext'
 
 function Header() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -20,6 +21,9 @@ function Header() {
   const [isRotating, setIsRotating] = useState(false);
   const [selectOutletError, setSelectOutletError] = useState(null);
   const navigate = useNavigate();
+  
+  // Get refreshDashboard from context
+  const { refreshDashboard } = useDashboard();
 
   // Function to show toast notifications
   const showToast = (message, type = 'error') => {
@@ -354,6 +358,9 @@ function Header() {
     setIsRotating(true);
     setStartTime(new Date());
     fetchOutlets(); // Refresh outlets data
+    
+    // Refresh dashboard data from context
+    refreshDashboard();
     
     // Reset rotation after animation completes
     setTimeout(() => {
