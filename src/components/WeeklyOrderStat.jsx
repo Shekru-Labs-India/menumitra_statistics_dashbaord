@@ -6,8 +6,16 @@ import aiAnimationGif from '../assets/img/gif/AI-animation-unscreen.gif';
 import aiAnimationStillFrame from '../assets/img/gif/AI-animation-unscreen-still-frame.gif';
 import axios from 'axios';
 import { apiEndpoint } from '../config/menuMitraConfig';
+import { useDashboard } from '../context/DashboardContext'; // Import context
 
 const WeeklyOrderStat = () => {
+  // Get data from context
+  const {
+    weeklyOrderStats_from_context,
+    loading: contextLoading,
+    error: contextError
+  } = useDashboard();
+
   const [dateRange, setDateRange] = useState('This Week');
   const [loading, setLoading] = useState(false);
   const [startDate, setStartDate] = useState(null);
@@ -21,6 +29,7 @@ const WeeklyOrderStat = () => {
   const [maxOrders, setMaxOrders] = useState(0);
   const [minOrders, setMinOrders] = useState(0);
   const [error, setError] = useState('');
+  const [userInteracted, setUserInteracted] = useState(false); // Flag to track user interaction
 
   // Helper function to get auth headers
   const getAuthHeaders = useMemo(() => (includeAuth = true) => {
@@ -38,6 +47,58 @@ const WeeklyOrderStat = () => {
     
     return headers;
   }, []);
+
+  // Use context data when component mounts
+  useEffect(() => {
+    if (weeklyOrderStats_from_context) {
+      // Access the properties directly from weeklyOrderStats_from_context
+      setDays(weeklyOrderStats_from_context.days || days);
+      setOrderData(weeklyOrderStats_from_context.orderCounts || []);
+      
+      // Check if all order counts are zero
+      const allZeros = weeklyOrderStats_from_context.orderCounts && 
+                       weeklyOrderStats_from_context.orderCounts.every(count => count === 0);
+      
+      if (allZeros) {
+        // Reset peak and low peak when there are no orders
+        setPeakDay('');
+        setLowPeakDay('');
+        setMaxOrders(0);
+        setMinOrders(0);
+      } else {
+        // If we have peakInfo and lowPeakInfo, use them
+        if (weeklyOrderStats_from_context.peakInfo) {
+          setPeakDay(weeklyOrderStats_from_context.peakInfo.day);
+          setMaxOrders(weeklyOrderStats_from_context.peakInfo.count);
+        } else {
+          // Calculate peak day manually
+          const max = Math.max(...weeklyOrderStats_from_context.orderCounts);
+          const peakDayIndex = weeklyOrderStats_from_context.orderCounts.indexOf(max);
+          setPeakDay(weeklyOrderStats_from_context.days[peakDayIndex]);
+          setMaxOrders(max);
+        }
+        
+        if (weeklyOrderStats_from_context.lowPeakInfo) {
+          setLowPeakDay(weeklyOrderStats_from_context.lowPeakInfo.day);
+          setMinOrders(weeklyOrderStats_from_context.lowPeakInfo.count);
+        } else {
+          // Calculate low peak day manually
+          const counts = weeklyOrderStats_from_context.orderCounts || [];
+          const min = Math.min(...counts.filter(count => count > 0)) || 0;
+          const lowPeakDayIndex = counts.indexOf(min);
+          setLowPeakDay(min > 0 ? weeklyOrderStats_from_context.days[lowPeakDayIndex] : '');
+          setMinOrders(min);
+        }
+      }
+    }
+  }, [weeklyOrderStats_from_context]);
+
+  // Set error from context if available
+  useEffect(() => {
+    if (contextError && !userInteracted) {
+      setError(contextError);
+    }
+  }, [contextError, userInteracted]);
 
   // Date formatting function
   const formatDate = (date) => {
@@ -128,6 +189,8 @@ const WeeklyOrderStat = () => {
     try {
       setLoading(true);
       setError('');
+      // Set user interaction flag to true
+      setUserInteracted(true);
 
       const requestData = prepareRequestData(range);
       
@@ -230,21 +293,13 @@ const WeeklyOrderStat = () => {
     setLowPeakDay(days[lowPeakDayIndex]);
   };
 
-  // Initialize data on component mount
-  useEffect(() => {
-    const outletId = localStorage.getItem('outlet_id');
-    if (outletId) {
-      fetchWeeklyOrderStats('This Week');
-    } else {
-      // Fallback to generated data if no outlet ID
-      const initialData = generateWeeklyData();
-      setOrderData(initialData);
-      updatePeakInfo(initialData);
-    }
-  }, []);
-
   // Create shortened day names for x-axis
   const dayShortNames = days.map(day => day.substring(0, 3));
+
+  // Determine current loading state
+  const isLoading = userInteracted ? loading : contextLoading;
+  // Determine current error state
+  const currentError = userInteracted ? error : contextError;
 
   // Colors for each day (Monday to Sunday)
   const dayColors = [
@@ -555,12 +610,12 @@ const WeeklyOrderStat = () => {
 
           <button
             type="button"
-            className={`btn btn-icon p-0 ${loading ? 'disabled' : ''}`}
+            className={`btn btn-icon p-0 ${isLoading ? 'disabled' : ''}`}
             onClick={handleReload}
-            disabled={loading}
+            disabled={isLoading}
             style={{ border: '1px solid var(--bs-primary)' }}
           >
-            <i className={`fas fa-sync-alt ${loading ? 'fa-spin' : ''}`}></i>
+            <i className={`fas fa-sync-alt ${isLoading ? 'fa-spin' : ''}`}></i>
           </button>
 
           <button
@@ -642,9 +697,9 @@ const WeeklyOrderStat = () => {
         </div>
       )}
 
-      {error && (
+      {currentError && (
         <div className="alert alert-danger m-3" role="alert">
-          {error}
+          {currentError}
         </div>
       )}
 
@@ -677,7 +732,7 @@ const WeeklyOrderStat = () => {
         </div>
         
         <div id="weeklyOrderChart">
-          {loading ? (
+          {isLoading ? (
             <div className="d-flex justify-content-center align-items-center" style={{ height: '450px' }}>
               <div className="spinner-border text-primary" role="status">
                 <span className="visually-hidden">Loading...</span>
