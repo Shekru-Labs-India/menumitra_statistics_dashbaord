@@ -8,15 +8,19 @@ import img from '../assets/img/avatars/1.png';
 
 const MyProfile = () => {
   const [userDetails, setUserDetails] = useState({
-    user_name: '',
     user_id: '',
-    owner_id: '',
-    outlet_id: '',
-    mobile_number: '',
+    name: '',
     role: '',
-    email: '',
-    address: '',
-    joined_date: 'April 2021'
+    dob: null,
+    email: null,
+    mobile_number: '',
+    aadhar_number: '',
+    last_login: '',
+    created_on: '',
+    updated_on: null,
+    created_by: '',
+    updated_by: null,
+    subscription_outlet: []
   });
   
   const [editMode, setEditMode] = useState(false);
@@ -25,22 +29,78 @@ const MyProfile = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  useEffect(() => {
-    // Get user details from localStorage
-    const userData = {
-      user_name: localStorage.getItem('user_name') || 'User Name',
-      user_id: localStorage.getItem('user_id') || '',
-      owner_id: localStorage.getItem('owner_id') || '',
-      outlet_id: localStorage.getItem('outlet_id') || '',
-      mobile_number: localStorage.getItem('mobile_number') || '',
-      role: localStorage.getItem('role') || 'owner',
-      email: localStorage.getItem('email') || '',
-      address: localStorage.getItem('address') || 'City name',
-      joined_date: 'April 2021' // This would ideally come from the API
+  // Helper function to get auth headers
+  const getAuthHeaders = (includeAuth = true) => {
+    const headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
     };
     
-    setUserDetails(userData);
-    setFormData(userData);
+    if (includeAuth) {
+      const accessToken = localStorage.getItem('access');
+      if (accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`;
+      }
+    }
+    
+    return headers;
+  };
+
+  // Function to handle API errors
+  const handleApiError = (error) => {
+    console.error('API Error:', error);
+    
+    if (error.response) {
+      // Handle specific error status codes
+      if (error.response.status === 401) {
+        console.error('Unauthorized access');
+        // You may want to redirect to login page here
+      }
+      
+      return error.response.data?.message || 'An error occurred. Please try again.';
+    } else if (error.request) {
+      return 'No response from server. Please check your internet connection.';
+    } else {
+      return 'Error setting up request. Please try again.';
+    }
+  };
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const user_id = localStorage.getItem("user_id");
+        if (!user_id) {
+          setError('User ID not found');
+          return;
+        }
+
+        const response = await axios.post('https://men4u.xyz/common_api/view_profile_detail', 
+          { user_id: user_id },
+          { headers: getAuthHeaders() }
+        );
+
+        if (response.data.st === 1 && response.data.Data.user_details) {
+          const userData = response.data.Data.user_details;
+          const subscriptionData = response.data.Data.subscription_outlet?.[0] || {};
+          
+          const formattedUserData = {
+            ...userData,
+            subscription_outlet: response.data.Data.subscription_outlet || []
+          };
+          
+          setUserDetails(formattedUserData);
+          setFormData(formattedUserData);
+        } else {
+          setError('Failed to fetch user profile');
+        }
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+        const errorMessage = handleApiError(error);
+        setError(errorMessage || 'Failed to fetch user profile. Please try again.');
+      }
+    };
+
+    fetchUserProfile();
   }, []);
 
   const handleEditToggle = () => {
@@ -66,27 +126,32 @@ const MyProfile = () => {
     setSuccess('');
 
     try {
-      // Example API call to update user profile
-      // This should be replaced with your actual API endpoint
-      // const response = await axios.post(`${apiEndpoint}update_profile`, formData);
-      
-      // For now, we'll just simulate a successful update
-      // and update localStorage with the new values
-      
-      // Update localStorage
-      Object.keys(formData).forEach(key => {
-        if (formData[key]) {
-          localStorage.setItem(key, formData[key]);
-        }
-      });
+      // Make API call to update profile
+      const response = await axios.post(
+        'https://men4u.xyz/common_api/update_profile',
+        formData,
+        { headers: getAuthHeaders() }
+      );
 
-      // Update state
-      setUserDetails(formData);
-      setSuccess('Profile updated successfully!');
-      setEditMode(false);
+      if (response.data.st === 1) {
+        // Update localStorage
+        Object.keys(formData).forEach(key => {
+          if (formData[key]) {
+            localStorage.setItem(key, formData[key]);
+          }
+        });
+
+        // Update state
+        setUserDetails(formData);
+        setSuccess('Profile updated successfully!');
+        setEditMode(false);
+      } else {
+        setError(response.data.msg || 'Failed to update profile');
+      }
     } catch (error) {
       console.error('Failed to update profile:', error);
-      setError('Failed to update profile. Please try again.');
+      const errorMessage = handleApiError(error);
+      setError(errorMessage || 'Failed to update profile. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -166,13 +231,11 @@ const MyProfile = () => {
                   {/* Profile Details and Edit Button */}
                   <div className="d-flex justify-content-between align-items-center mt-4 mb-2 ps-2">
                     <div className="ms-5 ps-3">
-                      <h3 className="mb-2 fw-bold">{userDetails.user_name}</h3>
+                      <h3 className="mb-2 fw-bold">{userDetails.name}</h3>
                       <div className="d-flex flex-wrap gap-3">
-                        <span className="text-muted"><i className="fas fa-user-tag me-1"></i>{userDetails.role?.toUpperCase()}</span>
+                        <span className="text-muted"><i className="fas fa-user-tag me-1"></i>{userDetails.role}</span>
                         <span className="text-muted">•</span>
-                        <span className="text-muted"><i className="fas fa-map-marker-alt me-1"></i>{userDetails.address}</span>
-                        {/* <span className="text-muted">•</span> */}
-                        {/* <span className="text-muted"><i className="fas fa-calendar-alt me-1"></i>Joined {userDetails.joined_date}</span> */}
+                        <span className="text-muted"><i className="fas fa-id-card me-1"></i>{userDetails.aadhar_number}</span>
                       </div>
                     </div>
                     <button 
@@ -199,7 +262,7 @@ const MyProfile = () => {
                         <div className="ps-2">
                           <div className="mb-4">
                             <div className="text-muted small mb-1">Name:</div>
-                            <div className="fs-5">{userDetails.user_name}</div>
+                            <div className="fs-5">{userDetails.name}</div>
                           </div>
                           
                           <div className="mb-4">
@@ -213,13 +276,13 @@ const MyProfile = () => {
                           </div>
                           
                           <div className="mb-4">
-                            <div className="text-muted small mb-1">City:</div>
-                            <div className="fs-5">{userDetails.address || 'Not provided'}</div>
+                            <div className="text-muted small mb-1">Aadhar Number:</div>
+                            <div className="fs-5">{userDetails.aadhar_number}</div>
                           </div>
                           
                           <div className="mb-4">
-                            <div className="text-muted small mb-1">Profession:</div>
-                            <div className="fs-5">{userDetails.role?.toUpperCase() || 'OWNER'}</div>
+                            <div className="text-muted small mb-1">Role:</div>
+                            <div className="fs-5">{userDetails.role}</div>
                           </div>
                         </div>
                       ) : (
@@ -229,8 +292,8 @@ const MyProfile = () => {
                             <input
                               type="text"
                               className="form-control form-control-lg"
-                              name="user_name"
-                              value={formData.user_name || ''}
+                              name="name"
+                              value={formData.name || ''}
                               onChange={handleInputChange}
                               placeholder="Enter your name"
                             />
@@ -263,14 +326,14 @@ const MyProfile = () => {
                           </div>
                           
                           <div className="mb-4">
-                            <label className="form-label">City</label>
+                            <label className="form-label">Aadhar Number</label>
                             <input
                               type="text"
                               className="form-control form-control-lg"
-                              name="address"
-                              value={formData.address || ''}
+                              name="aadhar_number"
+                              value={formData.aadhar_number || ''}
                               onChange={handleInputChange}
-                              placeholder="Enter your city"
+                              placeholder="Enter your aadhar number"
                             />
                           </div>
                           
@@ -279,8 +342,8 @@ const MyProfile = () => {
                             <input
                               type="text"
                               className="form-control form-control-lg"
-                              value={formData.role?.toUpperCase() || 'OWNER'}
-                              disabled
+                              value={formData.role || ''}
+                              onChange={handleInputChange}
                             />
                           </div>
                           
@@ -302,7 +365,7 @@ const MyProfile = () => {
                   </div>
                 </div>
                 
-                {/* <div className="col-12 col-md-6">
+                <div className="col-12 col-md-6">
                   <div className="card h-100 shadow-sm">
                     <div className="card-body p-4">
                       <h5 className="card-title text-uppercase mb-4 fw-bold">
@@ -310,31 +373,60 @@ const MyProfile = () => {
                       </h5>
                       
                       <div className="ps-2">
-                        <div className="mb-4">
+                        {/* <div className="mb-4">
                           <div className="text-muted small mb-1">User ID:</div>
                           <div className="fs-5">{userDetails.user_id}</div>
-                        </div>
-                        
-                        
+                        </div> */}
                         
                         <div className="mb-4">
-                          <div className="text-muted small mb-1">Outlet ID:</div>
-                          <div className="fs-5">{userDetails.outlet_id}</div>
+                          <div className="text-muted small mb-1">Outlet Name:</div>
+                          <div className="fs-5">{userDetails.subscription_outlet[0]?.outlet_name || 'Not available'}</div>
+                        </div>
+
+                        <div className="mb-4">
+                          <div className="text-muted small mb-1">Subscription Plan:</div>
+                          <div className="fs-5">{userDetails.subscription_outlet[0]?.subscription_name || 'Not available'}</div>
+                        </div>
+
+                        <div className="mb-4">
+                          <div className="text-muted small mb-1">Subscription Status:</div>
+                          <div className="fs-5">
+                            <span className={`badge bg-${userDetails.subscription_outlet[0]?.days_until_expiry > 30 ? 'success' : 'warning'}`}>
+                              {userDetails.subscription_outlet[0]?.days_until_expiry > 30 ? 'Active' : 'Expiring Soon'}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="mb-4">
+                          <div className="text-muted small mb-1">Subscription Period:</div>
+                          <div className="fs-5">
+                            {userDetails.subscription_outlet[0]?.subscription_date} to {userDetails.subscription_outlet[0]?.expiry_date}
+                          </div>
+                        </div>
+
+                        <div className="mb-4">
+                          <div className="text-muted small mb-1">Days Until Expiry:</div>
+                          <div className="fs-5">{userDetails.subscription_outlet[0]?.days_until_expiry || '0'} days</div>
+                        </div>
+
+                        <div className="mb-4">
+                          <div className="text-muted small mb-1">Last Login:</div>
+                          <div className="fs-5">{userDetails.last_login || 'Not available'}</div>
                         </div>
                         
                         <div className="mb-4">
-                          <div className="text-muted small mb-1">Account Type:</div>
-                          <div className="fs-5">{userDetails.role?.toUpperCase() || 'OWNER'}</div>
+                          <div className="text-muted small mb-1">Account Created:</div>
+                          <div className="fs-5">{userDetails.created_on || 'Not available'}</div>
                         </div>
-                        
-                        <div className="mb-4">
-                          <div className="text-muted small mb-1">Joined Date:</div>
-                          <div className="fs-5">{userDetails.joined_date}</div>
-                        </div>
+
+                        {/* <div className="mb-4">
+                          <div className="text-muted small mb-1">Created By:</div>
+                          <div className="fs-5">{userDetails.created_by || 'Not available'}</div>
+                        </div> */}
                       </div>
                     </div>
                   </div>
-                </div> */}
+                </div>
               </div>
             </div>
             <Footer />
