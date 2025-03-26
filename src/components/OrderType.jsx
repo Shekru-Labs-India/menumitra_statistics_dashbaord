@@ -175,6 +175,8 @@ const OrderType = () => {
     setDateRange(range);
     setShowDatePicker(range === 'Custom Range');
     if (range !== 'Custom Range') {
+      setStartDate(null);
+      setEndDate(null);
       fetchData(range);
     }
   };

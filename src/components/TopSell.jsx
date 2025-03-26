@@ -183,6 +183,8 @@ function TopSell() {
     setShowDatePicker(range === "Custom Range");
     
     if (range !== "Custom Range") {
+      setStartDate(null);
+      setEndDate(null);
       fetchData(range);
     }
   };
