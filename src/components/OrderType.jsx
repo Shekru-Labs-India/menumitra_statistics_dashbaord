@@ -7,6 +7,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 // Import both GIFs - static and animated
 import aiAnimationGif from '../assets/img/gif/AI-animation-unscreen.gif';
 import aiAnimationStillFrame from '../assets/img/gif/AI-animation-unscreen-still-frame.gif';
+import { useDashboard } from '../context/DashboardContext'; // Import context
 
 // Placeholder data for when API fails or is loading
 const placeholderOrderTypes = [
@@ -45,14 +46,22 @@ const placeholderOrderTypes = [
 ];
 
 const OrderType = () => {
+  // Get data from context
+  const { 
+    orderTypeStatistics_from_context,
+    loading: contextLoading,
+    error: contextError
+  } = useDashboard();
+
   const [dateRange, setDateRange] = useState('All Time');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isGifPlaying, setIsGifPlaying] = useState(false);
   const [orderTypes, setOrderTypes] = useState(placeholderOrderTypes);
   const [error, setError] = useState('');
+  const [userInteracted, setUserInteracted] = useState(false); // Flag to track user interaction
 
   // Helper function to get auth headers
   const getAuthHeaders = (includeAuth = true) => {
@@ -91,6 +100,68 @@ const OrderType = () => {
     }
   };
 
+  // Use context data when component mounts
+  useEffect(() => {
+    if (orderTypeStatistics_from_context) {
+      // Convert the context data structure to the array format our component expects
+      const orderTypesArray = [
+        {
+          name: "Dine In",
+          icon: "fas fa-utensils",
+          count: orderTypeStatistics_from_context["dine-in"] || 0,
+          trend: "0%", // We don't have trend data in the response
+          trendUp: true,
+          color: "primary"
+        },
+        {
+          name: "Drive Through",
+          icon: "fas fa-car",
+          count: orderTypeStatistics_from_context["drive-through"] || 0,
+          trend: "0%",
+          trendUp: true,
+          color: "info"
+        },
+        {
+          name: "Parcel",
+          icon: "fas fa-box",
+          count: orderTypeStatistics_from_context["parcel"] || 0,
+          trend: "0%",
+          trendUp: true,
+          color: "success"
+        },
+        {
+          name: "Delivery",
+          icon: "fas fa-globe",
+          count: orderTypeStatistics_from_context["delivery"] || 0,
+          trend: "0%",
+          trendUp: true,
+          color: "warning"
+        }
+      ];
+      
+      // Add counter type if it exists in the response
+      if (orderTypeStatistics_from_context["counter"] !== undefined) {
+        orderTypesArray.push({
+          name: "Counter",
+          icon: "fas fa-cash-register",
+          count: orderTypeStatistics_from_context["counter"] || 0,
+          trend: "0%",
+          trendUp: true,
+          color: "danger"
+        });
+      }
+      
+      setOrderTypes(orderTypesArray);
+    }
+  }, [orderTypeStatistics_from_context]);
+
+  // Set error from context if available
+  useEffect(() => {
+    if (contextError && !userInteracted) {
+      setError(contextError);
+    }
+  }, [contextError, userInteracted]);
+
   const formatDate = (date) => {
     if (!date) return '';
     const day = date.getDate().toString().padStart(2, '0');
@@ -117,6 +188,8 @@ const OrderType = () => {
     try {
       setLoading(true);
       setError('');
+      // Set user interaction flag to true
+      setUserInteracted(true);
       
       let requestData = {};
       const today = new Date();
@@ -269,17 +342,6 @@ const OrderType = () => {
     }
   };
 
-  // Initial data fetch on component mount
-  useEffect(() => {
-    const outletId = localStorage.getItem('outlet_id');
-    if (outletId) {
-      fetchData('All Time');
-    } else {
-      setError('No outlet ID found. Please log in again.');
-      setLoading(false);
-    }
-  }, []);
-
   // Simplified effect to handle the animation timing
   useEffect(() => {
     if (isGifPlaying) {
@@ -291,6 +353,11 @@ const OrderType = () => {
       return () => clearTimeout(timer);
     }
   }, [isGifPlaying]);
+
+  // Determine current loading state
+  const isLoading = userInteracted ? loading : contextLoading;
+  // Determine current error state
+  const currentError = userInteracted ? error : contextError;
 
   return (
     <div className="card">
@@ -343,12 +410,12 @@ const OrderType = () => {
           </div>
           <button
             type="button"
-            className={`btn btn-icon p-0 ${loading ? "disabled" : ""}`}
+            className={`btn btn-icon p-0 ${isLoading ? "disabled" : ""}`}
             onClick={handleReload}
-            disabled={loading}
+            disabled={isLoading}
             style={{ border: "1px solid var(--bs-primary)" }}
           >
-            <i className={`fas fa-sync-alt ${loading ? "fa-spin" : ""}`}></i>
+            <i className={`fas fa-sync-alt ${isLoading ? "fa-spin" : ""}`}></i>
           </button>
 
           <button
@@ -439,17 +506,17 @@ const OrderType = () => {
         </div>
       )}
 
-      {error && (
+      {currentError && (
         <div className="card-body">
           <div className="alert alert-danger" role="alert">
-            {error}
+            {currentError}
           </div>
         </div>
       )}
 
       <div className="card-body">
         <div className="row g-3">
-          {loading
+          {isLoading
             ? // Display skeleton loading for 4 order type cards
               Array(4)
                 .fill(0)
