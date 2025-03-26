@@ -4,11 +4,21 @@ import axios from 'axios';
 const DashboardContext = createContext();
 
 export const DashboardProvider = ({ children }) => {
-  const [dashboardData, setDashboardData] = useState(null);
+  // Individual state variables for each data category with _from_context suffix
+  const [analyticReports_from_context, setAnalyticReports] = useState(null);
+  const [orderAnalytics_from_context, setOrderAnalytics] = useState(null);
+  const [foodTypeStatistics_from_context, setFoodTypeStatistics] = useState(null);
+  const [orderTypeStatistics_from_context, setOrderTypeStatistics] = useState(null);
+  const [orderStatistics_from_context, setOrderStatistics] = useState(null);
+  const [totalCollectionSource_from_context, setTotalCollectionSource] = useState(null);
+  const [salesPerformance_from_context, setSalesPerformance] = useState(null);
+  const [weeklyOrderStats_from_context, setWeeklyOrderStats] = useState(null);
+  
+  // Original loading and error states
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = async (dateFilter = null) => {
     try {
       setLoading(true);
       const outletId = localStorage.getItem('outlet_id');
@@ -18,9 +28,19 @@ export const DashboardProvider = ({ children }) => {
         throw new Error('Missing required credentials');
       }
 
+      // Prepare request body with date filters if provided
+      const requestBody = { outlet_id: outletId };
+      
+      // Add date filter if provided
+      if (dateFilter) {
+        if (dateFilter.startDate) requestBody.start_date = dateFilter.startDate;
+        if (dateFilter.endDate) requestBody.end_date = dateFilter.endDate;
+        if (dateFilter.filterType) requestBody.filter_type = dateFilter.filterType; // today, yesterday, week, month, etc.
+      }
+
       const response = await axios.post(
         'https://men4u.xyz/outlet_statistics/get_all_stats_without_filter',
-        { outlet_id: outletId },
+        requestBody,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -31,7 +51,18 @@ export const DashboardProvider = ({ children }) => {
       );
 
       if (response.data && response.data.message === "success") {
-        setDashboardData(response.data.data);
+        const data = response.data.data;
+        
+        // Set individual state variables for each category
+        setAnalyticReports(data.analytic_reports || null);
+        setOrderAnalytics(data.order_analytics || null);
+        setFoodTypeStatistics(data.food_type_statistics || null);
+        setOrderTypeStatistics(data.order_type_statistics || null);
+        setOrderStatistics(data.order_statistics || null);
+        setTotalCollectionSource(data.total_collection_source || null);
+        setSalesPerformance(data.sales_performance || null);
+        setWeeklyOrderStats(data.weekly_order_stats || null);
+        
         setError(null);
       } else {
         throw new Error('Invalid response format');
@@ -54,7 +85,17 @@ export const DashboardProvider = ({ children }) => {
   }, []);
 
   const value = {
-    dashboardData,
+    // Provide separate objects for each data category with _from_context suffix
+    analyticReports_from_context,
+    orderAnalytics_from_context,
+    foodTypeStatistics_from_context,
+    orderTypeStatistics_from_context,
+    orderStatistics_from_context,
+    totalCollectionSource_from_context,
+    salesPerformance_from_context,
+    weeklyOrderStats_from_context,
+    
+    // Maintain original loading and error states
     loading,
     error,
     refreshDashboard: fetchDashboardData

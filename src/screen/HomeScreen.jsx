@@ -21,8 +21,17 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import { useNavigate } from 'react-router-dom';
 import PaymentMethodCount from "../components/PaymentMethodCount";
 import WeeklyOrderStat from "../components/WeeklyOrderStat";
+import { useDashboard } from "../context/DashboardContext"; // Import the context
 
 function HomeScreen() {
+  // Get data from context
+  const { 
+    analyticReports_from_context,
+    loading: contextLoading, 
+    error: contextError,
+    refreshDashboard
+  } = useDashboard();
+
   const [dateRange, setDateRange] = useState('All Time');
   const [loading, setLoading] = useState(false);
   const [startDate, setStartDate] = useState(null);
@@ -37,6 +46,7 @@ function HomeScreen() {
     total_revenue: 0,
     average_turnover_time: "00:00 - 00:00"
   });
+  const [userInteracted, setUserInteracted] = useState(false); // Flag to track if user has interacted with filters
   const navigate = useNavigate();
 
   // Check if user is logged in
@@ -46,6 +56,26 @@ function HomeScreen() {
       navigate('/login');
     }
   }, [navigate]);
+
+  // Use context data when component mounts
+  useEffect(() => {
+    if (analyticReports_from_context) {
+      setStatistics({
+        total_orders: analyticReports_from_context.total_orders || 0,
+        average_order_value: analyticReports_from_context.avg_order_value || 0,
+        customer_count: 0,
+        total_revenue: analyticReports_from_context.total_revenue || 0,
+        average_turnover_time: analyticReports_from_context.average_turnover_time || "0 min"
+      });
+    }
+  }, [analyticReports_from_context]);
+
+  // Set error from context if available
+  useEffect(() => {
+    if (contextError && !userInteracted) {
+      setError(contextError);
+    }
+  }, [contextError, userInteracted]);
 
   // Simplified effect to handle the animation timing
   useEffect(() => {
@@ -187,6 +217,8 @@ function HomeScreen() {
     try {
       setLoading(true);
       setError('');
+      // Set user interaction flag to true
+      setUserInteracted(true);
 
       const requestData = prepareRequestData(range);
       console.log('Sending request with data:', requestData);
@@ -229,14 +261,6 @@ function HomeScreen() {
     }
   }, [prepareRequestData, getAuthHeaders, navigate]);
 
-  // Initial data fetch on component mount
-  useEffect(() => {
-    const outletId = localStorage.getItem('outlet_id');
-    if (outletId) {
-      fetchStatistics('All Time');
-    }
-  }, [fetchStatistics]);
-
   const handleDateRangeChange = (range) => {
     setDateRange(range);
     if (range === 'Custom Range') {
@@ -250,6 +274,7 @@ function HomeScreen() {
   };
 
   const handleReload = () => {
+    // Always hit the analytics_reports API directly on reload
     fetchStatistics(dateRange);
   };
 
@@ -328,6 +353,11 @@ function HomeScreen() {
     </div>
   );
 
+  // Determine current loading state
+  const isLoading = userInteracted ? loading : contextLoading;
+  // Determine current error state
+  const currentError = userInteracted ? error : contextError;
+
   return (
     <div className="layout-wrapper layout-content-navbar">
       <div className="layout-container">
@@ -336,9 +366,9 @@ function HomeScreen() {
           <Header />
           <div className="content-wrapper flex-grow-1">
             <div className="container-fluid flex-grow-1 container-p-y">
-              {error && (
+              {currentError && (
                 <div className="alert alert-danger mb-4" role="alert">
-                  {error}
+                  {currentError}
                 </div>
               )}
               {/* Welcome Card Section */}
@@ -399,15 +429,15 @@ function HomeScreen() {
                         <button
                           type="button"
                           className={`btn btn-icon p-0 ${
-                            loading ? "disabled" : ""
+                            isLoading ? "disabled" : ""
                           }`}
                           onClick={handleReload}
-                          disabled={loading}
+                          disabled={isLoading}
                           style={{ border: "1px solid var(--bs-primary)" }}
                         >
                           <i
                             className={`fas fa-sync-alt ${
-                              loading ? "fa-spin" : ""
+                              isLoading ? "fa-spin" : ""
                             }`}
                           ></i>
                         </button>
@@ -508,7 +538,7 @@ function HomeScreen() {
                       </p>
                       {/* Stats Cards */}
                       <div className="row g-4">
-                        {loading ? (
+                        {isLoading ? (
                           <>
                             <StatCardSkeleton color="primary" />
                             <StatCardSkeleton color="success" />
