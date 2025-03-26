@@ -302,7 +302,7 @@ const MyProfile = () => {
                   </div>
                 </div>
                 
-                <div className="col-12 col-md-6">
+                {/* <div className="col-12 col-md-6">
                   <div className="card h-100 shadow-sm">
                     <div className="card-body p-4">
                       <h5 className="card-title text-uppercase mb-4 fw-bold">
@@ -334,7 +334,7 @@ const MyProfile = () => {
                       </div>
                     </div>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
             <Footer />
