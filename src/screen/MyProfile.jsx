@@ -159,18 +159,7 @@ const MyProfile = () => {
 
   // Create a gradient background based on the role
   const getBannerGradient = () => {
-    const role = userDetails.role?.toLowerCase() || 'owner';
-    switch(role) {
-      case 'admin':
-        return 'linear-gradient(135deg, #6B46C1 0%, #9F7AEA 50%, #B794F4 100%)';
-      case 'manager':
-        return 'linear-gradient(135deg, #2F855A 0%, #48BB78 50%, #68D391 100%)';
-      case 'staff':
-        return 'linear-gradient(135deg, #2B6CB0 0%, #4299E1 50%, #63B3ED 100%)';
-      case 'owner':
-      default:
-        return 'linear-gradient(135deg, #4FD1C5 0%, #68D0CF 33%, #F6E05E 66%, #F6AD55 100%)';
-    }
+    return 'linear-gradient(135deg, rgb(107, 70, 193) 0%, rgb(159, 122, 234) 50%, rgb(183, 148, 244) 100%)';
   };
 
   return (
@@ -238,7 +227,7 @@ const MyProfile = () => {
                   <div className="d-flex justify-content-between align-items-center mt-4 mb-2 ps-2">
                     <div className="ms-5 ps-3">
                       <h3 className="mb-2 fw-bold">{userDetails.name}</h3>
-                      <div className="d-flex flex-wrap gap-3">
+                      {/* <div className="d-flex flex-wrap gap-3">
                         <span className="text-muted">
                           <i className="fas fa-user-tag me-1"></i>
                           {userDetails.role}
@@ -248,7 +237,7 @@ const MyProfile = () => {
                           <i className="fas fa-id-card me-1"></i>
                           {userDetails.aadhar_number}
                         </span>
-                      </div>
+                      </div> */}
                     </div>
                     <button
                       className="btn btn-primary rounded-pill px-4"
