@@ -7,16 +7,25 @@ import { apiEndpoint } from '../config/menuMitraConfig';
 // Import both GIFs - static and animated
 import aiAnimationGif from '../assets/img/gif/AI-animation-unscreen.gif';
 import aiAnimationStillFrame from '../assets/img/gif/AI-animation-unscreen-still-frame.gif';
+import { useDashboard } from '../context/DashboardContext'; // Import context
 
 const FoodTypeGraph = () => {
+    // Get data from context
+    const { 
+      foodTypeStatistics_from_context,
+      loading: contextLoading,
+      error: contextError
+    } = useDashboard();
+
     const [dateRange, setDateRange] = useState('Today');
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [isGifPlaying, setIsGifPlaying] = useState(false);
     const [foodTypeData, setFoodTypeData] = useState([]);
     const [error, setError] = useState('');
+    const [userInteracted, setUserInteracted] = useState(false); // Flag to track user interaction
   
     // Helper function to get auth headers
     const getAuthHeaders = (includeAuth = true) => {
@@ -67,6 +76,58 @@ const FoodTypeGraph = () => {
       }
     }, [isGifPlaying]);
 
+    // Use context data when component mounts
+    useEffect(() => {
+      if (foodTypeStatistics_from_context && foodTypeStatistics_from_context.weeks) {
+        // Map the context data to the chart format
+        const weeks = foodTypeStatistics_from_context.weeks;
+        
+        // Map the API weeks data to our chart format
+        const chartData = weeks.map(week => ({
+          week: week.week,
+          Veg: week.veg || 0,
+          "Non-Veg": week.nonveg || 0,
+          Vegan: week.vegan || 0,
+          Eggs: week.egg || 0
+        }));
+        
+        // If we have less than 4 weeks, fill in the missing weeks with zeros
+        const weekNames = ["Week 1", "Week 2", "Week 3", "Week 4"];
+        
+        // Check which weeks we already have
+        const existingWeeks = chartData.map(data => data.week);
+        
+        // Add any missing weeks with zero values
+        weekNames.forEach(weekName => {
+          if (!existingWeeks.includes(weekName)) {
+            chartData.push({
+              week: weekName,
+              Veg: 0,
+              "Non-Veg": 0,
+              Vegan: 0,
+              Eggs: 0
+            });
+          }
+        });
+        
+        // Sort the data by week number to ensure correct order
+        chartData.sort((a, b) => {
+          const weekNumA = parseInt(a.week.split(' ')[1]);
+          const weekNumB = parseInt(b.week.split(' ')[1]);
+          return weekNumA - weekNumB;
+        });
+        
+        setFoodTypeData(chartData);
+      }
+    }, [foodTypeStatistics_from_context]);
+
+    // Set error from context if available
+    useEffect(() => {
+      if (contextError && !userInteracted) {
+        setError(contextError);
+      }
+    }, [contextError, userInteracted]);
+
     const formatDate = (date) => {
         if (!date) return '';
         const day = date.getDate().toString().padStart(2, '0');
@@ -93,6 +154,8 @@ const FoodTypeGraph = () => {
         try {
             setLoading(true);
             setError('');
+            // Set user interaction flag to true
+            setUserInteracted(true);
             
             let requestData = {};
             const today = new Date();
@@ -236,16 +299,10 @@ const FoodTypeGraph = () => {
         }
     };
 
-    // Initial data fetch on component mount
-    useEffect(() => {
-        const outletId = localStorage.getItem('outlet_id');
-        if (outletId) {
-            fetchData('Today');
-        } else {
-            setError('No outlet ID found. Please log in again.');
-            setLoading(false);
-        }
-    }, []);
+    // Determine current loading state
+    const isLoading = userInteracted ? loading : contextLoading;
+    // Determine current error state
+    const currentError = userInteracted ? error : contextError;
 
     return (
         <div className="card">
@@ -286,12 +343,12 @@ const FoodTypeGraph = () => {
 
                     <button
                         type="button"
-                        className={`btn btn-icon p-0 ${loading ? 'disabled' : ''}`}
+                        className={`btn btn-icon p-0 ${isLoading ? 'disabled' : ''}`}
                         onClick={handleReload}
-                        disabled={loading}
+                        disabled={isLoading}
                         style={{ border: '1px solid var(--bs-primary)' }}
                     >
-                        <i className={`fas fa-sync-alt ${loading ? 'fa-spin' : ''}`}></i>
+                        <i className={`fas fa-sync-alt ${isLoading ? 'fa-spin' : ''}`}></i>
                     </button>
 
                     <button
@@ -376,16 +433,16 @@ const FoodTypeGraph = () => {
                 </div>
             )}
             
-            {error && (
+            {currentError && (
                 <div className="card-body">
                     <div className="alert alert-danger" role="alert">
-                        {error}
+                        {currentError}
                     </div>
                 </div>
             )}
             
             <div className="card-body">
-                {loading ? (
+                {isLoading ? (
                     <div className="d-flex justify-content-center align-items-center" style={{ height: '400px' }}>
                         <div className="spinner-border text-primary" role="status">
                             <span className="visually-hidden">Loading...</span>
