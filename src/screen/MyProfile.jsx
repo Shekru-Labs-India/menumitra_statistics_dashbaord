@@ -181,14 +181,13 @@ const MyProfile = () => {
           <Header />
           <div className="content-wrapper flex-grow-1">
             <div className="container-xxl flex-grow-1 container-p-y">
-              
               {/* Error and Success Messages */}
               {error && (
                 <div className="alert alert-danger mb-4" role="alert">
                   {error}
                 </div>
               )}
-              
+
               {success && (
                 <div className="alert alert-success mb-4" role="alert">
                   {success}
@@ -198,88 +197,114 @@ const MyProfile = () => {
               {/* Profile Card with Banner */}
               <div className="card mb-5">
                 {/* Colorful Banner */}
-                <div 
-                  className="card-header p-0" 
-                  style={{ 
-                    height: '230px', 
+                <div
+                  className="card-header p-0"
+                  style={{
+                    height: "230px",
                     background: getBannerGradient(),
-                    borderTopLeftRadius: 'inherit',
-                    borderTopRightRadius: 'inherit'
+                    borderTopLeftRadius: "inherit",
+                    borderTopRightRadius: "inherit",
                   }}
-                >
-                </div>
-                
+                ></div>
+
                 {/* Profile Info Section */}
                 <div className="card-body position-relative pt-4 pb-3 px-4">
                   {/* Profile Image */}
-                  <div className="position-absolute" style={{ top: '-75px', left: '35px' }}>
-                    <div 
-                      className="avatar avatar-xl" 
-                      style={{ 
-                        width: '110px', 
-                        height: '110px', 
-                        border: '5px solid white',
-                        borderRadius: '8px',
-                        background: 'white',
-                        boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
+                  <div
+                    className="position-absolute"
+                    style={{ top: "-75px", left: "35px" }}
+                  >
+                    <div
+                      className="avatar avatar-xl"
+                      style={{
+                        width: "110px",
+                        height: "110px",
+                        border: "5px solid white",
+                        borderRadius: "8px",
+                        background: "white",
+                        boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
                       }}
                     >
-                      <img src={img} alt="Profile Image" className="w-100 h-100" style={{ objectFit: 'cover', borderRadius: '5px' }} />
+                      <img
+                        src={img}
+                        alt="Profile Image"
+                        className="w-100 h-100"
+                        style={{ objectFit: "cover", borderRadius: "5px" }}
+                      />
                     </div>
                   </div>
-                  
+
                   {/* Profile Details and Edit Button */}
                   <div className="d-flex justify-content-between align-items-center mt-4 mb-2 ps-2">
                     <div className="ms-5 ps-3">
                       <h3 className="mb-2 fw-bold">{userDetails.name}</h3>
                       <div className="d-flex flex-wrap gap-3">
-                        <span className="text-muted"><i className="fas fa-user-tag me-1"></i>{userDetails.role}</span>
+                        <span className="text-muted">
+                          <i className="fas fa-user-tag me-1"></i>
+                          {userDetails.role}
+                        </span>
                         <span className="text-muted">•</span>
-                        <span className="text-muted"><i className="fas fa-id-card me-1"></i>{userDetails.aadhar_number}</span>
+                        <span className="text-muted">
+                          <i className="fas fa-id-card me-1"></i>
+                          {userDetails.aadhar_number}
+                        </span>
                       </div>
                     </div>
-                    <button 
+                    <button
                       className="btn btn-primary rounded-pill px-4"
                       onClick={handleEditToggle}
                     >
-                      <i className={`fas ${editMode ? 'fa-times' : 'fa-edit'} me-2`}></i>
-                      {editMode ? 'Cancel' : 'Update Profile'}
+                      <i
+                        className={`fas ${
+                          editMode ? "fa-times" : "fa-edit"
+                        } me-2`}
+                      ></i>
+                      {editMode ? "Cancel" : "Update Profile"}
                     </button>
                   </div>
                 </div>
               </div>
-              
+
               {/* Profile Information Section */}
               <div className="row g-4">
                 <div className="col-12 col-md-6">
                   <div className="card h-100 shadow-sm">
                     <div className="card-body p-4">
                       <h5 className="card-title text-uppercase mb-4 fw-bold">
-                        <i className="fas fa-user-circle me-2 text-primary"></i>ABOUT
+                        <i className="fas fa-user-circle me-2 text-primary"></i>
+                        ABOUT
                       </h5>
-                      
+
                       {!editMode ? (
                         <div className="ps-2">
                           <div className="mb-4">
                             <div className="text-muted small mb-1">Name:</div>
                             <div className="fs-5">{userDetails.name}</div>
                           </div>
-                          
+
                           <div className="mb-4">
                             <div className="text-muted small mb-1">Email:</div>
-                            <div className="fs-5">{userDetails.email || 'Not provided'}</div>
+                            <div className="fs-5">
+                              {userDetails.email || "Not provided"}
+                            </div>
                           </div>
-                          
+
                           <div className="mb-4">
                             <div className="text-muted small mb-1">Mobile:</div>
-                            <div className="fs-5">{userDetails.mobile_number}</div>
+                            <div className="fs-5">
+                              {userDetails.mobile_number}
+                            </div>
                           </div>
-                          
+
                           <div className="mb-4">
-                            <div className="text-muted small mb-1">Aadhar Number:</div>
-                            <div className="fs-5">{userDetails.aadhar_number}</div>
+                            <div className="text-muted small mb-1">
+                              Aadhar Number:
+                            </div>
+                            <div className="fs-5">
+                              {userDetails.aadhar_number}
+                            </div>
                           </div>
-                          
+
                           <div className="mb-4">
                             <div className="text-muted small mb-1">Role:</div>
                             <div className="fs-5">{userDetails.role}</div>
@@ -293,70 +318,80 @@ const MyProfile = () => {
                               type="text"
                               className="form-control form-control-lg"
                               name="name"
-                              value={formData.name || ''}
+                              value={formData.name || ""}
                               onChange={handleInputChange}
                               placeholder="Enter your name"
                             />
                           </div>
-                          
+
                           <div className="mb-4">
                             <label className="form-label">Email</label>
                             <input
                               type="email"
                               className="form-control form-control-lg"
                               name="email"
-                              value={formData.email || ''}
+                              value={formData.email || ""}
                               onChange={handleInputChange}
                               placeholder="Enter your email"
                             />
                           </div>
-                          
+
                           <div className="mb-4">
                             <label className="form-label">Mobile Number</label>
                             <input
                               type="tel"
                               className="form-control form-control-lg"
                               name="mobile_number"
-                              value={formData.mobile_number || ''}
+                              value={formData.mobile_number || ""}
                               onChange={handleInputChange}
                               placeholder="Enter mobile number"
                               disabled
                             />
-                            <small className="text-muted">Mobile number cannot be changed as it's used for login.</small>
+                            <small className="text-muted">
+                              Mobile number cannot be changed as it's used for
+                              login.
+                            </small>
                           </div>
-                          
+
                           <div className="mb-4">
                             <label className="form-label">Aadhar Number</label>
                             <input
                               type="text"
                               className="form-control form-control-lg"
                               name="aadhar_number"
-                              value={formData.aadhar_number || ''}
+                              value={formData.aadhar_number || ""}
                               onChange={handleInputChange}
                               placeholder="Enter your aadhar number"
                             />
                           </div>
-                          
+
                           <div className="mb-4">
                             <label className="form-label">Role</label>
                             <input
                               type="text"
                               className="form-control form-control-lg"
-                              value={formData.role || ''}
+                              value={formData.role || ""}
                               onChange={handleInputChange}
                             />
                           </div>
-                          
+
                           <div className="mt-5">
-                            <button 
+                            <button
                               type="submit"
-                              className="btn btn-primary btn-lg w-100" 
+                              className="btn btn-primary btn-lg w-100"
                               disabled={loading}
                             >
-                              {loading ? 
-                                <><i className="fas fa-circle-notch fa-spin me-2"></i>Saving...</> : 
-                                <><i className="fas fa-save me-2"></i>Save Changes</>
-                              }
+                              {loading ? (
+                                <>
+                                  <i className="fas fa-circle-notch fa-spin me-2"></i>
+                                  Saving...
+                                </>
+                              ) : (
+                                <>
+                                  <i className="fas fa-save me-2"></i>Save
+                                  Changes
+                                </>
+                              )}
                             </button>
                           </div>
                         </form>
@@ -364,59 +399,102 @@ const MyProfile = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="col-12 col-md-6">
                   <div className="card h-100 shadow-sm">
                     <div className="card-body p-4">
                       <h5 className="card-title text-uppercase mb-4 fw-bold">
-                        <i className="fas fa-id-card me-2 text-primary"></i>ACCOUNT DETAILS
+                        <i className="fas fa-id-card me-2 text-primary"></i>
+                        OUTLET DETAILS
                       </h5>
-                      
+
                       <div className="ps-2">
                         {/* <div className="mb-4">
                           <div className="text-muted small mb-1">User ID:</div>
                           <div className="fs-5">{userDetails.user_id}</div>
                         </div> */}
-                        
-                        <div className="mb-4">
-                          <div className="text-muted small mb-1">Outlet Name:</div>
-                          <div className="fs-5">{userDetails.subscription_outlet[0]?.outlet_name || 'Not available'}</div>
-                        </div>
 
                         <div className="mb-4">
-                          <div className="text-muted small mb-1">Subscription Plan:</div>
-                          <div className="fs-5">{userDetails.subscription_outlet[0]?.subscription_name || 'Not available'}</div>
-                        </div>
-
-                        <div className="mb-4">
-                          <div className="text-muted small mb-1">Subscription Status:</div>
+                          <div className="text-muted small mb-1">
+                            Outlet Name:
+                          </div>
                           <div className="fs-5">
-                            <span className={`badge bg-${userDetails.subscription_outlet[0]?.days_until_expiry > 30 ? 'success' : 'warning'}`}>
-                              {userDetails.subscription_outlet[0]?.days_until_expiry > 30 ? 'Active' : 'Expiring Soon'}
+                            {userDetails.subscription_outlet[0]?.outlet_name ||
+                              "Not available"}
+                          </div>
+                        </div>
+
+                        <div className="mb-4">
+                          <div className="text-muted small mb-1">
+                            Subscription Plan:
+                          </div>
+                          <div className="fs-5">
+                            {userDetails.subscription_outlet[0]
+                              ?.subscription_name || "Not available"}
+                          </div>
+                        </div>
+
+                        <div className="mb-4">
+                          <div className="text-muted small mb-1">
+                            Subscription Status:
+                          </div>
+                          <div className="fs-5">
+                            <span
+                              className={`badge bg-${
+                                userDetails.subscription_outlet[0]
+                                  ?.days_until_expiry > 30
+                                  ? "success"
+                                  : "warning"
+                              }`}
+                            >
+                              {userDetails.subscription_outlet[0]
+                                ?.days_until_expiry > 30
+                                ? "Active"
+                                : "Expiring Soon"}
                             </span>
                           </div>
                         </div>
 
                         <div className="mb-4">
-                          <div className="text-muted small mb-1">Subscription Period:</div>
+                          <div className="text-muted small mb-1">
+                            Subscription Period:
+                          </div>
                           <div className="fs-5">
-                            {userDetails.subscription_outlet[0]?.subscription_date} to {userDetails.subscription_outlet[0]?.expiry_date}
+                            {
+                              userDetails.subscription_outlet[0]
+                                ?.subscription_date
+                            }{" "}
+                            to {userDetails.subscription_outlet[0]?.expiry_date}
                           </div>
                         </div>
 
                         <div className="mb-4">
-                          <div className="text-muted small mb-1">Days Until Expiry:</div>
-                          <div className="fs-5">{userDetails.subscription_outlet[0]?.days_until_expiry || '0'} days</div>
+                          <div className="text-muted small mb-1">
+                            Days Until Expiry:
+                          </div>
+                          <div className="fs-5">
+                            {userDetails.subscription_outlet[0]
+                              ?.days_until_expiry || "0"}{" "}
+                            days
+                          </div>
                         </div>
 
                         <div className="mb-4">
-                          <div className="text-muted small mb-1">Last Login:</div>
-                          <div className="fs-5">{userDetails.last_login || 'Not available'}</div>
+                          <div className="text-muted small mb-1">
+                            Last Login:
+                          </div>
+                          <div className="fs-5">
+                            {userDetails.last_login || "Not available"}
+                          </div>
                         </div>
-                        
+
                         <div className="mb-4">
-                          <div className="text-muted small mb-1">Account Created:</div>
-                          <div className="fs-5">{userDetails.created_on || 'Not available'}</div>
+                          <div className="text-muted small mb-1">
+                            Account Created:
+                          </div>
+                          <div className="fs-5">
+                            {userDetails.created_on || "Not available"}
+                          </div>
                         </div>
 
                         {/* <div className="mb-4">
