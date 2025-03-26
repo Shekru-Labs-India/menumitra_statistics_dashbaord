@@ -5,11 +5,19 @@ import axios from "axios";
 // Import both GIFs - static and animated
 import aiAnimationGif from "../assets/img/gif/AI-animation-unscreen.gif";
 import aiAnimationStillFrame from "../assets/img/gif/AI-animation-unscreen-still-frame.gif";
+import { useDashboard } from "../context/DashboardContext"; // Import context
 
 // API configuration
 const API_ENDPOINT = "https://men4u.xyz/";
 
 function TopSell() {
+  // Get data from context
+  const { 
+    salesPerformance_from_context,
+    loading: contextLoading,
+    error: contextError
+  } = useDashboard();
+
   // State management 
   const [selectedTab, setSelectedTab] = useState("top");
   const [dateRange, setDateRange] = useState("All Time");
@@ -23,11 +31,24 @@ function TopSell() {
     low_selling: []
   });
   const [error, setError] = useState(null);
+  const [userInteracted, setUserInteracted] = useState(false); // Flag to track user interaction
 
-  // Load data on initial render
+  // Use context data when component mounts
   useEffect(() => {
-    fetchData(dateRange);
-  }, []);
+    if (salesPerformance_from_context) {
+      setSalesData({
+        top_selling: salesPerformance_from_context.top_selling || [],
+        low_selling: salesPerformance_from_context.low_selling || []
+      });
+    }
+  }, [salesPerformance_from_context]);
+
+  // Set error from context if available
+  useEffect(() => {
+    if (contextError && !userInteracted) {
+      setError(contextError);
+    }
+  }, [contextError, userInteracted]);
 
   // Simplified effect to handle the animation timing
   useEffect(() => {
@@ -103,6 +124,8 @@ function TopSell() {
     
     setLoading(true);
     setError(null);
+    // Set user interaction flag to true
+    setUserInteracted(true);
     
     try {
       // Get outlet ID from localStorage
@@ -172,6 +195,11 @@ function TopSell() {
       fetchData("Custom Range");
     }
   };
+
+  // Determine current loading state
+  const isLoading = userInteracted ? loading : contextLoading;
+  // Determine current error state
+  const currentError = userInteracted ? error : contextError;
 
   // Get the current data to display based on selected tab
   const getCurrentData = () => {
@@ -270,10 +298,10 @@ function TopSell() {
             type="button"
             className="btn btn-icon p-0"
             onClick={() => fetchData(dateRange)}
-            disabled={loading}
+            disabled={isLoading}
             style={{ border: "1px solid var(--bs-primary)" }}
           >
-            <i className={`fas fa-sync-alt ${loading ? "fa-spin" : ""}`}></i>
+            <i className={`fas fa-sync-alt ${isLoading ? "fa-spin" : ""}`}></i>
           </button>
 
           <button
@@ -396,14 +424,14 @@ function TopSell() {
         </div>
 
         {/* Error message */}
-        {error && (
+        {currentError && (
           <div className="alert alert-danger" role="alert">
-            {error}
+            {currentError}
           </div>
         )}
 
         {/* Content */}
-        {loading ? (
+        {isLoading ? (
           <div className="text-center p-3">
             <div className="spinner-border text-primary" role="status">
               <span className="visually-hidden">Loading...</span>
