@@ -294,20 +294,28 @@ function HomeScreen() {
       setUserInteracted(true);
 
       const requestData = prepareRequestData(range);
-      console.log('Sending request with data:', requestData);
+      console.log('Sending request to analytics_reports with data:', requestData);
       
       const response = await axios.post(`${apiEndpoint}analytics_reports`, requestData, {
         headers: getAuthHeaders(useAuth)
       });
 
+      console.log('API Response:', response.data);
+      
       if (response.data?.message === 'success' && response.data?.data) {
+        const responseData = response.data.data;
+        console.log('Statistics data received:', responseData);
+        
         setStatistics({
-          total_orders: response.data.data.total_orders || 0,
-          average_order_value: response.data.data.average_order_value || 0,
+          total_orders: responseData.total_orders || 0,
+          average_order_value: responseData.average_order_value || 0,
           customer_count: 0, // Removed from API response
-          total_revenue: response.data.data.total_revenue || 0,
-          average_turnover_time: response.data.data.average_turnover_time || "0 min"
+          total_revenue: responseData.total_revenue || 0,
+          average_turnover_time: responseData.average_turnover_time || "0 min"
         });
+      } else {
+        console.warn('Invalid response format or empty data');
+        setError('Received invalid data from server');
       }
     } catch (error) {
       console.error('Failed to fetch statistics:', error);
@@ -342,35 +350,29 @@ function HomeScreen() {
       setShowDatePicker(true);
     } else {
       setShowDatePicker(false);
+      // Set user interaction flag to true before API call
+      setUserInteracted(true);
+      console.log('Date range changed to:', range, '- using direct API call');
       fetchStatistics(range);
     }
   };
 
   const handleReload = () => {
-    // Create proper date filter object based on current dateRange
-    const prepareDateFilter = () => {
-      const dateFilter = prepareRequestData(dateRange);
-      return {
-        start_date: dateFilter.start_date,
-        end_date: dateFilter.end_date
-      };
-    };
-
-    // If user has interacted with filters, use direct API call with current filters
-    if (userInteracted) {
-      fetchStatistics(dateRange);
-    } else {
-      // Otherwise use the context's refresh function with proper date parameters
-      const dateFilter = prepareDateFilter();
-      console.log('Reloading with context using date filter:', dateFilter);
-      refreshDashboard(dateFilter);
-    }
+    // Always use direct API call when user clicks reload
+    setLoading(true);
+    // Set user interaction flag to true
+    setUserInteracted(true);
+    console.log('Reload button clicked - using direct API call to analytics_reports');
+    fetchStatistics(dateRange);
   };
 
   const handleCustomDateSelect = () => {
     if (startDate && endDate) {
       setDateRange(`${formatDate(startDate)} - ${formatDate(endDate)}`);
       setShowDatePicker(false);
+      // Set user interaction flag to true before API call
+      setUserInteracted(true);
+      console.log('Custom date range selected:', `${formatDate(startDate)} - ${formatDate(endDate)}`);
       fetchStatistics('Custom Range');
     } else {
       setError('Please select both start and end dates.');
