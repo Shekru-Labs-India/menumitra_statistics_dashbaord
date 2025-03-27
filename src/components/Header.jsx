@@ -197,66 +197,28 @@ function Header() {
       
       setIsLoading(true);
       
-      // Get user_id from localStorage
-      const userId = localStorage.getItem('user_id');
-      const accessToken = localStorage.getItem('access');
+      // Directly set the outlet ID without API call
+      const truncatedName = truncateText(outlet.name, 20);
+      setSelectedOutlet(truncatedName);
+      setOutletId(outlet.outlet_id.toString());
       
-      if (!userId || !accessToken) {
-        showToast('Authentication failed. Please login again.', 'error');
-        return;
-      }
+      // Store outlet_id in localStorage
+      localStorage.setItem('outlet_id', outlet.outlet_id.toString());
       
-      // Make API call to select outlet
-      const response = await fetch('https://men4u.xyz/common_api/select_outlet', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${accessToken}`
-        },
-        body: JSON.stringify({
-          outlet_id: outlet.outlet_id,
-          owner_id: parseInt(userId)
-        })
-      });
+      // Show success toast
+      showToast(`Outlet "${outlet.name}" selected successfully!`, 'success');
       
-      if (!response.ok) {
-        if (response.status === 401) {
-          showToast('Session expired. Please login again.', 'error');
-          navigate('/login');
-          return;
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      // Refresh dashboard data
+      refreshDashboard();
       
-      const data = await response.json();
+      // Add a small delay to ensure toast is visible
+      setTimeout(() => {
+        window.location.href = '/dashboard';
+      }, 800);
       
-      if (data.st === 1) {
-        // Success - update UI with selected outlet
-        const truncatedName = truncateText(outlet.name, 20);
-        setSelectedOutlet(truncatedName);
-        setOutletId(outlet.outlet_id.toString());
-        
-        // Store outlet_id in localStorage
-        localStorage.setItem('outlet_id', outlet.outlet_id.toString());
-        
-        // Show success toast
-        showToast(`Outlet "${outlet.name}" selected successfully!`, 'success');
-        
-        // Add a small delay to ensure toast is visible
-        setTimeout(() => {
-          window.location.href = '/dashboard';
-        }, 800);
-      } else if (data.st === 2) {
-        // Handle inactive outlet with toast
-        showToast(data.msg || 'This outlet is inactive', 'warning');
-      } else {
-        // Handle general error with toast
-        showToast(data.msg || 'Failed to select outlet', 'error');
-      }
     } catch (err) {
       console.error('Error selecting outlet:', err);
-      showToast("This outlet is inactive. Please contact support.", "error");
+      showToast("Failed to select outlet. Please try again.", "error");
     } finally {
       setIsLoading(false);
     }
