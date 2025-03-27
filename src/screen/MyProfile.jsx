@@ -305,7 +305,9 @@ const MyProfile = () => {
                             <div className="fs-5 fw-bold">
                               {userDetails.dob}
                             </div>
-                            <div className="text-muted small mb-1">Date of Birth</div>
+                            <div className="text-muted small mb-1">
+                              Date of Birth
+                            </div>
                           </div>
                         </div>
                       ) : (
@@ -510,10 +512,10 @@ const MyProfile = () => {
                         <div className="col-12 col-md-6 mb-3">
                           <div className="d-flex flex-column">
                             <span className="fw-bold">
-                              {userDetails.last_login}
+                              {userDetails.created_on}
                             </span>
                             <small className="text-muted mb-1">
-                              Last Login
+                              Created On
                             </small>
                           </div>
                         </div>
@@ -546,6 +548,12 @@ const MyProfile = () => {
                               Updated By
                             </small>
                           </div>
+                        </div>
+                        <div className="d-flex flex-column">
+                          <span className="fw-bold">
+                            {userDetails.last_login}
+                          </span>
+                          <small className="text-muted mb-1">Last Login</small>
                         </div>
                       </div>
                     </div>
