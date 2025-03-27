@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import axios from 'axios';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -47,19 +47,76 @@ function HomeScreen() {
     average_turnover_time: "00:00 - 00:00"
   });
   const [userInteracted, setUserInteracted] = useState(false); // Flag to track if user has interacted with filters
+  const didInitialLoadRef = useRef(false); // Use ref instead of state to avoid re-renders
+  const postLoginFetchedRef = useRef(false); // Track if we've already fetched after login
   const navigate = useNavigate();
+
+  // Check if user just arrived from login/OTP verification
+  const isPostLogin = () => {
+    // Get the timestamp of when token was saved (if available)
+    const tokenTimestamp = localStorage.getItem('token_timestamp');
+    if (!tokenTimestamp) return false;
+    
+    // Check if token was saved recently (within last 10 seconds)
+    const now = Date.now();
+    const tokenTime = parseInt(tokenTimestamp, 10);
+    return now - tokenTime < 10000; // 10 seconds
+  };
 
   // Check if user is logged in
   useEffect(() => {
-    const outletId = localStorage.getItem('outlet_id');
-    if (!outletId) {
-      navigate('/login');
+    // Don't check credentials on the login page to prevent redirect loops
+    if (window.location.pathname.includes('/login')) {
+      console.log('On login page, skipping auth check');
+      return;
     }
-  }, [navigate]);
+    
+    const outletId = localStorage.getItem('outlet_id');
+    const accessToken = localStorage.getItem('access');
+    
+    // Log auth status for debugging
+    console.log('HomeScreen auth check:', { 
+      hasOutletId: !!outletId, 
+      hasToken: !!accessToken,
+      tokenLength: accessToken ? accessToken.length : 0,
+      path: window.location.pathname,
+      isPostLogin: isPostLogin(),
+      didInitialLoadRef: didInitialLoadRef.current,
+      postLoginFetchedRef: postLoginFetchedRef.current
+    });
+    
+    if (!outletId || !accessToken) {
+      console.warn('Missing credentials in HomeScreen, redirecting to login');
+      navigate('/login');
+      return;
+    }
+    
+    // Only fetch on initial mount or post-login (one time)
+    if (!didInitialLoadRef.current) {
+      console.log('First time load, marking initial load done');
+      didInitialLoadRef.current = true;
+      refreshDashboard();
+      return;
+    }
+    
+    // Handle the post-login case, but only once
+    const isAfterLogin = isPostLogin();
+    if (isAfterLogin && !postLoginFetchedRef.current) {
+      console.log('Post-login detected, doing one-time refresh');
+      postLoginFetchedRef.current = true;
+      refreshDashboard();
+    }
+  }, [navigate, refreshDashboard]);
 
   // Use context data when component mounts
   useEffect(() => {
     if (analyticReports_from_context) {
+      console.log('Received context data:', { 
+        hasData: !!analyticReports_from_context,
+        totalOrders: analyticReports_from_context.total_orders,
+        timestamp: new Date().toISOString()
+      });
+      
       setStatistics({
         total_orders: analyticReports_from_context.total_orders || 0,
         average_order_value: analyticReports_from_context.avg_order_value || 0,
@@ -70,12 +127,28 @@ function HomeScreen() {
     }
   }, [analyticReports_from_context]);
 
-  // Set error from context if available
+  // Set error from context if available and redirect to login if authentication fails
   useEffect(() => {
+    // Don't process errors if already on login page
+    if (window.location.pathname.includes('/login')) {
+      return;
+    }
+    
     if (contextError && !userInteracted) {
       setError(contextError);
+      
+      // If error contains authentication-related terms, redirect to login
+      if (
+        contextError.includes('authentication') || 
+        contextError.includes('credentials') || 
+        contextError.includes('login') ||
+        contextError.includes('expired')
+      ) {
+        console.warn('Authentication error from context, redirecting to login');
+        navigate('/login');
+      }
     }
-  }, [contextError, userInteracted]);
+  }, [contextError, userInteracted, navigate]);
 
   // Simplified effect to handle the animation timing
   useEffect(() => {
@@ -274,14 +347,23 @@ function HomeScreen() {
   };
 
   const handleReload = () => {
-    // Use the refreshDashboard function from context when reloading
-    // This ensures consistent API behavior between initial load and manual refresh
+    // Create proper date filter object based on current dateRange
+    const prepareDateFilter = () => {
+      const dateFilter = prepareRequestData(dateRange);
+      return {
+        start_date: dateFilter.start_date,
+        end_date: dateFilter.end_date
+      };
+    };
+
+    // If user has interacted with filters, use direct API call with current filters
     if (userInteracted) {
-      // If user has interacted with filters, use direct API call with current filters
       fetchStatistics(dateRange);
     } else {
-      // Otherwise use the context's refresh function for consistent behavior
-      refreshDashboard();
+      // Otherwise use the context's refresh function with proper date parameters
+      const dateFilter = prepareDateFilter();
+      console.log('Reloading with context using date filter:', dateFilter);
+      refreshDashboard(dateFilter);
     }
   };
 

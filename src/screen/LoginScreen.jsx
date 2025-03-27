@@ -143,6 +143,9 @@ function LoginScreen() {
         localStorage.setItem('refresh', refresh);
         localStorage.setItem('access', access);
         
+        // Add timestamp to track when token was saved
+        localStorage.setItem('token_timestamp', Date.now().toString());
+        
         // Navigate to dashboard after a small delay for better UX
         setTimeout(() => {
           setIsLoading(false);
