@@ -537,8 +537,8 @@ function Header() {
                   >
                     <i className={`fas fa-sync-alt ${isRotating ? 'rotate-animation' : ''}`}></i>
                   </button>
-                  <small className="text-black">
-                    Updated {timeElapsed}
+                  <small className="text-muted">
+                    Last updated {timeElapsed}
                   </small>
                 </div>
               </li>
