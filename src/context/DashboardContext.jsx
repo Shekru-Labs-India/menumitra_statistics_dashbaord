@@ -81,7 +81,14 @@ export const DashboardProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    fetchDashboardData();
+    // Add a small delay before making the initial API call
+    // This ensures authentication token is fully loaded/ready
+    const initialDataFetchTimer = setTimeout(() => {
+      fetchDashboardData();
+    }, 1000); // 1 second delay
+    
+    // Clean up the timer if component unmounts
+    return () => clearTimeout(initialDataFetchTimer);
   }, []);
 
   const value = {

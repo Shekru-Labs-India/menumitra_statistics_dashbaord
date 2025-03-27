@@ -274,8 +274,15 @@ function HomeScreen() {
   };
 
   const handleReload = () => {
-    // Always hit the analytics_reports API directly on reload
-    fetchStatistics(dateRange);
+    // Use the refreshDashboard function from context when reloading
+    // This ensures consistent API behavior between initial load and manual refresh
+    if (userInteracted) {
+      // If user has interacted with filters, use direct API call with current filters
+      fetchStatistics(dateRange);
+    } else {
+      // Otherwise use the context's refresh function for consistent behavior
+      refreshDashboard();
+    }
   };
 
   const handleCustomDateSelect = () => {
