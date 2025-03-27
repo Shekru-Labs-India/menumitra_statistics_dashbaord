@@ -83,8 +83,20 @@ const MyProfile = () => {
           const userData = response.data.Data.user_details;
           const subscriptionData = response.data.Data.subscription_outlet?.[0] || {};
           
+          // Convert date format from "DD MMM YYYY" to "YYYY-MM-DD" for input type="date"
+          const parseDateForInput = (dateStr) => {
+            if (!dateStr) return '';
+            const parts = dateStr.split(' ');
+            if (parts.length !== 3) return '';
+            const months = {'jan':0, 'feb':1, 'mar':2, 'apr':3, 'may':4, 'jun':5, 
+                          'jul':6, 'aug':7, 'sep':8, 'oct':9, 'nov':10, 'dec':11};
+            const date = new Date(parts[2], months[parts[1].toLowerCase()], parts[0]);
+            return date.toISOString().split('T')[0];
+          };
+
           const formattedUserData = {
             ...userData,
+            dob: parseDateForInput(userData.dob),
             subscription_outlet: response.data.Data.subscription_outlet || []
           };
           
@@ -126,24 +138,38 @@ const MyProfile = () => {
     setSuccess('');
 
     try {
-      // Make API call to update profile
-      const response = await axios.post(
-        'https://men4u.xyz/common_api/update_profile',
-        formData,
-        { headers: getAuthHeaders() }
-      );
+      // Format date to match API requirement (e.g., "06 oct 1990")
+      const formatDate = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+        return `${String(date.getDate()).padStart(2, '0')} ${months[date.getMonth()]} ${date.getFullYear()}`;
+      };
+
+      const payload = {
+        update_user_id: Number(localStorage.getItem("user_id")), // Convert to number
+        user_id: Number(localStorage.getItem("user_id")), // Convert to number
+        name: formData.name,
+        email: formData.email,
+        mobile_number: formData.mobile_number,
+        dob: formatDate(formData.dob),
+        aadhar_number: formData.aadhar_number
+      };
+
+      const response = await axios({
+        method: 'post',
+        url: 'https://men4u.xyz/common_api/update_profile_detail',
+        headers: getAuthHeaders(),
+        data: payload
+      });
 
       if (response.data.st === 1) {
-        // Update localStorage
-        Object.keys(formData).forEach(key => {
-          if (formData[key]) {
-            localStorage.setItem(key, formData[key]);
-          }
+        // Update state with formatted date
+        setUserDetails({
+          ...formData,
+          dob: formatDate(formData.dob)
         });
-
-        // Update state
-        setUserDetails(formData);
-        setSuccess('Profile updated successfully!');
+        setSuccess(response.data.msg || 'Profile updated successfully!');
         setEditMode(false);
       } else {
         setError(response.data.msg || 'Failed to update profile');
@@ -154,6 +180,19 @@ const MyProfile = () => {
       setError(errorMessage || 'Failed to update profile. Please try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Format date for display in view mode
+  const formatDateForDisplay = (dateStr) => {
+    if (!dateStr) return '';
+    try {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return dateStr; // Return original if invalid
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return `${String(date.getDate()).padStart(2, '0')} ${months[date.getMonth()]} ${date.getFullYear()}`;
+    } catch {
+      return dateStr; // Return original if parsing fails
     }
   };
 
@@ -303,7 +342,7 @@ const MyProfile = () => {
 
                           <div className="mb-4">
                             <div className="fs-5 fw-bold">
-                              {userDetails.dob}
+                              {formatDateForDisplay(userDetails.dob)}
                             </div>
                             <div className="text-muted small mb-1">
                               Date of Birth
@@ -366,15 +405,22 @@ const MyProfile = () => {
                             <label className="form-label">Aadhar Number</label>
                           </div>
 
-                          {/* <div className="mb-4">
-                            <input
-                              type="text"
-                              className="form-control form-control-lg"
-                              value={formData.role || ""}
-                              onChange={handleInputChange}
-                            />
-                            <label className="form-label">Role</label>
-                          </div> */}
+                          <div className="mb-4">
+                            <div className="position-relative">
+                              <input
+                                type="date"
+                                className="form-control form-control-lg"
+                                name="dob"
+                                value={formData.dob || ""}
+                                onChange={handleInputChange}
+                                max={new Date().toISOString().split('T')[0]}
+                                style={{
+                                  paddingRight: "2.5rem"
+                                }}
+                              />
+                              <label className="form-label">Date of Birth</label>
+                            </div>
+                          </div>
 
                           <div className="mt-5">
                             <button
