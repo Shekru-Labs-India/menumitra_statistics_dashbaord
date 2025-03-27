@@ -226,7 +226,12 @@ const MyProfile = () => {
                   {/* Profile Details and Edit Button */}
                   <div className="d-flex justify-content-between align-items-center mt-4 mb-2 ps-2">
                     <div className="ms-5 ">
-                      <h3 className="mb-2 fw-bold">{userDetails.name}</h3>
+                      <div className="mt-2 fs-5 fw-bold">
+                        {userDetails.name}
+                      </div>
+                      <small className="text-muted mb-1">
+                        {userDetails.role}
+                      </small>
                       {/* <div className="d-flex flex-wrap gap-3">
                         <span className="text-muted">
                           <i className="fas fa-user-tag me-1"></i>
@@ -267,7 +272,9 @@ const MyProfile = () => {
                       {!editMode ? (
                         <div className="ps-2">
                           <div className="mb-4">
-                            <div className="fs-5 fw-bold">{userDetails.name}</div>
+                            <div className="fs-5 fw-bold">
+                              {userDetails.name}
+                            </div>
                             <div className="text-muted small mb-1">Name</div>
                           </div>
 
@@ -295,8 +302,10 @@ const MyProfile = () => {
                           </div>
 
                           <div className="mb-4">
-                            <div className="fs-5 fw-bold">{userDetails.role}</div>
-                            <div className="text-muted small mb-1">Role</div>
+                            <div className="fs-5 fw-bold">
+                              {userDetails.dob}
+                            </div>
+                            <div className="text-muted small mb-1">Date of Birth</div>
                           </div>
                         </div>
                       ) : (
@@ -355,7 +364,7 @@ const MyProfile = () => {
                             <label className="form-label">Aadhar Number</label>
                           </div>
 
-                          <div className="mb-4">
+                          {/* <div className="mb-4">
                             <input
                               type="text"
                               className="form-control form-control-lg"
@@ -363,7 +372,7 @@ const MyProfile = () => {
                               onChange={handleInputChange}
                             />
                             <label className="form-label">Role</label>
-                          </div>
+                          </div> */}
 
                           <div className="mt-5">
                             <button
@@ -391,14 +400,13 @@ const MyProfile = () => {
                 </div>
 
                 <div className="col-12 col-md-6">
-                  <div className="card h-100 shadow-sm">
+                  <div className="card shadow-sm">
                     <div className="card-body p-4">
                       <h5 className="card-title text-uppercase mb-4 fw-bold">
                         <i className="fas fa-store me-2 text-primary"></i>
-                        OUTLET DETAILS
+                        ACCOUNT INFORMATION
                       </h5>
-
-                      <div className="ps-2">
+                      {/* <div className="ps-2">
                         {userDetails.subscription_outlet.length > 0 ? (
                           <div className="row g-3">
                             {userDetails.subscription_outlet.map((outlet) => (
@@ -497,6 +505,48 @@ const MyProfile = () => {
                             </p>
                           </div>
                         )}
+                      </div> */}
+                      <div className="row">
+                        <div className="col-12 col-md-6 mb-3">
+                          <div className="d-flex flex-column">
+                            <span className="fw-bold">
+                              {userDetails.last_login}
+                            </span>
+                            <small className="text-muted mb-1">
+                              Last Login
+                            </small>
+                          </div>
+                        </div>
+                        <div className="col-12 col-md-6 mb-3">
+                          <div className="d-flex flex-column">
+                            <span className="fw-bold">
+                              {userDetails.created_by}
+                            </span>
+                            <small className="text-muted mb-1">
+                              Created By
+                            </small>
+                          </div>
+                        </div>
+                        <div className="col-12 col-md-6 mb-3">
+                          <div className="d-flex flex-column">
+                            <span className="fw-bold">
+                              {userDetails.updated_on}
+                            </span>
+                            <small className="text-muted mb-1">
+                              Updated On
+                            </small>
+                          </div>
+                        </div>
+                        <div className="col-12 col-md-6 mb-3">
+                          <div className="d-flex flex-column">
+                            <span className="fw-bold">
+                              {userDetails.updated_by}
+                            </span>
+                            <small className="text-muted mb-1">
+                              Updated By
+                            </small>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
