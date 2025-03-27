@@ -20,6 +20,7 @@ function Header() {
   const [startTime, setStartTime] = useState(new Date());
   const [isRotating, setIsRotating] = useState(false);
   const [selectOutletError, setSelectOutletError] = useState(null);
+  const [selectedOutletData, setSelectedOutletData] = useState(null);
   const navigate = useNavigate();
   
   // Get refreshDashboard from context
@@ -66,9 +67,9 @@ function Header() {
       setIsLoading(true);
       setError(null);
       
-      // Get user_id and access token from localStorage
       const userId = localStorage.getItem('user_id');
       const accessToken = localStorage.getItem('access');
+      const storedOutletId = localStorage.getItem('outlet_id');
       
       if (!userId || !accessToken) {
         setError('Authentication failed. Please login again.');
@@ -99,36 +100,26 @@ function Header() {
       const data = await response.json();
       
       if (data.st === 1) {
-        // Transform API data to match our UI structure
         const transformedOutlets = data.outlet_list.map(outlet => ({
           name: outlet.name,
           location: outlet.address,
           status: outlet.is_open ? 'open' : 'closed',
           outlet_id: outlet.outlet_id,
-          is_active: outlet.is_active
+          outlet_status: outlet.outlet_status
         }));
         
-        // Filter out inactive outlets or handle them differently
-        const activeOutlets = transformedOutlets.filter(outlet => outlet.is_active !== false);
-        setOutlets(activeOutlets);
+        setOutlets(transformedOutlets);
         
-        // If there's a stored outlet_id, update UI
-        const storedOutletId = localStorage.getItem('outlet_id');
+        // If there's a stored outlet_id, update selected outlet data
         if (storedOutletId) {
-          const matchingOutlet = activeOutlets.find(o => o.outlet_id.toString() === storedOutletId);
+          const matchingOutlet = transformedOutlets.find(o => o.outlet_id.toString() === storedOutletId);
           if (matchingOutlet) {
-            // Just update the UI without calling handleOutletSelect
             const truncatedName = truncateText(matchingOutlet.name, 20);
             setSelectedOutlet(truncatedName);
             setOutletId(matchingOutlet.outlet_id.toString());
+            setSelectedOutletData(matchingOutlet);
           }
         }
-      } else if (data.st === 2) {
-        // Handle inactive outlet specifically
-        console.log('Outlet inactive status received:', data.msg);
-        setOutlets([]); // Clear outlets to show "No outlets found"
-        // Optional: Show a more specific message
-        setError(data.msg || 'No active outlets available');
       } else {
         setError(data.msg || 'Failed to fetch outlets');
       }
@@ -185,33 +176,34 @@ function Header() {
 
   const handleOutletSelect = async (outlet) => {
     try {
-      // Check if already selected
       const currentOutletId = localStorage.getItem('outlet_id');
       if (currentOutletId && currentOutletId === outlet.outlet_id.toString()) {
-        // Already selected, just update UI and return
         const truncatedName = truncateText(outlet.name, 20);
         setSelectedOutlet(truncatedName);
         setOutletId(outlet.outlet_id.toString());
+        setSelectedOutletData({
+          ...outlet,
+          outlet_status: outlet.outlet_status
+        });
         return;
       }
       
       setIsLoading(true);
       
-      // Directly set the outlet ID without API call
       const truncatedName = truncateText(outlet.name, 20);
       setSelectedOutlet(truncatedName);
       setOutletId(outlet.outlet_id.toString());
+      setSelectedOutletData({
+        ...outlet,
+        outlet_status: outlet.outlet_status
+      });
       
-      // Store outlet_id in localStorage
       localStorage.setItem('outlet_id', outlet.outlet_id.toString());
       
-      // Show success toast
       showToast(`Outlet "${outlet.name}" selected successfully!`, 'success');
       
-      // Refresh dashboard data
       refreshDashboard();
       
-      // Add a small delay to ensure toast is visible
       setTimeout(() => {
         window.location.href = '/dashboard';
       }, 800);
@@ -354,6 +346,15 @@ function Header() {
           .materio-toast {
             font-family: inherit;
           }
+          .inactive-outlet-banner {
+            background-color: #9747FF;
+            color: white;
+            text-align: center;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            width: 100%;
+          }
         `}
       </style>
 
@@ -382,7 +383,7 @@ function Header() {
           zIndex: 1000,
           paddingTop: '2.5rem',
           paddingBottom: '2.5rem',
-          marginBottom: '1.5rem'
+          marginBottom: selectedOutletData?.outlet_status === false ? '0' : '1.5rem'
         }}
       >
         <style>
@@ -646,6 +647,13 @@ function Header() {
           </div>
         </div>
       </nav>
+
+      {/* Show banner only when selected outlet status is false */}
+      {selectedOutletData?.outlet_status === false && (
+        <div className="inactive-outlet-banner">
+          This outlet is inactive, showing previous data
+        </div>
+      )}
     </div>
   );
 }
