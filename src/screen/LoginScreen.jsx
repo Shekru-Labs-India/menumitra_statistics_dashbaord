@@ -64,9 +64,19 @@ function LoginScreen() {
         // Check if response is successful
         if (response.status === 200) {
           console.log('API Response:', response.data);
-          setShowOtpForm(true);
-          setCountdown(15);
-          setResendDisabled(true);
+          
+          // Check role from response
+          const { role } = response.data;
+          
+          // Only proceed if role is owner, manager, or captain
+          if (role === 'owner' || role === 'manager' || role === 'captain') {
+            setShowOtpForm(true);
+            setCountdown(15);
+            setResendDisabled(true);
+          } else {
+            // Show error if role is not allowed
+            setError('Please login with a registered number. Only owner, manager, or captain can access this dashboard.');
+          }
         }
       } catch (error) {
         console.error('API Error:', error);
