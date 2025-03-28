@@ -21,6 +21,10 @@ function Header() {
   const [isRotating, setIsRotating] = useState(false);
   const [selectOutletError, setSelectOutletError] = useState(null);
   const [selectedOutletData, setSelectedOutletData] = useState(null);
+  const [showOutletModal, setShowOutletModal] = useState(false);
+  const [quickFilters] = useState([
+    
+  ]);
   const navigate = useNavigate();
   
   // Get refreshDashboard from context
@@ -322,6 +326,10 @@ function Header() {
     }, 1000); // Match this with the CSS animation duration
   };
 
+  const handleClearSearch = () => {
+    setSearchTerm('');
+  };
+
   return (
     <div>
       {/* Add custom CSS for React-Toastify to match Materio */}
@@ -354,6 +362,176 @@ function Header() {
             font-size: 16px;
             font-weight: 500;
             width: 100%;
+          }
+          .outlet-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1050;
+          }
+          
+          .outlet-modal-content {
+            background: white;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            animation: modalFadeIn 0.3s ease-out;
+          }
+          
+          @keyframes modalFadeIn {
+            from {
+              opacity: 0;
+              transform: translateY(-20px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          
+          .outlet-modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
+          
+          .outlet-modal-body {
+            padding: 1.5rem;
+          }
+          
+          .outlet-search {
+            position: relative;
+            margin-bottom: 1rem;
+          }
+          
+          .outlet-search input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+          }
+          
+          .outlet-search i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #566a7f;
+          }
+          
+          .outlet-search .clear-btn {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: none;
+            color: #566a7f;
+            cursor: pointer;
+          }
+          
+          .quick-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            padding: 0.5rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+          }
+          
+          .quick-filter {
+            padding: 0.5rem 1rem;
+            background: white;
+            border-radius: 20px;
+            border: none;
+            color: #566a7f;
+            cursor: pointer;
+            white-space: nowrap;
+            font-size: 0.875rem;
+          }
+          
+          .outlet-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+          }
+          
+          .outlet-item {
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            gap: 1rem;
+          }
+          
+          .outlet-item:hover {
+            background: #f8f9fa;
+          }
+          
+          .outlet-icon {
+            color: #566a7f;
+            flex-shrink: 0;
+          }
+
+          .outlet-info {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+          }
+
+          .outlet-name {
+            font-weight: 500;
+            color: #566a7f;
+          }
+
+          .outlet-location {
+            font-size: 0.875rem;
+            color: #999;
+          }
+          
+          .outlet-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-left: auto;
+            flex-shrink: 0;
+          }
+          
+          .outlet-id {
+            color: #999;
+            font-size: 0.875rem;
+          }
+
+          .outlet-status {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 1rem;
+            font-weight: 500;
+          }
+
+          .status-open {
+            background-color: #28c76f1a;
+            color: #28c76f;
+          }
+
+          .status-closed {
+            background-color: #ea54551a;
+            color: #ea5455;
           }
         `}
       </style>
@@ -436,76 +614,11 @@ function Header() {
                     boxShadow: 'rgba(0, 0, 0, 0.05) 0px 1px 2px'
                   }}
                   type="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
+                  onClick={() => setShowOutletModal(true)}
                 >
                   <i className="fas fa-store me-2"></i>
                   {selectedOutlet || "Select Outlet"}
                 </button>
-                <ul className="dropdown-menu">
-                  <li>
-                    <div className="px-3 py-2">
-                      <input
-                        type="text"
-                        className="form-control form-control-sm"
-                        placeholder="Search outlets..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                      />
-                    </div>
-                  </li>
-                  <li>
-                    <hr className="dropdown-divider" />
-                  </li>
-                  {isLoading ? (
-                    <li className="px-3 py-2 text-center">
-                      <small>Loading outlets...</small>
-                    </li>
-                  ) : error ? (
-                    <li className="px-3 py-2 text-center text-danger">
-                      <small>{error}</small>
-                    </li>
-                  ) : outlets.length === 0 ? (
-                    <li className="px-3 py-2 text-center">
-                      <small>No outlets found</small>
-                    </li>
-                  ) : (
-                    outlets
-                      .filter(outlet => 
-                        outlet.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        outlet.location.toLowerCase().includes(searchTerm.toLowerCase())
-                      )
-                      .map((outlet) => (
-                        <li key={outlet.outlet_id}>
-                          <a
-                            className="dropdown-item d-flex align-items-center justify-content-between"
-                            href="javascript:void(0);"
-                            onClick={() => handleOutletSelect(outlet)}
-                          >
-                            <div className="d-flex align-items-center me-4">
-                              <i className="fas fa-store me-2"></i>
-                              <b>{outlet.name}</b>
-                            </div>
-                            
-                            <div className="ms-auto d-flex align-items-center">
-                              <span className="mx-1 badge bg-label-primary rounded-pill">
-                                {outlet.location}
-                              </span>
-                              {outlet.status === "open" ? (
-                                <span className="mx-1 badge bg-label-success rounded-pill">
-                                  Open
-                                </span>
-                              ) : (
-                                <span className="mx-1 badge bg-label-danger rounded-pill">
-                                  Closed
-                                </span>
-                              )}
-                            </div>
-                          </a>
-                        </li>
-                      ))
-                  )}
-                </ul>
               </li>
               {/* <li className="nav-item me-3">
                 <Link 
@@ -533,7 +646,7 @@ function Header() {
                   <button 
                     className="btn btn-icon btn-sm btn-ghost-secondary mb-0"
                     onClick={handleRefresh}
-                    style={{ padding: '4px' }}
+                    style={{ padding: '4px'}}
                   >
                     <i className={`fas fa-sync-alt ${isRotating ? 'rotate-animation' : ''}`}></i>
                   </button>
@@ -647,6 +760,107 @@ function Header() {
           </div>
         </div>
       </nav>
+
+      {/* Outlet Selection Modal */}
+      {showOutletModal && (
+        <div className="outlet-modal">
+          <div className="outlet-modal-content">
+            <div className="outlet-modal-header">
+              <h5 className="mb-0">Select Outlet</h5>
+              <button 
+                className="btn-close" 
+                onClick={() => setShowOutletModal(false)}
+                aria-label="Close"
+              ></button>
+            </div>
+            <div className="outlet-modal-body">
+              {/* Search Bar */}
+              <div className="outlet-search">
+                <i className="fas fa-search"></i>
+                <input
+                  type="text"
+                  placeholder="Search"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                {searchTerm && (
+                  <button 
+                    className="clear-btn"
+                    onClick={handleClearSearch}
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+
+              {/* Quick Filters */}
+              <div className="quick-filters">
+                {quickFilters.map((filter, index) => (
+                  <button
+                    key={index}
+                    className="quick-filter"
+                    onClick={() => setSearchTerm(filter)}
+                  >
+                    {filter}
+                  </button>
+                ))}
+              </div>
+
+              {/* All Outlets Section */}
+              <div className="outlet-list">
+                <div className="outlet-item">
+                  <i className="fas fa-store outlet-icon"></i>
+                  <span>All Outlet</span>
+                </div>
+
+                {/* Outlet List */}
+                {isLoading ? (
+                  <div className="text-center py-3">Loading outlets...</div>
+                ) : error ? (
+                  <div className="text-center py-3 text-danger">{error}</div>
+                ) : (
+                  outlets
+                    .filter(outlet => {
+                      const search = searchTerm.toLowerCase();
+                      return (
+                        outlet.name.toLowerCase().includes(search) ||
+                        outlet.outlet_id.toString().includes(search) ||
+                        (outlet.location && outlet.location.toLowerCase().includes(search))
+                      );
+                    })
+                    .map((outlet) => (
+                      <div
+                        key={outlet.outlet_id}
+                        className="outlet-item"
+                        onClick={() => {
+                          handleOutletSelect(outlet);
+                          setShowOutletModal(false);
+                        }}
+                      >
+                        <i className={`fas ${outlet.outlet_status ? 'fa-store' : 'fa-store-slash'} outlet-icon`}></i>
+                        <div className="outlet-info">
+                          <span className="outlet-name">{outlet.name}</span>
+                          {outlet.location && (
+                            <span className="outlet-location">
+                              <i className="fas fa-map-marker-alt me-1"></i>
+                              {outlet.location}
+                            </span>
+                          )}
+                        </div>
+                        <div className="outlet-meta">
+                          <span className="outlet-id">[ID: {outlet.outlet_id}]</span>
+                          <span className={`outlet-status ${outlet.status === 'open' ? 'status-open' : 'status-closed'}`}>
+                            {outlet.status === 'open' ? 'Open' : 'Closed'}
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Show banner only when selected outlet status is false */}
       {selectedOutletData?.outlet_status === false && (
