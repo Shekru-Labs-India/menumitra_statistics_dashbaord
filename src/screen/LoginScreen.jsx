@@ -65,6 +65,12 @@ function LoginScreen() {
         if (response.status === 200) {
           console.log('API Response:', response.data);
           
+          // Check if backend returned st:2 (error case)
+          if (response.data.st === 2) {
+            setError(response.data.msg);
+            return;
+          }
+          
           // Check role from response
           const { role } = response.data;
           
