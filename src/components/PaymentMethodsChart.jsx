@@ -104,16 +104,24 @@ const PaymentMethodsChart = () => {
   };
 
   const handleReload = () => {
-    // Always hit the API directly on reload
-    fetchData(dateRange);
+    // Set user interaction flag to true
+    setUserInteracted(true);
+    
+    // Check if we have valid startDate and endDate (indicating custom range)
+    if (startDate && endDate) {
+      console.log('Reloading with custom date range:', formatDate(startDate), 'to', formatDate(endDate));
+      // For custom range, explicitly use 'Custom Range'
+      fetchData('Custom Range');
+    } else {
+      // For other ranges, use the current dateRange state
+      console.log('Reloading with standard date range:', dateRange);
+      fetchData(dateRange);
+    }
   };
 
   const fetchData = async (range) => {
     try {
       setLoading(true);
-      // Set user interaction flag to true
-      setUserInteracted(true);
-      
       // Get values from localStorage
       const outlet_id = localStorage.getItem('outlet_id') ? parseInt(localStorage.getItem('outlet_id')) : 74;
       const owner_id = localStorage.getItem('user_id') ? parseInt(localStorage.getItem('user_id')) : 412;
