@@ -384,7 +384,7 @@ const OrderAnalytics = () => {
                   startDate={startDate}
                   endDate={endDate}
                   maxDate={new Date()}
-                  placeholderText="From"
+                  placeholderText="DD MMM YYYY"
                   className="form-control"
                   dateFormat="dd MMM yyyy"
                 />
@@ -396,7 +396,7 @@ const OrderAnalytics = () => {
                   endDate={endDate}
                   minDate={startDate}
                   maxDate={new Date()}
-                  placeholderText="To"
+                  placeholderText="DD MMM YYYY"
                   className="form-control"
                   dateFormat="dd MMM yyyy"
                 />
