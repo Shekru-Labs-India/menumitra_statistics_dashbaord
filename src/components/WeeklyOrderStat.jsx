@@ -552,7 +552,19 @@ const WeeklyOrderStat = () => {
   };
 
   const handleReload = () => {
-    fetchWeeklyOrderStats(dateRange);
+    // Set user interaction flag to true
+    setUserInteracted(true);
+    
+    // Check if we have valid startDate and endDate (indicating custom range)
+    if (startDate && endDate) {
+      console.log('Reloading with custom date range:', formatDate(startDate), 'to', formatDate(endDate));
+      // For custom range, explicitly use 'Custom Range'
+      fetchWeeklyOrderStats('Custom Range');
+    } else {
+      // For other ranges, use the current dateRange state
+      console.log('Reloading with standard date range:', dateRange);
+      fetchWeeklyOrderStats(dateRange);
+    }
   };
 
   const handleCustomDateSelect = () => {
