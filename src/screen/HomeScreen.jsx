@@ -363,7 +363,18 @@ function HomeScreen() {
     // Set user interaction flag to true
     setUserInteracted(true);
     console.log('Reload button clicked - using direct API call to analytics_reports');
-    fetchStatistics(dateRange);
+    
+    // Check if we have valid startDate and endDate (indicating custom range)
+    // regardless of what's in the dateRange state
+    if (startDate && endDate) {
+      // For custom range, we need to explicitly use 'Custom Range'
+      console.log('Reloading with custom date range:', formatDate(startDate), 'to', formatDate(endDate));
+      fetchStatistics('Custom Range');
+    } else {
+      // For other ranges, just use the current dateRange state
+      console.log('Reloading with standard date range:', dateRange);
+      fetchStatistics(dateRange);
+    }
   };
 
   const handleCustomDateSelect = () => {
