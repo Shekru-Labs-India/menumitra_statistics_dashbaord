@@ -299,7 +299,18 @@ function TopSell() {
           <button
             type="button"
             className="btn btn-icon p-0"
-            onClick={() => fetchData(dateRange)}
+            onClick={() => {
+              // Check if we have valid startDate and endDate (indicating custom range)
+              if (startDate && endDate) {
+                console.log('Reloading with custom date range:', formatDate(startDate), 'to', formatDate(endDate));
+                // For custom range, explicitly use 'Custom Range'
+                fetchData("Custom Range");
+              } else {
+                // For other ranges, use the current dateRange state
+                console.log('Reloading with standard date range:', dateRange);
+                fetchData(dateRange);
+              }
+            }}
             disabled={isLoading}
             style={{ border: "1px solid var(--bs-primary)" }}
           >
