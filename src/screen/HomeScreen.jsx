@@ -345,11 +345,14 @@ function HomeScreen() {
   const handleDateRangeChange = (range) => {
     setDateRange(range);
     if (range === 'Custom Range') {
-      setStartDate(null);
-      setEndDate(null);
+      // Don't reset the dates if they're already set
+      // Only show the date picker UI
       setShowDatePicker(true);
     } else {
       setShowDatePicker(false);
+      // Reset custom date values when selecting a non-custom range
+      setStartDate(null);
+      setEndDate(null);
       // Set user interaction flag to true before API call
       setUserInteracted(true);
       console.log('Date range changed to:', range, '- using direct API call');
