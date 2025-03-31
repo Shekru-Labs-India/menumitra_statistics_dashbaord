@@ -294,7 +294,7 @@ function TopSell() {
         <h5 className="card-title mb-0">Products Analysis</h5>
         <div className="d-flex align-items-center gap-3">
           {renderDateOptions()}
-          
+
           {/* Reload button */}
           <button
             type="button"
@@ -302,12 +302,17 @@ function TopSell() {
             onClick={() => {
               // Check if we have valid startDate and endDate (indicating custom range)
               if (startDate && endDate) {
-                console.log('Reloading with custom date range:', formatDate(startDate), 'to', formatDate(endDate));
+                console.log(
+                  "Reloading with custom date range:",
+                  formatDate(startDate),
+                  "to",
+                  formatDate(endDate)
+                );
                 // For custom range, explicitly use 'Custom Range'
                 fetchData("Custom Range");
               } else {
                 // For other ranges, use the current dateRange state
-                console.log('Reloading with standard date range:', dateRange);
+                console.log("Reloading with standard date range:", dateRange);
                 fetchData(dateRange);
               }
             }}
@@ -380,7 +385,7 @@ function TopSell() {
                 maxDate={new Date()}
                 className="form-control"
                 dateFormat="dd MMM yyyy"
-                placeholderText="Start Date"
+                placeholderText="DD MMM YYYY"
               />
               <DatePicker
                 selected={endDate}
@@ -392,7 +397,7 @@ function TopSell() {
                 maxDate={new Date()}
                 className="form-control"
                 dateFormat="dd MMM yyyy"
-                placeholderText="End Date"
+                placeholderText="DD MMM YYYY"
               />
             </div>
             <button
@@ -411,25 +416,27 @@ function TopSell() {
         {/* Tabs */}
         <div className="nav nav-tabs mb-3">
           <button
-            className={`nav-link ${selectedTab === 'top' ? 'active' : ''}`}
-            onClick={() => setSelectedTab('top')}
+            className={`nav-link ${selectedTab === "top" ? "active" : ""}`}
+            onClick={() => setSelectedTab("top")}
             style={{
-              fontWeight: selectedTab === 'top' ? 'bold' : 'normal',
-              borderRadius: '8px',
-              backgroundColor: selectedTab === 'top' ? 'var(--bs-primary)' : 'transparent',
-              color: selectedTab === 'top' ? 'var(--bs-white)' : ''
+              fontWeight: selectedTab === "top" ? "bold" : "normal",
+              borderRadius: "8px",
+              backgroundColor:
+                selectedTab === "top" ? "var(--bs-primary)" : "transparent",
+              color: selectedTab === "top" ? "var(--bs-white)" : "",
             }}
           >
             Top Selling
           </button>
           <button
-            className={`nav-link ${selectedTab === 'low' ? 'active' : ''}`}
-            onClick={() => setSelectedTab('low')}
+            className={`nav-link ${selectedTab === "low" ? "active" : ""}`}
+            onClick={() => setSelectedTab("low")}
             style={{
-              fontWeight: selectedTab === 'low' ? 'bold' : 'normal',
-              borderRadius: '8px',
-              backgroundColor: selectedTab === 'low' ? 'var(--bs-primary)' : 'transparent',
-              color: selectedTab === 'low' ? 'var(--bs-white)' : ''
+              fontWeight: selectedTab === "low" ? "bold" : "normal",
+              borderRadius: "8px",
+              backgroundColor:
+                selectedTab === "low" ? "var(--bs-primary)" : "transparent",
+              color: selectedTab === "low" ? "var(--bs-white)" : "",
             }}
           >
             Low Selling
@@ -450,7 +457,9 @@ function TopSell() {
               <span className="visually-hidden">Loading...</span>
             </div>
           </div>
-        ) : renderDataTable()}
+        ) : (
+          renderDataTable()
+        )}
       </div>
     </div>
   );

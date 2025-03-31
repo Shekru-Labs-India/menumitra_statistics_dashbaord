@@ -88,10 +88,17 @@ const MyProfile = () => {
             if (!dateStr) return '';
             const parts = dateStr.split(' ');
             if (parts.length !== 3) return '';
+            
             const months = {'jan':0, 'feb':1, 'mar':2, 'apr':3, 'may':4, 'jun':5, 
                           'jul':6, 'aug':7, 'sep':8, 'oct':9, 'nov':10, 'dec':11};
-            const date = new Date(parts[2], months[parts[1].toLowerCase()], parts[0]);
-            return date.toISOString().split('T')[0];
+            
+            // Use UTC date to avoid timezone issues
+            // Format: YYYY-MM-DD where day and month are zero-padded if needed
+            const day = parts[0].padStart(2, '0');
+            const month = (months[parts[1].toLowerCase()] + 1).toString().padStart(2, '0');
+            const year = parts[2];
+            
+            return `${year}-${month}-${day}`;
           };
 
           const formattedUserData = {

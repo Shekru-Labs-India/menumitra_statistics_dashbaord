@@ -120,7 +120,18 @@ const OrderAnalytics = () => {
 
   const handleReload = () => {
     // Always hit the API directly on reload
-    fetchData(dateRange);
+    setUserInteracted(true);
+    
+    // Check if we have valid startDate and endDate (indicating custom range)
+    if (startDate && endDate) {
+      console.log('Reloading with custom date range:', formatDate(startDate), 'to', formatDate(endDate));
+      // For custom range, explicitly use 'Custom Range'
+      fetchData('Custom Range');
+    } else {
+      // For other ranges, use the current dateRange state
+      console.log('Reloading with standard date range:', dateRange);
+      fetchData(dateRange);
+    }
   };
 
   const fetchData = async (range) => {
@@ -373,7 +384,7 @@ const OrderAnalytics = () => {
                   startDate={startDate}
                   endDate={endDate}
                   maxDate={new Date()}
-                  placeholderText="From"
+                  placeholderText="DD MMM YYYY"
                   className="form-control"
                   dateFormat="dd MMM yyyy"
                 />
@@ -385,7 +396,7 @@ const OrderAnalytics = () => {
                   endDate={endDate}
                   minDate={startDate}
                   maxDate={new Date()}
-                  placeholderText="To"
+                  placeholderText="DD MMM YYYY"
                   className="form-control"
                   dateFormat="dd MMM yyyy"
                 />

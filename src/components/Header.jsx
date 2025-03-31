@@ -315,15 +315,12 @@ function Header() {
   const handleRefresh = () => {
     setIsRotating(true);
     setStartTime(new Date());
-    fetchOutlets(); // Refresh outlets data
     
-    // Refresh dashboard data from context
-    refreshDashboard();
-    
-    // Reset rotation after animation completes
+    // Show rotating animation for a moment before reload
     setTimeout(() => {
-      setIsRotating(false);
-    }, 1000); // Match this with the CSS animation duration
+      // Reload the page - simplest way to reset all filters and get fresh data
+      window.location.reload();
+    }, 500); // Shorter timeout so the reload happens during the animation
   };
 
   const handleClearSearch = () => {
