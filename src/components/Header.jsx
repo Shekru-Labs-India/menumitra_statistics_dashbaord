@@ -534,7 +534,7 @@ function Header() {
       </style>
 
       {/* Add ToastContainer component at the root level */}
-      <ToastContainer 
+      <ToastContainer
         position="top-right"
         autoClose={5000}
         hideProgressBar={false}
@@ -551,14 +551,15 @@ function Header() {
         className="layout-navbar navbar navbar-expand-xl align-items-center bg-navbar-theme"
         id="layout-navbar"
         style={{
-          backgroundColor: 'white',
-          borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
-          boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08)',
-          position: 'relative',
+          backgroundColor: "white",
+          borderBottom: "1px solid rgba(0, 0, 0, 0.1)",
+          boxShadow: "0 2px 6px rgba(0, 0, 0, 0.08)",
+          position: "relative",
           zIndex: 1000,
-          paddingTop: '2.5rem',
-          paddingBottom: '2.5rem',
-          marginBottom: selectedOutletData?.outlet_status === false ? '0' : '1.5rem'
+          paddingTop: "2.5rem",
+          paddingBottom: "2.5rem",
+          marginBottom:
+            selectedOutletData?.outlet_status === false ? "0" : "1.5rem",
         }}
       >
         <style>
@@ -576,12 +577,12 @@ function Header() {
             }
           `}
         </style>
-        <div 
-          className="container-xxl" 
-          style={{ 
-            padding: '0 1.5rem',
-            marginTop: '0.5rem',
-            marginBottom: '0.5rem'
+        <div
+          className="container-xxl"
+          style={{
+            padding: "0 1.5rem",
+            marginTop: "0.5rem",
+            marginBottom: "0.5rem",
           }}
         >
           <div className="layout-menu-toggle navbar-nav align-items-xl-center me-4 me-xl-0 d-xl-none">
@@ -589,7 +590,7 @@ function Header() {
               className="nav-item nav-link px-0 me-xl-6"
               href="javascript:void(0)"
               onClick={toggleMenu}
-              style={{ padding: '0.75rem' }}
+              style={{ padding: "0.75rem" }}
             >
               <i className={`fas fa-${isMenuCollapsed ? "bars" : "times"}`} />
             </a>
@@ -597,7 +598,7 @@ function Header() {
           <div
             className="navbar-nav-right d-flex align-items-center"
             id="navbar-collapse"
-            style={{ padding: '0.5rem 0' }}
+            style={{ padding: "0.5rem 0" }}
           >
             {/* Outlet Selector Dropdown */}
             <div className="navbar-nav flex-row">
@@ -605,10 +606,10 @@ function Header() {
                 <button
                   className="btn btn-outline-primary dropdown-toggle d-flex align-items-center"
                   style={{
-                    borderRadius: '8px',
-                    padding: '8px 16px',
+                    borderRadius: "8px",
+                    padding: "8px 16px",
                     fontWeight: 600,
-                    boxShadow: 'rgba(0, 0, 0, 0.05) 0px 1px 2px'
+                    boxShadow: "rgba(0, 0, 0, 0.05) 0px 1px 2px",
                   }}
                   type="button"
                   onClick={() => setShowOutletModal(true)}
@@ -640,12 +641,16 @@ function Header() {
               {/* Updated Time */}
               <li className="nav-item me-3 mb-4">
                 <div className="d-flex flex-column align-items-start">
-                  <button 
+                  <button
                     className="btn btn-icon btn-sm btn-ghost-secondary mb-0"
                     onClick={handleRefresh}
-                    style={{ padding: '4px'}}
+                    style={{ padding: "4px" }}
                   >
-                    <i className={`fas fa-sync-alt ${isRotating ? 'rotate-animation' : ''}`}></i>
+                    <i
+                      className={`fas fa-sync-alt ${
+                        isRotating ? "rotate-animation" : ""
+                      }`}
+                    ></i>
                   </button>
                   <small className="text-muted">
                     Last updated {timeElapsed}
@@ -676,10 +681,7 @@ function Header() {
                 </a>
                 <ul className="dropdown-menu dropdown-menu-end mt-3 py-2">
                   <li>
-                    <Link
-                      className="dropdown-item"
-                      to="/profile"
-                    >
+                    <Link className="dropdown-item" to="/profile">
                       <div className="d-flex align-items-center">
                         <div className="flex-shrink-0 me-2">
                           <div className="avatar">
@@ -709,19 +711,13 @@ function Header() {
                     </Link>
                   </li>
                   <li>
-                    <Link
-                      className="dropdown-item"
-                      to="/dashboard"
-                    >
+                    <Link className="dropdown-item" to="/dashboard">
                       <i className="fas fa-tasks fa-lg me-2" />
                       <span className="align-middle">My activity</span>
                     </Link>
                   </li>
                   <li>
-                    <Link
-                      className="dropdown-item"
-                      to="/settings"
-                    >
+                    <Link className="dropdown-item" to="/settings">
                       <i className="fas fa-cog fa-lg me-2" />
                       <span className="align-middle">Settings</span>
                     </Link>
@@ -764,8 +760,8 @@ function Header() {
           <div className="outlet-modal-content">
             <div className="outlet-modal-header">
               <h5 className="mb-0">Select Outlet</h5>
-              <button 
-                className="btn-close" 
+              <button
+                className="btn-close"
                 onClick={() => setShowOutletModal(false)}
                 aria-label="Close"
               ></button>
@@ -781,10 +777,7 @@ function Header() {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
                 {searchTerm && (
-                  <button 
-                    className="clear-btn"
-                    onClick={handleClearSearch}
-                  >
+                  <button className="clear-btn" onClick={handleClearSearch}>
                     Clear
                   </button>
                 )}
@@ -817,12 +810,13 @@ function Header() {
                   <div className="text-center py-3 text-danger">{error}</div>
                 ) : (
                   outlets
-                    .filter(outlet => {
+                    .filter((outlet) => {
                       const search = searchTerm.toLowerCase();
                       return (
                         outlet.name.toLowerCase().includes(search) ||
                         outlet.outlet_id.toString().includes(search) ||
-                        (outlet.location && outlet.location.toLowerCase().includes(search))
+                        (outlet.location &&
+                          outlet.location.toLowerCase().includes(search))
                       );
                     })
                     .map((outlet) => (
@@ -834,7 +828,11 @@ function Header() {
                           setShowOutletModal(false);
                         }}
                       >
-                        <i className={`fas ${outlet.outlet_status ? 'fa-store' : 'fa-store-slash'} outlet-icon`}></i>
+                        <i
+                          className={`fas ${
+                            outlet.outlet_status ? "fa-store" : "fa-store-slash"
+                          } outlet-icon`}
+                        ></i>
                         <div className="outlet-info">
                           <span className="outlet-name">{outlet.name}</span>
                           {outlet.location && (
@@ -845,9 +843,17 @@ function Header() {
                           )}
                         </div>
                         <div className="outlet-meta">
-                          <span className="outlet-id">[ID: {outlet.outlet_id}]</span>
-                          <span className={`outlet-status ${outlet.status === 'open' ? 'status-open' : 'status-closed'}`}>
-                            {outlet.status === 'open' ? 'Open' : 'Closed'}
+                          <span className="outlet-id">
+                            [ID: {outlet.outlet_id}]
+                          </span>
+                          <span
+                            className={`outlet-status ${
+                              outlet.status === "open"
+                                ? "status-open"
+                                : "status-closed"
+                            }`}
+                          >
+                            {outlet.status === "open" ? "Open" : "Closed"}
                           </span>
                         </div>
                       </div>
@@ -862,7 +868,7 @@ function Header() {
       {/* Show banner only when selected outlet status is false */}
       {selectedOutletData?.outlet_status === false && (
         <div className="inactive-outlet-banner">
-          This outlet is inactive, showing previous data
+          This outlet is inactive. Please contact support.
         </div>
       )}
     </div>
