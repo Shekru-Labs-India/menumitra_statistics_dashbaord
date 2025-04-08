@@ -130,7 +130,7 @@ export const DashboardProvider = ({ children }) => {
       
       // Make the API call
       const response = await axios.post(
-        'https://men4u.xyz/outlet_statistics/get_all_stats_without_filter',
+        'https://menusmitra.xyz/outlet_statistics/get_all_stats_without_filter',
         requestBody,
         { headers }
       );
