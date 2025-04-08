@@ -6,9 +6,7 @@ import axios from "axios";
 import aiAnimationGif from "../assets/img/gif/AI-animation-unscreen.gif";
 import aiAnimationStillFrame from "../assets/img/gif/AI-animation-unscreen-still-frame.gif";
 import { useDashboard } from "../context/DashboardContext"; // Import context
-
-// API configuration
-const API_ENDPOINT = "https://men4u.xyz/";
+import { apiEndpoint } from '../config/menuMitraConfig';
 
 function TopSell() {
   // Get data from context
@@ -149,7 +147,7 @@ function TopSell() {
       
       // Make API request
       const response = await axios.post(
-        `${API_ENDPOINT}outlet_statistics/sales_performance`, 
+        `${apiEndpoint}sales_performance`, 
         requestData, 
         {
           headers: {
