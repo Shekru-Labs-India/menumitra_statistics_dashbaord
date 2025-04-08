@@ -197,7 +197,7 @@ const PaymentMethodsChart = () => {
 
       // Make API call with auth headers
       const response = await axios.post(
-        `${apiEndpoint}outlet_statistics/total_collection_source`,
+        `https://menusmitra.xyz/outlet_statistics/total_collection_source`,
         requestData,
         {
           headers: getAuthHeaders()
