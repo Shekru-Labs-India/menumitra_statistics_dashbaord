@@ -1,4 +1,4 @@
-const apiEndpoint = "https://men4u.xyz/outlet_statistics/";
+const apiEndpoint = "https://menusmitra.xyz/outlet_statistics/";
 export { apiEndpoint };
 
 export const menuMitraCompanyInfo = {
