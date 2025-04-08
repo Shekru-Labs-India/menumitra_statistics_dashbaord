@@ -5,6 +5,7 @@ import 'animate.css'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { useDashboard } from '../context/DashboardContext'
+import { apiEndpoint } from '../config/menuMitraConfig'
 
 function Header() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -80,7 +81,7 @@ function Header() {
         return;
       }
 
-      const response = await fetch('https://men4u.xyz/common_api/get_outlet_list', {
+      const response = await fetch(`${apiEndpoint}common_api/get_outlet_list`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

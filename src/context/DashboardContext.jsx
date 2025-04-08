@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
+import { apiEndpoint } from '../config/menuMitraConfig';
 
 const DashboardContext = createContext();
 
@@ -130,7 +131,7 @@ export const DashboardProvider = ({ children }) => {
       
       // Make the API call
       const response = await axios.post(
-        'https://menusmitra.xyz/outlet_statistics/get_all_stats_without_filter',
+        `${apiEndpoint}outlet_statistics/get_all_stats_without_filter`,
         requestBody,
         { headers }
       );

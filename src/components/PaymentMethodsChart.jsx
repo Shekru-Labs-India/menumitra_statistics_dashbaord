@@ -7,6 +7,7 @@ import axios from 'axios';
 import aiAnimationGif from '../assets/img/gif/AI-animation-unscreen.gif';
 import aiAnimationStillFrame from '../assets/img/gif/AI-animation-unscreen-still-frame.gif';
 import { useDashboard } from '../context/DashboardContext'; // Import context
+import { apiEndpoint } from '../config/menuMitraConfig';
 
 const PaymentMethodsChart = () => {
   // Get data from context
@@ -196,7 +197,7 @@ const PaymentMethodsChart = () => {
 
       // Make API call with auth headers
       const response = await axios.post(
-        'https://menusmitra.xyz/outlet_statistics/total_collection_source',
+        `${apiEndpoint}outlet_statistics/total_collection_source`,
         requestData,
         {
           headers: getAuthHeaders()
