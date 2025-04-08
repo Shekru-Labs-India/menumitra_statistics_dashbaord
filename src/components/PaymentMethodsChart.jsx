@@ -7,6 +7,7 @@ import axios from 'axios';
 import aiAnimationGif from '../assets/img/gif/AI-animation-unscreen.gif';
 import aiAnimationStillFrame from '../assets/img/gif/AI-animation-unscreen-still-frame.gif';
 import { useDashboard } from '../context/DashboardContext'; // Import context
+import { apiEndpoint } from '../config/menuMitraConfig';
 
 const PaymentMethodsChart = () => {
   // Get data from context
