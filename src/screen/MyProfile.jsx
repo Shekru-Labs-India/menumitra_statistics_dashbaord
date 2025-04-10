@@ -171,10 +171,25 @@ const MyProfile = () => {
       });
 
       if (response.data.st === 1) {
-        // Update state with formatted date
+        // Get current date and time in the format "DD MMM YYYY HH:MM:SS AM/PM"
+        const now = new Date();
+        const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+        const currentDate = `${String(now.getDate()).padStart(2, '0')} ${months[now.getMonth()]} ${now.getFullYear()}`;
+        
+        // Convert to 12-hour format with AM/PM
+        let hours = now.getHours();
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // the hour '0' should be '12'
+        
+        const currentTime = `${String(hours).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')} ${ampm}`;
+        const updatedOn = `${currentDate} ${currentTime}`;
+        
+        // Update state with formatted date and current updated_on timestamp
         setUserDetails({
           ...formData,
-          dob: formatDate(formData.dob)
+          dob: formatDate(formData.dob),
+          updated_on: updatedOn
         });
         setSuccess(response.data.msg || 'Profile updated successfully!');
         setEditMode(false);
