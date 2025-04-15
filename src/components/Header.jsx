@@ -89,7 +89,9 @@ function Header() {
           'Authorization': `Bearer ${accessToken}`
         },
         body: JSON.stringify({
-          owner_id: parseInt(userId)
+          owner_id: parseInt(userId),
+          device_token: localStorage.getItem('device_token') || '',
+          device_id: localStorage.getItem('device_id') || ''
         })
       });
 

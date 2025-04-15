@@ -75,7 +75,12 @@ const MyProfile = () => {
         }
 
         const response = await axios.post('https://men4u.xyz/common_api/view_profile_detail', 
-          { user_id: user_id },
+          { 
+            user_id: user_id,
+            outlet_id: localStorage.getItem('outlet_id'),
+            device_token: localStorage.getItem('device_token') || '',
+            device_id: localStorage.getItem('device_id') || ''
+          },
           { headers: getAuthHeaders() }
         );
 
@@ -160,7 +165,10 @@ const MyProfile = () => {
         email: formData.email,
         mobile_number: formData.mobile_number,
         dob: formatDate(formData.dob),
-        aadhar_number: formData.aadhar_number
+        aadhar_number: formData.aadhar_number,
+        outlet_id: localStorage.getItem('outlet_id'),
+        device_token: localStorage.getItem('device_token') || '',
+        device_id: localStorage.getItem('device_id') || ''
       };
 
       const response = await axios({

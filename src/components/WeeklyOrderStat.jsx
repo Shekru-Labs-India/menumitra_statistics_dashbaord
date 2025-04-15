@@ -51,13 +51,14 @@ const WeeklyOrderStat = () => {
   // Use context data when component mounts
   useEffect(() => {
     if (weeklyOrderStats_from_context) {
-      // Access the properties directly from weeklyOrderStats_from_context
-      setDays(weeklyOrderStats_from_context.days || days);
+      // Access the properties with null checks and default values
+      setDays(weeklyOrderStats_from_context.days || ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']);
       setOrderData(weeklyOrderStats_from_context.orderCounts || []);
       
-      // Check if all order counts are zero
-      const allZeros = weeklyOrderStats_from_context.orderCounts && 
-                       weeklyOrderStats_from_context.orderCounts.every(count => count === 0);
+      // Check if all order counts are zero or if orderCounts is empty
+      const allZeros = !weeklyOrderStats_from_context.orderCounts || 
+                      weeklyOrderStats_from_context.orderCounts.length === 0 ||
+                      weeklyOrderStats_from_context.orderCounts.every(count => count === 0);
       
       if (allZeros) {
         // Reset peak and low peak when there are no orders
@@ -68,19 +69,19 @@ const WeeklyOrderStat = () => {
       } else {
         // If we have peakInfo and lowPeakInfo, use them
         if (weeklyOrderStats_from_context.peakInfo) {
-          setPeakDay(weeklyOrderStats_from_context.peakInfo.day);
-          setMaxOrders(weeklyOrderStats_from_context.peakInfo.count);
+          setPeakDay(weeklyOrderStats_from_context.peakInfo.day || '');
+          setMaxOrders(weeklyOrderStats_from_context.peakInfo.count || 0);
         } else {
           // Calculate peak day manually
           const max = Math.max(...weeklyOrderStats_from_context.orderCounts);
           const peakDayIndex = weeklyOrderStats_from_context.orderCounts.indexOf(max);
-          setPeakDay(weeklyOrderStats_from_context.days[peakDayIndex]);
+          setPeakDay(weeklyOrderStats_from_context.days[peakDayIndex] || '');
           setMaxOrders(max);
         }
         
         if (weeklyOrderStats_from_context.lowPeakInfo) {
-          setLowPeakDay(weeklyOrderStats_from_context.lowPeakInfo.day);
-          setMinOrders(weeklyOrderStats_from_context.lowPeakInfo.count);
+          setLowPeakDay(weeklyOrderStats_from_context.lowPeakInfo.day || '');
+          setMinOrders(weeklyOrderStats_from_context.lowPeakInfo.count || 0);
         } else {
           // Calculate low peak day manually
           const counts = weeklyOrderStats_from_context.orderCounts || [];
@@ -108,6 +109,75 @@ const WeeklyOrderStat = () => {
     const month = months[date.getMonth()];
     const year = date.getFullYear();
     return `${day} ${month} ${year}`;
+  };
+
+  // Function to fetch weekly order stats
+  const fetchWeeklyOrderStats = async (range = 'This Week') => {
+    try {
+      setLoading(true);
+      setError('');
+      // Set user interaction flag to true
+      setUserInteracted(true);
+
+      const requestData = {
+        outlet_id: localStorage.getItem('outlet_id'),
+        device_token: localStorage.getItem('device_token') || '',
+        device_id: localStorage.getItem('device_id') || '',
+        ...prepareRequestData(range)
+      };
+      
+      const response = await axios.post(
+        'https://men4u.xyz/outlet_statistics/weekly_order_stats',
+        requestData,
+        { headers: getAuthHeaders() }
+      );
+
+      if (response.data?.data) {
+        const { data, peak_day, low_day } = response.data;
+        
+        // Transform the data into the required format
+        const days = data.map(item => item[0]);
+        const orderCounts = data.map(item => parseInt(item[1]));
+        
+        setDays(days);
+        setOrderData(orderCounts);
+        
+        // Set peak day information
+        if (peak_day && peak_day.length === 2) {
+          setPeakDay(peak_day[0]);
+          setMaxOrders(parseInt(peak_day[1]));
+        }
+        
+        // Set low day information
+        if (low_day && low_day.length === 2) {
+          setLowPeakDay(low_day[0]);
+          setMinOrders(parseInt(low_day[1]));
+        }
+        
+        setError('');
+      } else {
+        setError('No data available for the selected period');
+        // Reset data
+        setDays(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']);
+        setOrderData([0, 0, 0, 0, 0, 0, 0]);
+        setPeakDay('');
+        setLowPeakDay('');
+        setMaxOrders(0);
+        setMinOrders(0);
+      }
+    } catch (error) {
+      console.error('Failed to fetch weekly order stats:', error);
+      setError('Failed to load weekly order statistics. Please try again.');
+      // Reset data on error
+      setDays(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']);
+      setOrderData([0, 0, 0, 0, 0, 0, 0]);
+      setPeakDay('');
+      setLowPeakDay('');
+      setMaxOrders(0);
+      setMinOrders(0);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Function to prepare request data based on date range
@@ -176,122 +246,8 @@ const WeeklyOrderStat = () => {
       }
     };
 
-    const requestData = {
-      ...getDateRange(range),
-      outlet_id: localStorage.getItem('outlet_id')
-    };
-
-    return requestData;
+    return getDateRange(range);
   }, [startDate, endDate]);
-
-  // Function to fetch weekly order stats
-  const fetchWeeklyOrderStats = async (range = 'This Week') => {
-    try {
-      setLoading(true);
-      setError('');
-      // Set user interaction flag to true
-      setUserInteracted(true);
-
-      const requestData = prepareRequestData(range);
-      
-      const response = await axios.post(
-        `${apiEndpoint}weekly_order_stats`, 
-        requestData, 
-        { headers: getAuthHeaders() }
-      );
-
-      // Handle both success and "No orders found" responses
-      if (response.data?.data?.orderStats) {
-        const { orderStats } = response.data.data;
-        
-        setDays(orderStats.days || days);
-        setOrderData(orderStats.orderCounts || []);
-        
-        // Check if all order counts are zero
-        const allZeros = orderStats.orderCounts.every(count => count === 0);
-        
-        if (allZeros) {
-          // Reset peak and low peak when there are no orders
-          setPeakDay('');
-          setLowPeakDay('');
-          setMaxOrders(0);
-          setMinOrders(0);
-        } else {
-          // If we have orderStats.peakInfo and lowPeakInfo, use them
-          if (orderStats.peakInfo) {
-            setPeakDay(orderStats.peakInfo.day);
-            setMaxOrders(orderStats.peakInfo.count);
-          } else {
-            // Calculate peak day manually
-            const max = Math.max(...orderStats.orderCounts);
-            const peakDayIndex = orderStats.orderCounts.indexOf(max);
-            setPeakDay(orderStats.days[peakDayIndex]);
-            setMaxOrders(max);
-          }
-          
-          if (orderStats.lowPeakInfo) {
-            setLowPeakDay(orderStats.lowPeakInfo.day);
-            setMinOrders(orderStats.lowPeakInfo.count);
-          } else {
-            // Calculate low peak day manually
-            const min = Math.min(...orderStats.orderCounts);
-            const lowPeakDayIndex = orderStats.orderCounts.indexOf(min);
-            setLowPeakDay(orderStats.days[lowPeakDayIndex]);
-            setMinOrders(min);
-          }
-        }
-        
-        // Display message if no orders found
-        if (response.data?.message === "No orders found for the given period") {
-          setError("No orders found for the selected period");
-        } else {
-          setError('');
-        }
-      }
-    } catch (error) {
-      console.error('Failed to fetch weekly order stats:', error);
-      const errorMessage = error.response?.data?.message || 
-                         error.response?.status === 401 ? 'Unauthorized access' :
-                         error.request ? 'No response from server' :
-                         'Failed to fetch weekly order statistics';
-      
-      setError(errorMessage);
-      
-      // Use fallback data if API fails
-      const fallbackData = generateWeeklyData();
-      setOrderData(fallbackData);
-      updatePeakInfo(fallbackData);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Function to generate random data between 0-500 (fallback)
-  const generateWeeklyData = () => {
-    const orderCounts = [];
-    
-    // Generate random data between 100-500 for each day
-    days.forEach(() => {
-      // Generate a random value between 100 and 500
-      const randomValue = Math.floor(Math.random() * 400) + 100;
-      orderCounts.push(randomValue);
-    });
-    
-    return orderCounts;
-  };
-
-  // Update peak and low peak information (for fallback)
-  const updatePeakInfo = (orderCounts) => {
-    const max = Math.max(...orderCounts);
-    const min = Math.min(...orderCounts);
-    const peakDayIndex = orderCounts.indexOf(max);
-    const lowPeakDayIndex = orderCounts.indexOf(min);
-    
-    setMaxOrders(max);
-    setMinOrders(min);
-    setPeakDay(days[peakDayIndex]);
-    setLowPeakDay(days[lowPeakDayIndex]);
-  };
 
   // Create shortened day names for x-axis
   const dayShortNames = days.map(day => day.substring(0, 3));

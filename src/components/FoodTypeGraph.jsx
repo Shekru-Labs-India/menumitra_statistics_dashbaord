@@ -17,7 +17,7 @@ const FoodTypeGraph = () => {
       error: contextError
     } = useDashboard();
 
-    const [dateRange, setDateRange] = useState('Today');
+    const [dateRange, setDateRange] = useState('All time');
     const [loading, setLoading] = useState(false);
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
@@ -78,46 +78,8 @@ const FoodTypeGraph = () => {
 
     // Use context data when component mounts
     useEffect(() => {
-      if (foodTypeStatistics_from_context && Array.isArray(foodTypeStatistics_from_context)) {
-        // The context data is already an array of weeks
-        const weeks = foodTypeStatistics_from_context;
-        
-        // Map the API weeks data to our chart format
-        const chartData = weeks.map(week => ({
-          week: week.week,
-          Veg: week.veg || 0,
-          "Non-Veg": week.nonveg || 0,
-          Vegan: week.vegan || 0,
-          Eggs: week.egg || 0
-        }));
-        
-        // If we have less than 4 weeks, fill in the missing weeks with zeros
-        const weekNames = ["Week 1", "Week 2", "Week 3", "Week 4"];
-        
-        // Check which weeks we already have
-        const existingWeeks = chartData.map(data => data.week);
-        
-        // Add any missing weeks with zero values
-        weekNames.forEach(weekName => {
-          if (!existingWeeks.includes(weekName)) {
-            chartData.push({
-              week: weekName,
-              Veg: 0,
-              "Non-Veg": 0,
-              Vegan: 0,
-              Eggs: 0
-            });
-          }
-        });
-        
-        // Sort the data by week number to ensure correct order
-        chartData.sort((a, b) => {
-          const weekNumA = parseInt(a.week.split(' ')[1]);
-          const weekNumB = parseInt(b.week.split(' ')[1]);
-          return weekNumA - weekNumB;
-        });
-        
-        setFoodTypeData(chartData);
+      if (foodTypeStatistics_from_context) {
+        processFoodTypeData(foodTypeStatistics_from_context);
       }
     }, [foodTypeStatistics_from_context]);
 
@@ -135,6 +97,19 @@ const FoodTypeGraph = () => {
         const month = months[date.getMonth()];
         const year = date.getFullYear();
         return `${day} ${month} ${year}`;
+    };
+
+    const processFoodTypeData = (data) => {
+        const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+        const chartData = days.map(day => ({
+            day: day.charAt(0).toUpperCase() + day.slice(1),
+            Veg: data[day]?.veg || 0,
+            "Non-Veg": data[day]?.nonveg || 0,
+            Vegan: data[day]?.vegan || 0,
+            Eggs: data[day]?.egg || 0
+        }));
+        
+        setFoodTypeData(chartData);
     };
 
     const handleDateRangeChange = (range) => {
@@ -171,19 +146,13 @@ const FoodTypeGraph = () => {
             // Set user interaction flag to true
             setUserInteracted(true);
             
-            let requestData = {};
+            let requestData = {
+                outlet_id: localStorage.getItem('outlet_id'),
+                device_token: localStorage.getItem('device_token') || '',
+                device_id: localStorage.getItem('device_id') || ''
+            };
+            
             const today = new Date();
-            const outletId = localStorage.getItem('outlet_id');
-            
-            if (!outletId) {
-                console.error('No outlet ID found in localStorage');
-                setError('No outlet ID found. Please log in again.');
-                setLoading(false);
-                return;
-            }
-            
-            // Add outlet_id to request data
-            requestData.outlet_id = outletId;
             
             // Handle different date range options
             if (range === 'Today') {
@@ -232,61 +201,20 @@ const FoodTypeGraph = () => {
             console.log('Sending request to food_type_statistics with data:', requestData);
             
             // Make API request
-            const response = await axios.post(`${apiEndpoint}food_type_statistics`, requestData, {
-                headers: getAuthHeaders()
-            });
+            const response = await axios.post(
+                'https://men4u.xyz/outlet_statistics/food_type_statistics',
+                requestData,
+                { headers: getAuthHeaders() }
+            );
             
             console.log('API Response:', response.data);
             
-            if (response.data && response.data.data && response.data.data.weeks) {
-                // The API now returns weekly data in the response
-                const { weeks } = response.data.data;
-                
-                // Map the API weeks data to our chart format
-                const chartData = weeks.map(week => ({
-                    week: week.week,
-                    Veg: week.veg || 0,
-                    "Non-Veg": week.nonveg || 0,
-                    Vegan: week.vegan || 0,
-                    Eggs: week.egg || 0
-                }));
-                
-                // If we have less than 4 weeks, fill in the missing weeks with zeros
-                const weekNames = ["Week 1", "Week 2", "Week 3", "Week 4"];
-                
-                // Check which weeks we already have
-                const existingWeeks = chartData.map(data => data.week);
-                
-                // Add any missing weeks with zero values
-                weekNames.forEach(weekName => {
-                    if (!existingWeeks.includes(weekName)) {
-                        chartData.push({
-                            week: weekName,
-                            Veg: 0,
-                            "Non-Veg": 0,
-                            Vegan: 0,
-                            Eggs: 0
-                        });
-                    }
-                });
-                
-                // Sort the data by week number to ensure correct order
-                chartData.sort((a, b) => {
-                    const weekNumA = parseInt(a.week.split(' ')[1]);
-                    const weekNumB = parseInt(b.week.split(' ')[1]);
-                    return weekNumA - weekNumB;
-                });
-                
-                setFoodTypeData(chartData);
+            if (response.data?.data) {
+                processFoodTypeData(response.data.data);
             } else {
                 // If no data or incorrect format, show default data
                 setError('No data available for the selected date range');
-                setFoodTypeData([
-                    { week: "Week 1", Veg: 0, "Non-Veg": 0, Vegan: 0, Eggs: 0 },
-                    { week: "Week 2", Veg: 0, "Non-Veg": 0, Vegan: 0, Eggs: 0 },
-                    { week: "Week 3", Veg: 0, "Non-Veg": 0, Vegan: 0, Eggs: 0 },
-                    { week: "Week 4", Veg: 0, "Non-Veg": 0, Vegan: 0, Eggs: 0 },
-                ]);
+                setFoodTypeData([]);
             }
         } catch (error) {
             console.error('Failed to fetch food type statistics:', error);
@@ -294,12 +222,7 @@ const FoodTypeGraph = () => {
             setError(errorMessage || 'Failed to fetch food type statistics. Please try again.');
             
             // Use default data on error
-            setFoodTypeData([
-                { week: "Week 1", Veg: 0, "Non-Veg": 0, Vegan: 0, Eggs: 0 },
-                { week: "Week 2", Veg: 0, "Non-Veg": 0, Vegan: 0, Eggs: 0 },
-                { week: "Week 3", Veg: 0, "Non-Veg": 0, Vegan: 0, Eggs: 0 },
-                { week: "Week 4", Veg: 0, "Non-Veg": 0, Vegan: 0, Eggs: 0 },
-            ]);
+            setFoodTypeData([]);
         } finally {
             setLoading(false);
         }
@@ -335,7 +258,7 @@ const FoodTypeGraph = () => {
                             {dateRange}
                         </button>
                         <ul className="dropdown-menu dropdown-menu-end">
-                            {['Today', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Current Month', 'Last Month'].map((range) => (
+                            {[ 'This week', 'Last week', 'Last 30 Days', 'Current Month', 'Last Month'].map((range) => (
                                 <li key={range}>
                                     <a href="javascript:void(0);"
                                         className="dropdown-item d-flex align-items-center"
@@ -465,7 +388,7 @@ const FoodTypeGraph = () => {
                 ) : (
                     <ResponsiveContainer width="100%" height={400}>
                         <BarChart data={foodTypeData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                            <XAxis dataKey="week" stroke="#433c50" />
+                            <XAxis dataKey="day" stroke="#433c50" />
                             <YAxis stroke="#433c50" />
                             <Tooltip 
                                 contentStyle={{ 

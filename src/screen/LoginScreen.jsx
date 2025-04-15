@@ -136,10 +136,59 @@ function LoginScreen() {
         return;
       }
 
-      // Make API call to verify OTP with FCM token
+      // Get device information
+      const platform = navigator.platform;
+      const userAgent = navigator.userAgent.toLowerCase();
+      const screenWidth = window.screen.width;
+      const screenHeight = window.screen.height;
+
+      // Determine device type based on platform and user agent
+      let deviceType = 'Unknown Device';
+      
+      if (platform.includes('Mac')) {
+        if (userAgent.includes('macbook air')) {
+          deviceType = 'MacBook Air';
+        } else if (userAgent.includes('macbook pro')) {
+          deviceType = 'MacBook Pro';
+        } else if (userAgent.includes('macbook')) {
+          deviceType = 'MacBook';
+        } else {
+          deviceType = 'Mac';
+        }
+      } else if (platform.includes('Win')) {
+        if (userAgent.includes('hp')) {
+          deviceType = 'HP Laptop';
+        } else if (userAgent.includes('lenovo')) {
+          deviceType = 'Lenovo Laptop';
+        } else if (userAgent.includes('dell')) {
+          deviceType = 'Dell Laptop';
+        } else {
+          deviceType = 'Windows PC';
+        }
+      } else if (userAgent.includes('iphone')) {
+        deviceType = 'iPhone';
+      } else if (userAgent.includes('ipad')) {
+        deviceType = 'iPad';
+      } else if (userAgent.includes('android')) {
+        deviceType = 'Android Device';
+      }
+
+      // Create device model string with screen resolution
+      const deviceModel = `${deviceType} (${screenWidth}x${screenHeight})`;
+
+      // Get or generate device ID
+      let deviceId = localStorage.getItem('device_id');
+      if (!deviceId) {
+        deviceId = Math.random().toString(36).substring(2) + Date.now().toString(36);
+        localStorage.setItem('device_id', deviceId);
+      }
+
+      // Make API call to verify OTP with FCM token and device info
       const response = await axios.post(`${apiEndpoint}verify_otp`, {
         mobile: mobileNumber,
         otp: parseInt(enteredOtp),
+        device_id: deviceId,
+        device_model: deviceModel,
         fcm_token: fcmToken
       });
       
@@ -148,7 +197,7 @@ function LoginScreen() {
         console.log('Verification Response:', response.data);
         
         // Extract data from response based on updated API format
-        const { user_id, name, outlet_id, role, refresh, access } = response.data;
+        const { user_id, name, outlet_id, role, refresh, access, device_token } = response.data;
         
         // Store data in localStorage
         localStorage.setItem('outlet_id', outlet_id);
@@ -158,6 +207,7 @@ function LoginScreen() {
         localStorage.setItem('role', role || "owner");
         localStorage.setItem('refresh', refresh);
         localStorage.setItem('access', access);
+        localStorage.setItem('device_token', device_token || ''); // Store device token
         
         // Add timestamp to track when token was saved
         localStorage.setItem('token_timestamp', Date.now().toString());
