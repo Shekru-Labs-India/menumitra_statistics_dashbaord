@@ -136,7 +136,11 @@ function TopSell() {
       }
       
       // Prepare request data
-      const requestData = { outlet_id: outletId };
+      const requestData = { 
+        outlet_id: outletId,
+        device_token: localStorage.getItem('device_token') || '',
+        device_id: localStorage.getItem('device_id') || ''
+      };
       
       // Add date range if not "All Time"
       const dateParams = getDateRange(range);

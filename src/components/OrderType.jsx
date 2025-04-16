@@ -202,99 +202,58 @@ const OrderType = () => {
     try {
       setLoading(true);
       setError('');
-      // Set user interaction flag to true
-      setUserInteracted(true);
       
-      let requestData = {};
-      const today = new Date();
-      const outletId = localStorage.getItem('outlet_id');
-      
-      if (!outletId) {
-        console.error('No outlet ID found in localStorage');
-        setError('No outlet ID found. Please log in again.');
-        setLoading(false);
-        return;
-      }
-      
-      // Add outlet_id to request data
-      requestData.outlet_id = outletId;
-      
-      // Handle different date range options
-      if (range === 'All Time') {
-        // Don't add date range for All Time
-      } else if (range === 'Today') {
-        // Today - both start and end are today
-        requestData.start_date = formatDate(today);
-        requestData.end_date = formatDate(today);
-      } else if (range === 'Yesterday') {
-        // Yesterday
-        const yesterday = new Date(today);
-        yesterday.setDate(today.getDate() - 1);
-        requestData.start_date = formatDate(yesterday);
-        requestData.end_date = formatDate(yesterday);
-      } else if (range === 'Last 7 Days') {
-        // Last 7 Days
-        const sevenDaysAgo = new Date(today);
-        sevenDaysAgo.setDate(today.getDate() - 6); // -6 because it includes today
-        requestData.start_date = formatDate(sevenDaysAgo);
-        requestData.end_date = formatDate(today);
-      } else if (range === 'Last 30 Days') {
-        // Last 30 Days
-        const thirtyDaysAgo = new Date(today);
-        thirtyDaysAgo.setDate(today.getDate() - 29); // -29 because it includes today
-        requestData.start_date = formatDate(thirtyDaysAgo);
-        requestData.end_date = formatDate(today);
-      } else if (range === 'Current Month') {
-        // Current Month - from 1st of current month to today
-        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-        requestData.start_date = formatDate(firstDayOfMonth);
-        requestData.end_date = formatDate(today);
-      } else if (range === 'Last Month') {
-        // Last Month - from 1st to last day of previous month
-        const firstDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-        const lastDayOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
-        requestData.start_date = formatDate(firstDayOfLastMonth);
-        requestData.end_date = formatDate(lastDayOfLastMonth);
-      } else if (range === 'Custom Range' && startDate && endDate) {
-        // Custom Range - use the selected dates
+      // Prepare request data
+      const requestData = {
+        outlet_id: localStorage.getItem('outlet_id'),
+        device_token: localStorage.getItem('device_token') || '',
+        device_id: localStorage.getItem('device_id') || ''
+      };
+
+      // Add date range if not "All Time"
+      if (range === 'Custom Range' && startDate && endDate) {
         requestData.start_date = formatDate(startDate);
         requestData.end_date = formatDate(endDate);
-      } else {
-        // Default to today if something goes wrong
-        requestData.start_date = formatDate(today);
-        requestData.end_date = formatDate(today);
+      } else if (range !== 'All Time') {
+        const dateRange = getDateRange(range);
+        if (dateRange) {
+          requestData.start_date = dateRange.start_date;
+          requestData.end_date = dateRange.end_date;
+        }
       }
 
-      console.log('Sending request to order_type_statistics with data:', requestData);
+      // Get authentication token
+      const accessToken = localStorage.getItem('access');
       
       // Make API request
-      const response = await axios.post(`${apiEndpoint}order_type_statistics`, requestData, {
-        headers: getAuthHeaders()
-      });
-      
-      console.log('API Response:', response.data);
-      console.log('Response structure:', JSON.stringify(response.data, null, 2));
-      
-      if (response.data && response.data.message === "success" && response.data.data) {
-        // The API returns a different structure than expected
-        // It has a nested 'data' object with direct properties for each order type
-        const responseData = response.data.data;
-        console.log('Order type data:', responseData);
-        
-        // Convert the flat object structure to the array format our component expects
-        const orderTypesArray = [
+      const response = await axios.post(
+        'https://men4u.xyz/outlet_statistics/order_type_statistics',
+        requestData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': accessToken ? `Bearer ${accessToken}` : ''
+          }
+        }
+      );
+
+      if (response.data?.data) {
+        // Process the response data
+        const data = response.data.data;
+        setOrderTypes([
           {
             name: "Dine In",
             icon: "fas fa-utensils",
-            count: responseData["dine-in"] || 0,
-            trend: "0%", // We don't have trend data in the response
+            count: data["dine-in"] || 0,
+            trend: "0%",
             trendUp: true,
             color: "primary"
           },
           {
             name: "Drive Through",
             icon: "fas fa-car",
-            count: responseData["drive-through"] || 0,
+            count: data["drive-through"] || 0,
             trend: "0%",
             trendUp: true,
             color: "info"
@@ -302,7 +261,7 @@ const OrderType = () => {
           {
             name: "Parcel",
             icon: "fas fa-box",
-            count: responseData["parcel"] || 0,
+            count: data.parcel || 0,
             trend: "0%",
             trendUp: true,
             color: "success"
@@ -310,42 +269,63 @@ const OrderType = () => {
           {
             name: "Delivery",
             icon: "fas fa-globe",
-            count: responseData["delivery"] || 0,
+            count: data.delivery || 0,
             trend: "0%",
             trendUp: true,
             color: "warning"
           }
-        ];
-        
-        // Add counter type if it exists in the response
-        if (responseData["counter"] !== undefined) {
-          orderTypesArray.push({
-            name: "Counter",
-            icon: "fas fa-cash-register",
-            count: responseData["counter"] || 0,
-            trend: "0%",
-            trendUp: true,
-            color: "danger"
-          });
-        }
-        
-        console.log('Processed order types:', orderTypesArray);
-        setOrderTypes(orderTypesArray);
+        ]);
       } else {
-        // If no data is returned, use placeholder data
-        console.warn('Invalid response format or empty data');
-        setOrderTypes(placeholderOrderTypes);
+        console.error('No data available in response');
+        setError('No data available');
       }
     } catch (error) {
       console.error('Failed to fetch order type statistics:', error);
-      const errorMessage = handleApiError(error);
-      setError(errorMessage || 'Failed to fetch order type statistics. Please try again.');
-      
-      // Use placeholder data on error
-      setOrderTypes(placeholderOrderTypes);
+      setError('Failed to fetch order type statistics');
     } finally {
       setLoading(false);
     }
+  };
+
+  // Helper function to get date range
+  const getDateRange = (range) => {
+    const today = new Date();
+    let start, end;
+    
+    switch (range) {
+      case 'Today':
+        start = end = new Date();
+        break;
+      case 'Yesterday':
+        start = end = new Date();
+        start.setDate(start.getDate() - 1);
+        break;
+      case 'Last 7 Days':
+        end = new Date();
+        start = new Date();
+        start.setDate(start.getDate() - 6);
+        break;
+      case 'Last 30 Days':
+        end = new Date();
+        start = new Date();
+        start.setDate(start.getDate() - 29);
+        break;
+      case 'Current Month':
+        start = new Date(today.getFullYear(), today.getMonth(), 1);
+        end = new Date();
+        break;
+      case 'Last Month':
+        start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+        end = new Date(today.getFullYear(), today.getMonth(), 0);
+        break;
+      default:
+        return null;
+    }
+    
+    return {
+      start_date: formatDate(start),
+      end_date: formatDate(end)
+    };
   };
 
   const handleCustomDateSelect = () => {

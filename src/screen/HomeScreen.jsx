@@ -279,7 +279,9 @@ function HomeScreen() {
 
     const requestData = {
       ...getDateRange(range),
-      outlet_id: localStorage.getItem('outlet_id')
+      outlet_id: localStorage.getItem('outlet_id'),
+      device_token: localStorage.getItem('device_token') || '',
+      device_id: localStorage.getItem('device_id') || ''
     };
 
     return requestData;

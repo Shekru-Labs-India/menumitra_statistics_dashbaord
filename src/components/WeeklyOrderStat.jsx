@@ -16,7 +16,7 @@ const WeeklyOrderStat = () => {
     error: contextError
   } = useDashboard();
 
-  const [dateRange, setDateRange] = useState('This Week');
+  const [dateRange, setDateRange] = useState('All time');
   const [loading, setLoading] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -51,46 +51,28 @@ const WeeklyOrderStat = () => {
   // Use context data when component mounts
   useEffect(() => {
     if (weeklyOrderStats_from_context) {
-      // Access the properties with null checks and default values
-      setDays(weeklyOrderStats_from_context.days || ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']);
-      setOrderData(weeklyOrderStats_from_context.orderCounts || []);
+      const { data, peak_day, low_day } = weeklyOrderStats_from_context;
       
-      // Check if all order counts are zero or if orderCounts is empty
-      const allZeros = !weeklyOrderStats_from_context.orderCounts || 
-                      weeklyOrderStats_from_context.orderCounts.length === 0 ||
-                      weeklyOrderStats_from_context.orderCounts.every(count => count === 0);
+      // Transform the data into the required format
+      const days = data.map(item => item[0]);
+      const orderCounts = data.map(item => parseInt(item[1]));
       
-      if (allZeros) {
-        // Reset peak and low peak when there are no orders
-        setPeakDay('');
-        setLowPeakDay('');
-        setMaxOrders(0);
-        setMinOrders(0);
-      } else {
-        // If we have peakInfo and lowPeakInfo, use them
-        if (weeklyOrderStats_from_context.peakInfo) {
-          setPeakDay(weeklyOrderStats_from_context.peakInfo.day || '');
-          setMaxOrders(weeklyOrderStats_from_context.peakInfo.count || 0);
-        } else {
-          // Calculate peak day manually
-          const max = Math.max(...weeklyOrderStats_from_context.orderCounts);
-          const peakDayIndex = weeklyOrderStats_from_context.orderCounts.indexOf(max);
-          setPeakDay(weeklyOrderStats_from_context.days[peakDayIndex] || '');
-          setMaxOrders(max);
-        }
-        
-        if (weeklyOrderStats_from_context.lowPeakInfo) {
-          setLowPeakDay(weeklyOrderStats_from_context.lowPeakInfo.day || '');
-          setMinOrders(weeklyOrderStats_from_context.lowPeakInfo.count || 0);
-        } else {
-          // Calculate low peak day manually
-          const counts = weeklyOrderStats_from_context.orderCounts || [];
-          const min = Math.min(...counts.filter(count => count > 0)) || 0;
-          const lowPeakDayIndex = counts.indexOf(min);
-          setLowPeakDay(min > 0 ? weeklyOrderStats_from_context.days[lowPeakDayIndex] : '');
-          setMinOrders(min);
-        }
+      setDays(days);
+      setOrderData(orderCounts);
+      
+      // Set peak day information
+      if (peak_day && peak_day.length === 2) {
+        setPeakDay(peak_day[0]);
+        setMaxOrders(parseInt(peak_day[1]));
       }
+      
+      // Set low day information
+      if (low_day && low_day.length === 2) {
+        setLowPeakDay(low_day[0]);
+        setMinOrders(parseInt(low_day[1]));
+      }
+      
+      setError('');
     }
   }, [weeklyOrderStats_from_context]);
 
@@ -116,7 +98,6 @@ const WeeklyOrderStat = () => {
     try {
       setLoading(true);
       setError('');
-      // Set user interaction flag to true
       setUserInteracted(true);
 
       const requestData = {
@@ -129,7 +110,13 @@ const WeeklyOrderStat = () => {
       const response = await axios.post(
         'https://men4u.xyz/outlet_statistics/weekly_order_stats',
         requestData,
-        { headers: getAuthHeaders() }
+        { 
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('access')}`
+          }
+        }
       );
 
       if (response.data?.data) {
@@ -180,13 +167,100 @@ const WeeklyOrderStat = () => {
     }
   };
 
+  // Function to get week date range
+  const getWeekDateRange = (weeksAgo = 0) => {
+    const today = new Date();
+    const currentDay = today.getDay(); // 0 is Sunday, 1 is Monday, etc.
+    const diff = currentDay === 0 ? 6 : currentDay - 1; // Adjust to make Monday the first day
+    
+    // Calculate the start of the current week (Monday)
+    const startOfCurrentWeek = new Date(today);
+    startOfCurrentWeek.setDate(today.getDate() - diff);
+    
+    // Calculate the start of the target week
+    const startOfTargetWeek = new Date(startOfCurrentWeek);
+    startOfTargetWeek.setDate(startOfCurrentWeek.getDate() - (weeksAgo * 7));
+    
+    // Calculate the end of the target week (Sunday)
+    const endOfTargetWeek = new Date(startOfTargetWeek);
+    endOfTargetWeek.setDate(startOfTargetWeek.getDate() + 6);
+    
+    return {
+      start: startOfTargetWeek,
+      end: endOfTargetWeek
+    };
+  };
+
+  // Function to format date range string
+  const formatDateRangeString = (start, end) => {
+    const formatDate = (date) => {
+      const day = date.getDate().toString().padStart(2, '0');
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const month = months[date.getMonth()];
+      return `${day} ${month}`;
+    };
+    
+    return `${formatDate(start)} - ${formatDate(end)}`;
+  };
+
+  // Function to get date range options
+  const getDateRangeOptions = () => {
+    const options = [];
+    
+    // All time option
+    options.push({
+      label: 'All time',
+      value: 'All time',
+      dateRange: null
+    });
+    
+    // This week
+    const thisWeek = getWeekDateRange(0);
+    options.push({
+      label: 'This week',
+      value: 'This week',
+      dateRange: formatDateRangeString(thisWeek.start, thisWeek.end)
+    });
+    
+    // Last week
+    const lastWeek = getWeekDateRange(1);
+    options.push({
+      label: 'Last week',
+      value: 'Last week',
+      dateRange: formatDateRangeString(lastWeek.start, lastWeek.end)
+    });
+    
+    // Previous weeks (up to 4 weeks ago)
+    for (let i = 2; i <= 4; i++) {
+      const week = getWeekDateRange(i);
+      options.push({
+        label: formatDateRangeString(week.start, week.end),
+        value: `Week ${i}`,
+        dateRange: formatDateRangeString(week.start, week.end)
+      });
+    }
+    
+    // Custom range
+    options.push({
+      label: 'Custom Range',
+      value: 'Custom Range',
+      dateRange: null
+    });
+    
+    return options;
+  };
+
   // Function to prepare request data based on date range
   const prepareRequestData = useMemo(() => (range) => {
     const today = new Date();
     
     const getDateRange = (range) => {
       switch(range) {
-        case 'This Week': {
+        case 'All time': {
+          // For all time, we don't need to set any date range
+          return {};
+        }
+        case 'This week': {
           const firstDayOfWeek = new Date(today);
           const day = today.getDay(); // 0 is Sunday, 1 is Monday, etc.
           const diff = day === 0 ? 6 : day - 1; // Adjust to make Monday the first day
@@ -196,7 +270,7 @@ const WeeklyOrderStat = () => {
             end_date: formatDate(today)
           };
         }
-        case 'Last Week': {
+        case 'Last week': {
           const lastWeekEnd = new Date(today);
           const day = today.getDay(); // 0 is Sunday, 1 is Monday, etc.
           const diff = day === 0 ? 6 : day - 1; // Adjust to make Monday the first day
@@ -208,20 +282,14 @@ const WeeklyOrderStat = () => {
             end_date: formatDate(lastWeekEnd)
           };
         }
-        case 'Last 2 Weeks': {
-          const twoWeeksAgo = new Date(today);
-          twoWeeksAgo.setDate(today.getDate() - 13);
+        case 'Week 2':
+        case 'Week 3':
+        case 'Week 4': {
+          const weekNumber = parseInt(range.split(' ')[1]);
+          const week = getWeekDateRange(weekNumber);
           return {
-            start_date: formatDate(twoWeeksAgo),
-            end_date: formatDate(today)
-          };
-        }
-        case 'Last 30 Days': {
-          const thirtyDaysAgo = new Date(today);
-          thirtyDaysAgo.setDate(today.getDate() - 29);
-          return {
-            start_date: formatDate(thirtyDaysAgo),
-            end_date: formatDate(today)
+            start_date: formatDate(week.start),
+            end_date: formatDate(week.end)
           };
         }
         case 'Custom Range': {
@@ -234,14 +302,7 @@ const WeeklyOrderStat = () => {
           return {};
         }
         default: {
-          const firstDayOfWeek = new Date(today);
-          const day = today.getDay(); // 0 is Sunday, 1 is Monday, etc.
-          const diff = day === 0 ? 6 : day - 1; // Adjust to make Monday the first day
-          firstDayOfWeek.setDate(today.getDate() - diff);
-          return {
-            start_date: formatDate(firstDayOfWeek),
-            end_date: formatDate(today)
-          };
+          return {};
         }
       }
     };
@@ -558,23 +619,22 @@ const WeeklyOrderStat = () => {
               {dateRange}
             </button>
             <ul className="dropdown-menu dropdown-menu-end">
-              {['This Week', 'Last Week', 'Last 2 Weeks', 'Last 30 Days'].map((range) => (
-                <li key={range}>
-                  <a href="javascript:void(0);"
+              {getDateRangeOptions().map((option) => (
+                <li key={option.value}>
+                  <a
+                    href="javascript:void(0);"
                     className="dropdown-item d-flex align-items-center"
-                    onClick={() => handleDateRangeChange(range)}>
-                    {range}
+                    onClick={() => handleDateRangeChange(option.value)}
+                  >
+                    <div className="d-flex flex-column">
+                      <span>{option.label}</span>
+                      {option.dateRange && (
+                        <small className="text-muted">{option.dateRange}</small>
+                      )}
+                    </div>
                   </a>
                 </li>
               ))}
-              <li><hr className="dropdown-divider" /></li>
-              <li>
-                <a href="javascript:void(0);"
-                  className="dropdown-item d-flex align-items-center"
-                  onClick={() => handleDateRangeChange('Custom Range')}>
-                  Custom Range
-                </a>
-              </li>
             </ul>
           </div>
 

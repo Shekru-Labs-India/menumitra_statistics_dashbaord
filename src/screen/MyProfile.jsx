@@ -88,32 +88,18 @@ const MyProfile = () => {
           const userData = response.data.Data.user_details;
           const subscriptionData = response.data.Data.subscription_outlet?.[0] || {};
           
-          // Convert date format from "DD MMM YYYY" to "YYYY-MM-DD" for input type="date"
-          const parseDateForInput = (dateStr) => {
-            if (!dateStr) return '';
-            const parts = dateStr.split(' ');
-            if (parts.length !== 3) return '';
-            
-            const months = {'jan':0, 'feb':1, 'mar':2, 'apr':3, 'may':4, 'jun':5, 
-                          'jul':6, 'aug':7, 'sep':8, 'oct':9, 'nov':10, 'dec':11};
-            
-            // Use UTC date to avoid timezone issues
-            // Format: YYYY-MM-DD where day and month are zero-padded if needed
-            const day = parts[0].padStart(2, '0');
-            const month = (months[parts[1].toLowerCase()] + 1).toString().padStart(2, '0');
-            const year = parts[2];
-            
-            return `${year}-${month}-${day}`;
-          };
-
+          // Format the date of birth for display
           const formattedUserData = {
             ...userData,
-            dob: parseDateForInput(userData.dob),
+            dob: userData.dob ? formatDateForDisplay(userData.dob) : 'Not provided',
             subscription_outlet: response.data.Data.subscription_outlet || []
           };
           
           setUserDetails(formattedUserData);
-          setFormData(formattedUserData);
+          setFormData({
+            ...formattedUserData,
+            dob: userData.dob ? formatDateForInput(userData.dob) : ''
+          });
         } else {
           setError('Failed to fetch user profile');
         }
@@ -151,20 +137,26 @@ const MyProfile = () => {
 
     try {
       // Format date to match API requirement (e.g., "06 oct 1990")
-      const formatDate = (dateString) => {
+      const formatDateForAPI = (dateString) => {
         if (!dateString) return '';
         const date = new Date(dateString);
+        if (isNaN(date.getTime())) return '';
+        
+        const day = String(date.getDate()).padStart(2, '0');
         const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
-        return `${String(date.getDate()).padStart(2, '0')} ${months[date.getMonth()]} ${date.getFullYear()}`;
+        const month = months[date.getMonth()];
+        const year = date.getFullYear();
+        
+        return `${day} ${month} ${year}`;
       };
 
       const payload = {
-        update_user_id: Number(localStorage.getItem("user_id")), // Convert to number
-        user_id: Number(localStorage.getItem("user_id")), // Convert to number
+        update_user_id: Number(localStorage.getItem("user_id")),
+        user_id: Number(localStorage.getItem("user_id")),
         name: formData.name,
         email: formData.email,
         mobile_number: formData.mobile_number,
-        dob: formatDate(formData.dob),
+        dob: formatDateForAPI(formData.dob),
         aadhar_number: formData.aadhar_number,
         outlet_id: localStorage.getItem('outlet_id'),
         device_token: localStorage.getItem('device_token') || '',
@@ -179,11 +171,27 @@ const MyProfile = () => {
       });
 
       if (response.data.st === 1) {
-        // Update state with formatted date
-        setUserDetails({
-          ...formData,
-          dob: formatDate(formData.dob)
+        // Get current timestamp
+        const now = new Date();
+        const formattedTimestamp = now.toLocaleString('en-US', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true,
+          second: '2-digit'
         });
+
+        // Update state with formatted date and new timestamp
+        const updatedUserDetails = {
+          ...formData,
+          dob: formatDateForDisplay(formData.dob),
+          updated_on: formattedTimestamp,
+          updated_by: userDetails.name // Using the user's name as the updater
+        };
+
+        setUserDetails(updatedUserDetails);
         setSuccess(response.data.msg || 'Profile updated successfully!');
         setEditMode(false);
       } else {
@@ -200,14 +208,48 @@ const MyProfile = () => {
 
   // Format date for display in view mode
   const formatDateForDisplay = (dateStr) => {
+    if (!dateStr) return 'Not provided';
+    try {
+      // If the date is already in "DD MMM YYYY" format, return it as is
+      if (typeof dateStr === 'string' && dateStr.match(/^\d{2} [A-Za-z]{3} \d{4}$/)) {
+        return dateStr;
+      }
+      
+      // If it's a date object or ISO string, format it
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return 'Not provided';
+      
+      const day = String(date.getDate()).padStart(2, '0');
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const month = months[date.getMonth()];
+      const year = date.getFullYear();
+      
+      return `${day} ${month} ${year}`;
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Not provided';
+    }
+  };
+
+  // Format date for input field
+  const formatDateForInput = (dateStr) => {
     if (!dateStr) return '';
     try {
+      // If the date is in "DD MMM YYYY" format, convert it to YYYY-MM-DD
+      if (typeof dateStr === 'string' && dateStr.match(/^\d{2} [A-Za-z]{3} \d{4}$/)) {
+        const [day, month, year] = dateStr.split(' ');
+        const monthIndex = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].indexOf(month);
+        const date = new Date(year, monthIndex, day);
+        return date.toISOString().split('T')[0];
+      }
+      
+      // If it's a date object or ISO string, format it
       const date = new Date(dateStr);
-      if (isNaN(date.getTime())) return dateStr; // Return original if invalid
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      return `${String(date.getDate()).padStart(2, '0')} ${months[date.getMonth()]} ${date.getFullYear()}`;
-    } catch {
-      return dateStr; // Return original if parsing fails
+      if (isNaN(date.getTime())) return '';
+      return date.toISOString().split('T')[0];
+    } catch (error) {
+      console.error('Error formatting date for input:', error);
+      return '';
     }
   };
 
