@@ -829,7 +829,7 @@ function Header() {
                     </Link>
                   </li>
                   <li>
-                    <Link className="dropdown-item" to="/dashboard">
+                    <Link className="dropdown-item" to="/my-activity">
                       <i className="fas fa-tasks fa-lg me-2" />
                       <span className="align-middle">My activity</span>
                     </Link>

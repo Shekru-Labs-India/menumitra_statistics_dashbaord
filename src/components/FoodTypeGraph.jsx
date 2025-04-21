@@ -183,22 +183,102 @@ const FoodTypeGraph = () => {
     };
 
     const processFoodTypeData = (data) => {
-        const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
-        const chartData = days.map(day => ({
-            day: day.charAt(0).toUpperCase() + day.slice(1),
-            Veg: data[day]?.veg || 0,
-            "Non-Veg": data[day]?.nonveg || 0,
-            Vegan: data[day]?.vegan || 0,
-            Eggs: data[day]?.egg || 0
-        }));
+        if (!data) {
+            console.log('No data received for processing');
+            setFoodTypeData([]);
+            return;
+        }
+
+        console.log('Raw data received:', data);
+
+        const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+        const chartData = days.map(day => {
+            const dayData = data[day] || {};
+            console.log(`Processing ${day} data:`, dayData);
+
+            return {
+                day: day.charAt(0).toUpperCase() + day.slice(1),
+                Veg: dayData.veg || 0,
+                "Non-Veg": dayData.nonveg || 0,
+                Vegan: dayData.vegan || 0,
+                Eggs: dayData.egg || 0
+            };
+        });
         
+        console.log('Final chart data:', chartData);
         setFoodTypeData(chartData);
     };
 
+    // Function to get date range
+    const getDateRange = (range) => {
+        const today = new Date();
+        let start, end;
+        
+        switch (range) {
+            case 'This week': {
+                const firstDayOfWeek = new Date(today);
+                const day = today.getDay(); // 0 is Sunday, 1 is Monday, etc.
+                const diff = day === 0 ? 6 : day - 1; // Adjust to make Monday the first day
+                firstDayOfWeek.setDate(today.getDate() - diff);
+                start = firstDayOfWeek;
+                end = today;
+                break;
+            }
+            case 'Last week': {
+                const lastWeekEnd = new Date(today);
+                const day = today.getDay(); // 0 is Sunday, 1 is Monday, etc.
+                const diff = day === 0 ? 6 : day - 1; // Adjust to make Monday the first day
+                lastWeekEnd.setDate(today.getDate() - diff - 1); // End of previous week (Sunday)
+                const lastWeekStart = new Date(lastWeekEnd);
+                lastWeekStart.setDate(lastWeekEnd.getDate() - 6); // Start of previous week (Monday)
+                start = lastWeekStart;
+                end = lastWeekEnd;
+                break;
+            }
+            case 'Week 2': {
+                const week = getWeekDateRange(2);
+                start = week.start;
+                end = week.end;
+                break;
+            }
+            case 'Week 3': {
+                const week = getWeekDateRange(3);
+                start = week.start;
+                end = week.end;
+                break;
+            }
+            case 'Week 4': {
+                const week = getWeekDateRange(4);
+                start = week.start;
+                end = week.end;
+                break;
+            }
+            default:
+                return null;
+        }
+        
+        return {
+            start_date: formatDate(start),
+            end_date: formatDate(end)
+        };
+    };
+
     const handleDateRangeChange = (range) => {
+        console.log('Date range changed to:', range);
         setDateRange(range);
         setShowDatePicker(range === 'Custom Range');
-        if (range !== 'Custom Range') {
+        
+        if (range === 'All time') {
+            // Use context data for "All time"
+            if (foodTypeStatistics_from_context) {
+                processFoodTypeData(foodTypeStatistics_from_context);
+            }
+        } else if (range === 'Custom Range') {
+            // Show date picker for custom range
+            setStartDate(null);
+            setEndDate(null);
+        } else {
+            // Fetch data for other ranges
             setStartDate(null);
             setEndDate(null);
             fetchData(range);
@@ -206,18 +286,19 @@ const FoodTypeGraph = () => {
     };
 
     const handleReload = () => {
-        setLoading(true);
-        // Set user interaction flag to true
+        console.log('Reloading data...');
         setUserInteracted(true);
         
-        // Check if we have valid startDate and endDate (indicating custom range)
-        if (startDate && endDate) {
-            console.log('Reloading with custom date range:', formatDate(startDate), 'to', formatDate(endDate));
-            // For custom range, explicitly use 'Custom Range'
+        if (dateRange === 'All time') {
+            // Reload context data for "All time"
+            if (foodTypeStatistics_from_context) {
+                processFoodTypeData(foodTypeStatistics_from_context);
+            }
+        } else if (startDate && endDate) {
+            // Reload custom range data
             fetchData('Custom Range');
         } else {
-            // For other ranges, use the current dateRange state
-            console.log('Reloading with standard date range:', dateRange);
+            // Reload current range data
             fetchData(dateRange);
         }
     };
@@ -288,24 +369,37 @@ const FoodTypeGraph = () => {
             setError('');
             setUserInteracted(true);
             
+            // Prepare request data
             const requestData = {
                 outlet_id: localStorage.getItem('outlet_id'),
-                device_token: localStorage.getItem('device_token') || '',
-                device_id: localStorage.getItem('device_id') || '',
-                ...prepareRequestData(range)
+                device_token: localStorage.getItem('device_token'),
+                device_id: localStorage.getItem('device_id')
             };
 
+            // Add date range if not "All time"
+            if (range === 'Custom Range' && startDate && endDate) {
+                requestData.start_date = formatDate(startDate);
+                requestData.end_date = formatDate(endDate);
+            } else if (range !== 'All time') {
+                const dateRange = getDateRange(range);
+                if (dateRange) {
+                    requestData.start_date = dateRange.start_date;
+                    requestData.end_date = dateRange.end_date;
+                }
+            }
+
+            console.log('Making API request with data:', requestData);
+
+            // Make the API call
             const response = await axios.post(
-                'https://men4u.xyz/outlet_statistics/food_type_statistics',
+                `${apiEndpoint}food_type_statistics`,
                 requestData,
-                { 
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('access')}`
-                    }
+                {
+                    headers: getAuthHeaders()
                 }
             );
+            
+            console.log('API Response:', response.data);
 
             if (response.data?.data) {
                 processFoodTypeData(response.data.data);
@@ -314,8 +408,13 @@ const FoodTypeGraph = () => {
                 setFoodTypeData([]);
             }
         } catch (error) {
-            console.error('Failed to fetch food type statistics:', error);
-            setError('Failed to load food type statistics. Please try again.');
+            console.error('API Error:', error);
+            if (error.response) {
+                console.error('Error Response:', error.response.data);
+                setError(error.response.data.message || 'Failed to fetch data');
+            } else {
+                setError('Failed to connect to server');
+            }
             setFoodTypeData([]);
         } finally {
             setLoading(false);
@@ -324,6 +423,7 @@ const FoodTypeGraph = () => {
 
     const handleCustomDateSelect = () => {
         if (startDate && endDate) {
+            console.log('Custom date range selected:', formatDate(startDate), 'to', formatDate(endDate));
             setDateRange(`${formatDate(startDate)} - ${formatDate(endDate)}`);
             setShowDatePicker(false);
             fetchData('Custom Range');
@@ -342,6 +442,9 @@ const FoodTypeGraph = () => {
             stackType: '100%',
             toolbar: {
                 show: false
+            },
+            animations: {
+                enabled: true
             }
         },
         plotOptions: {
@@ -349,12 +452,20 @@ const FoodTypeGraph = () => {
                 horizontal: false,
                 columnWidth: '55%',
                 borderRadius: 4,
+                distributed: false,
+                dataLabels: {
+                    position: 'center'
+                }
             },
         },
         dataLabels: {
             enabled: true,
             formatter: function(val) {
-                return val + '%';
+                return Math.round(val);
+            },
+            style: {
+                fontSize: '12px',
+                colors: ['#fff']
             }
         },
         stroke: {
@@ -366,7 +477,14 @@ const FoodTypeGraph = () => {
             categories: foodTypeData.map(item => item.day),
             labels: {
                 style: {
-                    colors: '#433c50'
+                    colors: '#433c50',
+                    fontSize: '12px'
+                },
+                axisBorder: {
+                    show: true
+                },
+                axisTicks: {
+                    show: true
                 }
             }
         },
@@ -374,10 +492,11 @@ const FoodTypeGraph = () => {
             show: true,
             labels: {
                 formatter: function(val) {
-                    return val + '%';
+                    return Math.round(val);
                 },
                 style: {
-                    colors: '#433c50'
+                    colors: '#433c50',
+                    fontSize: '12px'
                 }
             }
         },
@@ -390,16 +509,35 @@ const FoodTypeGraph = () => {
             horizontalAlign: 'center',
             offsetY: -10,
             labels: {
-                colors: '#433c50'
+                colors: '#433c50',
+                useSeriesColors: false
+            },
+            markers: {
+                width: 12,
+                height: 12,
+                radius: 12
             }
         },
         tooltip: {
             y: {
                 formatter: function(val) {
-                    return val + '%';
+                    return Math.round(val);
+                }
+            },
+            shared: true,
+            intersect: false
+        },
+        responsive: [{
+            breakpoint: 480,
+            options: {
+                chart: {
+                    width: 200
+                },
+                legend: {
+                    position: 'bottom'
                 }
             }
-        }
+        }]
     };
 
     const chartSeries = [
@@ -420,6 +558,8 @@ const FoodTypeGraph = () => {
             data: foodTypeData.map(item => item.Eggs)
         }
     ];
+
+    console.log('Chart series data:', chartSeries);
 
     return (
         <div className="card">

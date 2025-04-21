@@ -119,17 +119,10 @@ const OrderAnalytics = () => {
   };
 
   const handleReload = () => {
-    // Always hit the API directly on reload
     setUserInteracted(true);
-    
-    // Check if we have valid startDate and endDate (indicating custom range)
     if (startDate && endDate) {
-      console.log('Reloading with custom date range:', formatDate(startDate), 'to', formatDate(endDate));
-      // For custom range, explicitly use 'Custom Range'
       fetchData('Custom Range');
     } else {
-      // For other ranges, use the current dateRange state
-      console.log('Reloading with standard date range:', dateRange);
       fetchData(dateRange);
     }
   };
@@ -139,11 +132,10 @@ const OrderAnalytics = () => {
       setLoading(true);
       setError('');
       
-      // Prepare request data
       const requestData = {
         outlet_id: localStorage.getItem('outlet_id'),
-        device_token: localStorage.getItem('device_token') || '',
-        device_id: localStorage.getItem('device_id') || ''
+        device_token: localStorage.getItem('device_token'),
+        device_id: localStorage.getItem('device_id')
       };
 
       // Add date range if not "All Time"
@@ -158,19 +150,33 @@ const OrderAnalytics = () => {
         }
       }
 
-      console.log('Sending request to analytics_reports with data:', requestData);
-      
-      // Make API request
+      // If no date range is selected, use the context data
+      if (!requestData.start_date && !requestData.end_date) {
+        if (orderAnalytics_from_context) {
+          setAnalyticsData({
+            avg_first_order_time: orderAnalytics_from_context.first_order_time || '0 mins',
+            avg_last_order_time: orderAnalytics_from_context.last_order_time || '0 mins',
+            avg_order_time: orderAnalytics_from_context.average_order_time || '0 mins',
+            avg_cooking_time: orderAnalytics_from_context.average_cooking_time || '0 mins'
+          });
+        }
+        setLoading(false);
+        return;
+      }
+
       const response = await axios.post(
-        `${apiEndpoint}analytics_reports`,
+        'https://men4u.xyz/outlet_statistics/order_analytics',
         requestData,
         {
-          headers: getAuthHeaders()
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('access')}`
+          }
         }
       );
 
-      if (response.data?.data) {
-        // Process the response data
+      if (response.data && response.data.data) {
         const data = response.data.data;
         setAnalyticsData({
           avg_first_order_time: data.first_order_time || '0 mins',
@@ -179,12 +185,11 @@ const OrderAnalytics = () => {
           avg_cooking_time: data.average_cooking_time || '0 mins'
         });
       } else {
-        console.error('No data available in response');
-        setError('No data available');
+        setError('No data available for the selected period');
       }
     } catch (error) {
-      console.error('Failed to fetch order analytics:', error);
-      setError('Failed to fetch order analytics');
+      console.error('API Error:', error);
+      setError('Failed to fetch data');
     } finally {
       setLoading(false);
     }
