@@ -443,7 +443,7 @@ const WeeklyOrderStat = () => {
         }
       }
     },
-  
+
     tooltip: {
       enabled: true,
       theme: 'light',
@@ -469,68 +469,68 @@ const WeeklyOrderStat = () => {
       offsetY: 10,
       offsetX: 10
     },
-    annotations: {
-      points: [
-        {
-          x: peakDay,
-          y: maxOrders,
-          marker: {
-            size: 10,
-            fillColor: '#fff',
-            strokeColor: '#ff4560',
-            strokeWidth: 2,
-            radius: 20
-          },
-          label: {
-            borderColor: '#ff4560',
-            offsetY: -15,
-            style: {
-              color: '#fff',
-              background: '#ff4560',
-              padding: {
-                left: 10,
-                right: 10,
-                top: 5,
-                bottom: 5
-              },
-              borderRadius: 5,
-              fontSize: '12px',
-              fontWeight: 'bold'
-            },
-            text: 'Peak Day'
-          }
-        },
-        {
-          x: lowPeakDay,
-          y: minOrders,
-          marker: {
-            size: 10,
-            fillColor: '#fff',
-            strokeColor: '#00e396',
-            strokeWidth: 2,
-            radius: 20
-          },
-          label: {
-            borderColor: '#00e396',
-            offsetY: -15,
-            style: {
-              color: '#fff',
-              background: '#00e396',
-              padding: {
-                left: 10,
-                right: 10,
-                top: 10,
-                bottom: 5
-              },
-              borderRadius: 5,
-              fontSize: '12px',
-              fontWeight: 'bold'
-            },
-            text: 'Low Peak'
-          }
-        }
-      ]
-    },
+    // annotations: {
+    //   points: [
+    //     {
+    //       x: peakDay,
+    //       y: maxOrders,
+    //       marker: {
+    //         size: 10,
+    //         fillColor: '#fff',
+    //         strokeColor: '#ff4560',
+    //         strokeWidth: 2,
+    //         radius: 20
+    //       },
+    //       label: {
+    //         borderColor: '#ff4560',
+    //         offsetY: -15,
+    //         style: {
+    //           color: '#fff',
+    //           background: '#ff4560',
+    //           padding: {
+    //             left: 10,
+    //             right: 10,
+    //             top: 5,
+    //             bottom: 5
+    //           },
+    //           borderRadius: 5,
+    //           fontSize: '12px',
+    //           fontWeight: 'bold'
+    //         },
+    //         text: 'Peak Day'
+    //       }
+    //     },
+    //     {
+    //       x: lowPeakDay,
+    //       y: minOrders,
+    //       marker: {
+    //         size: 10,
+    //         fillColor: '#fff',
+    //         strokeColor: '#00e396',
+    //         strokeWidth: 2,
+    //         radius: 20
+    //       },
+    //       label: {
+    //         borderColor: '#00e396',
+    //         offsetY: -15,
+    //         style: {
+    //           color: '#fff',
+    //           background: '#00e396',
+    //           padding: {
+    //             left: 10,
+    //             right: 10,
+    //             top: 10,
+    //             bottom: 5
+    //           },
+    //           borderRadius: 5,
+    //           fontSize: '12px',
+    //           fontWeight: 'bold'
+    //         },
+    //         text: 'Low Peak'
+    //       }
+    //     }
+    //   ]
+    // },
   };
 
   const chartSeries = [

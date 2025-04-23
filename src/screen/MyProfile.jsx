@@ -408,6 +408,7 @@ const MyProfile = () => {
                       ) : (
                         <form onSubmit={handleSubmit} className="px-2">
                           <div className="mb-4">
+                            <label className="form-label fw-semibold mb-2">Name</label>
                             <input
                               type="text"
                               className="form-control form-control-lg"
@@ -416,10 +417,10 @@ const MyProfile = () => {
                               onChange={handleInputChange}
                               placeholder="Enter your name"
                             />
-                            <label className="form-label">Name</label>
                           </div>
 
                           <div className="mb-4">
+                            <label className="form-label fw-semibold mb-2">Email</label>
                             <input
                               type="email"
                               className="form-control form-control-lg"
@@ -428,10 +429,10 @@ const MyProfile = () => {
                               onChange={handleInputChange}
                               placeholder="Enter your email"
                             />
-                            <label className="form-label">Email</label>
                           </div>
 
                           <div className="mb-4">
+                            <label className="form-label fw-semibold mb-2">Mobile Number</label>
                             <input
                               type="tel"
                               className="form-control form-control-lg"
@@ -441,15 +442,13 @@ const MyProfile = () => {
                               placeholder="Enter mobile number"
                               disabled
                             />
-                            <label className="form-label">Mobile Number</label>
-
-                            <small className="text-danger ms-2">
-                              (Mobile number cannot be changed as it's used for
-                              login.)
+                            <small className="text-danger mt-1 d-block">
+                              (Mobile number cannot be changed as it's used for login.)
                             </small>
                           </div>
 
                           <div className="mb-4">
+                            <label className="form-label fw-semibold mb-2">Aadhar Number</label>
                             <input
                               type="text"
                               className="form-control form-control-lg"
@@ -458,10 +457,10 @@ const MyProfile = () => {
                               onChange={handleInputChange}
                               placeholder="Enter your aadhar number"
                             />
-                            <label className="form-label">Aadhar Number</label>
                           </div>
 
                           <div className="mb-4">
+                            <label className="form-label fw-semibold mb-2">Date of Birth</label>
                             <div className="position-relative">
                               <input
                                 type="date"
@@ -470,11 +469,7 @@ const MyProfile = () => {
                                 value={formData.dob || ""}
                                 onChange={handleInputChange}
                                 max={new Date().toISOString().split('T')[0]}
-                                style={{
-                                  paddingRight: "2.5rem"
-                                }}
                               />
-                              <label className="form-label">Date of Birth</label>
                             </div>
                           </div>
 
