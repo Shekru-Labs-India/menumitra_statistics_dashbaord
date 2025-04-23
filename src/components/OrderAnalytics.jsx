@@ -111,14 +111,13 @@ const OrderAnalytics = () => {
   const handleDateRangeChange = (range) => {
     console.log('Date range changed to:', range);
     setDateRange(range);
-    setShowDatePicker(range === 'Custom Range');
     
     if (range === 'Custom Range') {
-      // Show date picker for custom range
-      setStartDate(null);
-      setEndDate(null);
+      // Only show date picker, don't reset dates
+      setShowDatePicker(true);
     } else {
-      // Fetch data for all ranges including "All Time"
+      // For non-custom ranges, reset dates and fetch data
+      setShowDatePicker(false);
       setStartDate(null);
       setEndDate(null);
       fetchData(range);

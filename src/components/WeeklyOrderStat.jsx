@@ -311,9 +311,6 @@ const WeeklyOrderStat = () => {
     return getDateRange(range);
   }, [startDate, endDate]);
 
-  // Create shortened day names for x-axis
-  const dayShortNames = days.map(day => day.substring(0, 3));
-
   // Determine current loading state
   const isLoading = userInteracted ? loading : contextLoading;
   // Determine current error state
@@ -405,15 +402,15 @@ const WeeklyOrderStat = () => {
       }
     },
     xaxis: {
-      categories: dayShortNames,
+      categories: days,
       labels: {
         style: {
-          fontSize: '15px',
+          fontSize: '12px',
           fontFamily: 'Helvetica, Arial, sans-serif',
           colors: days.map(() => '#000000')
         },
-        rotate: 0,
-        offsetY: 1,
+        rotate: -45,
+        offsetY: 5,
         trim: false
       },
       axisBorder: {
