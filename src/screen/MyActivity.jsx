@@ -9,7 +9,8 @@ import Header from '../components/Header';
 const MyActivity = () => {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -73,13 +74,13 @@ const MyActivity = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-        <CircularProgress />
-      </Box>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+  //       <CircularProgress />
+  //     </Box>
+  //   );
+  // }
 
   if (error) {
     return (
@@ -97,7 +98,27 @@ const MyActivity = () => {
           <Header />
           <div className="content-wrapper">
             <div className="container-xxl flex-grow-1 container-p-y">
-              <h4 className="fw-bold py-3 mb-4">Activity Log</h4>
+              <div className="d-flex justify-content-between align-items-center py-3 mb-4">
+                <h4 className="fw-bold mb-0">Activity Log</h4>
+                <div className="search-container" style={{ maxWidth: '300px', width: '100%' }}>
+                  <div className="input-group">
+                    <span className="input-group-text" style={{ backgroundColor: 'transparent' }}>
+                      <i className="fas fa-search"></i>
+                    </span>
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Search activities..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      style={{
+                        borderLeft: 'none',
+                        boxShadow: 'none'
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
               <Card>
                 <CardContent>
                   <TableContainer component={Paper}>
@@ -112,7 +133,12 @@ const MyActivity = () => {
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {activities.map((activity) => (
+                        {activities
+                          .filter(activity => 
+                            activity.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            formatDate(activity.created_on).toLowerCase().includes(searchTerm.toLowerCase())
+                          )
+                          .map((activity) => (
                           <TableRow key={activity.activity_log_id}>
                             <TableCell>{formatDate(activity.created_on)}</TableCell>
                             {/* <TableCell>{activity.module}</TableCell> */}

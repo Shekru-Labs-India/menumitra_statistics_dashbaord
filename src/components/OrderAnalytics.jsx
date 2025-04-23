@@ -109,9 +109,16 @@ const OrderAnalytics = () => {
   };
 
   const handleDateRangeChange = (range) => {
+    console.log('Date range changed to:', range);
     setDateRange(range);
     setShowDatePicker(range === 'Custom Range');
-    if (range !== 'Custom Range') {
+    
+    if (range === 'Custom Range') {
+      // Show date picker for custom range
+      setStartDate(null);
+      setEndDate(null);
+    } else {
+      // Fetch data for all ranges including "All Time"
       setStartDate(null);
       setEndDate(null);
       fetchData(range);
@@ -119,23 +126,26 @@ const OrderAnalytics = () => {
   };
 
   const handleReload = () => {
+    console.log('Reloading data...');
     setUserInteracted(true);
-    if (startDate && endDate) {
-      fetchData('Custom Range');
-    } else {
-      fetchData(dateRange);
-    }
+    setIsGifPlaying(true);
+    
+    // Always fetch fresh data on reload, regardless of the date range
+    fetchData(dateRange);
   };
 
   const fetchData = async (range) => {
     try {
       setLoading(true);
       setError('');
+      setUserInteracted(true);
       
       const requestData = {
         outlet_id: localStorage.getItem('outlet_id'),
         device_token: localStorage.getItem('device_token'),
-        device_id: localStorage.getItem('device_id')
+        device_id: localStorage.getItem('device_id'),
+        start_date: '',
+        end_date: ''
       };
 
       // Add date range if not "All Time"
@@ -150,29 +160,13 @@ const OrderAnalytics = () => {
         }
       }
 
-      // If no date range is selected, use the context data
-      if (!requestData.start_date && !requestData.end_date) {
-        if (orderAnalytics_from_context) {
-          setAnalyticsData({
-            avg_first_order_time: orderAnalytics_from_context.first_order_time || '0 mins',
-            avg_last_order_time: orderAnalytics_from_context.last_order_time || '0 mins',
-            avg_order_time: orderAnalytics_from_context.average_order_time || '0 mins',
-            avg_cooking_time: orderAnalytics_from_context.average_cooking_time || '0 mins'
-          });
-        }
-        setLoading(false);
-        return;
-      }
+      console.log('Making API request with data:', requestData);
 
       const response = await axios.post(
-        'https://men4u.xyz/outlet_statistics/order_analytics',
+        `${apiEndpoint}order_analytics`,
         requestData,
         {
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('access')}`
-          }
+          headers: getAuthHeaders()
         }
       );
 
@@ -189,7 +183,7 @@ const OrderAnalytics = () => {
       }
     } catch (error) {
       console.error('API Error:', error);
-      setError('Failed to fetch data');
+      setError(handleApiError(error));
     } finally {
       setLoading(false);
     }

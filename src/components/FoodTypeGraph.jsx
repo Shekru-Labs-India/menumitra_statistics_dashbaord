@@ -26,6 +26,7 @@ const FoodTypeGraph = () => {
     const [foodTypeData, setFoodTypeData] = useState([]);
     const [error, setError] = useState('');
     const [userInteracted, setUserInteracted] = useState(false); // Flag to track user interaction
+    const [showModal, setShowModal] = useState(false); // New state for modal
   
     // Helper function to get auth headers
     const getAuthHeaders = (includeAuth = true) => {
@@ -268,17 +269,12 @@ const FoodTypeGraph = () => {
         setDateRange(range);
         setShowDatePicker(range === 'Custom Range');
         
-        if (range === 'All time') {
-            // Use context data for "All time"
-            if (foodTypeStatistics_from_context) {
-                processFoodTypeData(foodTypeStatistics_from_context);
-            }
-        } else if (range === 'Custom Range') {
+        if (range === 'Custom Range') {
             // Show date picker for custom range
             setStartDate(null);
             setEndDate(null);
         } else {
-            // Fetch data for other ranges
+            // Fetch data for all ranges including "All time"
             setStartDate(null);
             setEndDate(null);
             fetchData(range);
@@ -288,19 +284,10 @@ const FoodTypeGraph = () => {
     const handleReload = () => {
         console.log('Reloading data...');
         setUserInteracted(true);
+        setIsGifPlaying(true);
         
-        if (dateRange === 'All time') {
-            // Reload context data for "All time"
-            if (foodTypeStatistics_from_context) {
-                processFoodTypeData(foodTypeStatistics_from_context);
-            }
-        } else if (startDate && endDate) {
-            // Reload custom range data
-            fetchData('Custom Range');
-        } else {
-            // Reload current range data
-            fetchData(dateRange);
-        }
+        // Always fetch fresh data on reload, regardless of the date range
+        fetchData(dateRange);
     };
 
     // Function to prepare request data based on date range
@@ -310,8 +297,11 @@ const FoodTypeGraph = () => {
         const getDateRange = (range) => {
             switch(range) {
                 case 'All time': {
-                    // For all time, we don't need to set any date range
-                    return {};
+                    // For all time, we'll send an empty date range to get all data
+                    return {
+                        start_date: '',
+                        end_date: ''
+                    };
                 }
                 case 'This week': {
                     const firstDayOfWeek = new Date(today);
@@ -701,16 +691,82 @@ const FoodTypeGraph = () => {
                         </div>
                     </div>
                 ) : (
-                    <Chart
-                        options={chartOptions}
-                        series={chartSeries}
-                        type="bar"
-                        height={400}
-                    />
+                    <div className="position-relative">
+                        <button
+                            type="button"
+                            className="btn btn-icon btn-sm btn-outline-primary position-absolute"
+                            style={{ 
+                                top: '-5px', 
+                                right: '55px',
+                                zIndex: 1
+                            }}
+                            onClick={() => setShowModal(true)}
+                            title="Expand Graph"
+                        >
+                            <i className="fas fa-expand"></i>
+                        </button>
+                        <Chart
+                            options={chartOptions}
+                            series={chartSeries}
+                            type="bar"
+                            height={400}
+                        />
+                    </div>
                 )}
             </div>
+
+            {/* Modal for expanded graph */}
+            {showModal && (
+                <div 
+                    className="modal fade show" 
+                    tabIndex="-1" 
+                    role="dialog"
+                    style={{ 
+                        display: 'block',
+                        backgroundColor: 'rgba(0,0,0,0.5)'
+                    }}
+                >
+                    <div className="modal-dialog modal-xl modal-dialog-centered">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Food Type Analysis</h5>
+                                <button 
+                                    type="button" 
+                                    className="btn-close" 
+                                    onClick={() => setShowModal(false)}
+                                    aria-label="Close"
+                                ></button>
+                            </div>
+                            <div className="modal-body">
+                                <Chart
+                                    options={{
+                                        ...chartOptions,
+                                        chart: {
+                                            ...chartOptions.chart,
+                                            toolbar: {
+                                                show: true,
+                                                tools: {
+                                                    download: true,
+                                                    selection: true,
+                                                    zoom: true,
+                                                    zoomin: true,
+                                                    zoomout: true,
+                                                    pan: true,
+                                                }
+                                            }
+                                        }
+                                    }}
+                                    series={chartSeries}
+                                    type="bar"
+                                    height={600}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
-}
+};
 
-export default FoodTypeGraph
+export default FoodTypeGraph;

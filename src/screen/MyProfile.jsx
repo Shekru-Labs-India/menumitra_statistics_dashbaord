@@ -4,7 +4,6 @@ import { apiEndpoint } from '../config/menuMitraConfig';
 import VerticalSidebar from "../components/VerticalSidebar";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import img from '../assets/img/avatars/1.png';
 
 const MyProfile = () => {
   const [userDetails, setUserDetails] = useState({
@@ -300,7 +299,7 @@ const MyProfile = () => {
                     style={{ top: "-75px", left: "35px" }}
                   >
                     <div
-                      className="avatar avatar-xl"
+                      className="avatar avatar-xl d-flex align-items-center justify-content-center"
                       style={{
                         width: "110px",
                         height: "110px",
@@ -310,12 +309,7 @@ const MyProfile = () => {
                         boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
                       }}
                     >
-                      <img
-                        src={img}
-                        alt="Profile Image"
-                        className="w-100 h-100"
-                        style={{ objectFit: "cover", borderRadius: "5px" }}
-                      />
+                      <i className="far fa-user-circle fa-4x text-gray"></i>
                     </div>
                   </div>
 
@@ -368,42 +362,47 @@ const MyProfile = () => {
                       {!editMode ? (
                         <div className="ps-2">
                           <div className="mb-4">
+                          <div className="text-muted small mb-1">Name</div>
                             <div className="fs-5 fw-bold">
                               {userDetails.name}
                             </div>
-                            <div className="text-muted small mb-1">Name</div>
+                            
                           </div>
 
                           <div className="mb-4">
                             <div className="fs-5 fw-bold">
+                            <div className="text-muted small mb-1">Email</div>
                               {userDetails.email || "Not provided"}
                             </div>
-                            <div className="text-muted small mb-1">Email</div>
+                          
                           </div>
 
                           <div className="mb-4">
+                          <div className="text-muted small mb-1">Mobile</div>
                             <div className="fs-5 fw-bold">
                               {userDetails.mobile_number}
                             </div>
-                            <div className="text-muted small mb-1">Mobile</div>
+                            
                           </div>
 
                           <div className="mb-4">
+                          <div className="text-muted small mb-1">
+                              Aadhar Number
+                            </div>
                             <div className="fs-5 fw-bold">
                               {userDetails.aadhar_number}
                             </div>
-                            <div className="text-muted small mb-1">
-                              Aadhar Number
-                            </div>
+                           
                           </div>
 
                           <div className="mb-4">
+                          <div className="text-muted small mb-1">
+                              Date of Birth
+                            </div>
                             <div className="fs-5 fw-bold">
                               {formatDateForDisplay(userDetails.dob)}
                             </div>
-                            <div className="text-muted small mb-1">
-                              Date of Birth
-                            </div>
+                            
                           </div>
                         </div>
                       ) : (
