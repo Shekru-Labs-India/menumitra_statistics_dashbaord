@@ -434,7 +434,7 @@ const WeeklyOrderStat = () => {
       max: orderData.length > 0 ? Math.max(...orderData) * 1.2 : 500,
       labels: {
         style: {
-          fontSize: '12px',
+          fontSize: '10px',
           fontFamily: 'Helvetica, Arial, sans-serif',
           colors: '#5a5a5a'
         },
@@ -443,22 +443,7 @@ const WeeklyOrderStat = () => {
         }
       }
     },
-    legend: {
-      show: true,
-      position: 'right',
-      fontSize: '12px',
-      fontFamily: 'Helvetica, Arial, sans-serif',
-      offsetY: 0,
-      markers: {
-        width: 12,
-        height: 12,
-        radius: 12
-      },
-      itemMargin: {
-        horizontal: 5,
-        vertical: 5
-      }
-    },
+  
     tooltip: {
       enabled: true,
       theme: 'light',
