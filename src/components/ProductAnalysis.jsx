@@ -117,11 +117,6 @@ function TopSell() {
 
   // Fetch data from API
   const fetchData = async (range) => {
-    // Skip if custom range selected but dates not set
-    if (range === "Custom Range" && (!startDate || !endDate)) {
-      return;
-    }
-    
     setLoading(true);
     setError(null);
     // Set user interaction flag to true
@@ -142,9 +137,9 @@ function TopSell() {
         device_id: localStorage.getItem('device_id') || ''
       };
       
-      // Add date range if not "All Time"
+      // Add date range if not "All Time" and if both dates are available for custom range
       const dateParams = getDateRange(range);
-      if (dateParams) {
+      if (dateParams && (range !== "Custom Range" || (startDate && endDate))) {
         Object.assign(requestData, dateParams);
       }
       
@@ -304,21 +299,8 @@ function TopSell() {
             type="button"
             className="btn btn-icon p-0"
             onClick={() => {
-              // Check if we have valid startDate and endDate (indicating custom range)
-              if (startDate && endDate) {
-                console.log(
-                  "Reloading with custom date range:",
-                  formatDate(startDate),
-                  "to",
-                  formatDate(endDate)
-                );
-                // For custom range, explicitly use 'Custom Range'
-                fetchData("Custom Range");
-              } else {
-                // For other ranges, use the current dateRange state
-                console.log("Reloading with standard date range:", dateRange);
-                fetchData(dateRange);
-              }
+              // Always fetch data with current dateRange
+              fetchData(dateRange);
             }}
             disabled={isLoading}
             style={{ border: "1px solid var(--bs-primary)" }}

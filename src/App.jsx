@@ -12,7 +12,7 @@ import { ThemeProvider } from './components/ThemeContext'
 import { DashboardProvider } from './context/DashboardContext'
 
 import Header from './components/Header'
-import TopSell from './components/TopSell';
+import ProductAnalysis from './components/ProductAnalysis';
 import FoodTypeGraph from './components/FoodTypeGraph';
 import Settings from './screen/Settings';
 import MyActivity from './screen/MyActivity';

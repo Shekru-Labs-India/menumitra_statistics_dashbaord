@@ -6,7 +6,7 @@ import VerticalSidebar from "../components/VerticalSidebar";
 import Header from "../components/Header";
 import PaymentMethodsChart from "../components/PaymentMethodsChart";
 import RevenueLossWidget from "../components/RevenueLossWidget";
-import TopSell from "../components/TopSell";
+import ProductAnalysis from "../components/ProductAnalysis";
 import OrderStat from "../components/OrderStat";
 import FoodTypeGraph from "../components/FoodTypeGraph";
 import OrderType from "../components/OrderType";
@@ -720,7 +720,7 @@ function HomeScreen() {
               <div className="row g-4 mb-4">
                 <div className="col-12 col-md-6 col-lg-6">
                   <div className="h-100">
-                    <TopSell />
+                    <ProductAnalysis />
                   </div>
                 </div>
                 <div className="col-12 col-md-6 col-lg-6">

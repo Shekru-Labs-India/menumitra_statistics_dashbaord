@@ -362,46 +362,47 @@ const MyProfile = () => {
                       {!editMode ? (
                         <div className="ps-2">
                           <div className="mb-4">
-                          <div className="text-muted small mb-1">Name</div>
+                          
                             <div className="fs-5 fw-bold">
                               {userDetails.name}
                             </div>
+                            <div className="text-muted small mb-1">Name</div>
                             
                           </div>
 
                           <div className="mb-4">
                             <div className="fs-5 fw-bold">
-                            <div className="text-muted small mb-1">Email</div>
+                           
                               {userDetails.email || "Not provided"}
                             </div>
+                            <div className="text-muted small mb-1">Email</div>
                           
                           </div>
 
                           <div className="mb-4">
-                          <div className="text-muted small mb-1">Mobile</div>
+                          
                             <div className="fs-5 fw-bold">
                               {userDetails.mobile_number}
                             </div>
+                            <div className="text-muted small mb-1">Mobile</div>
                             
                           </div>
 
                           <div className="mb-4">
-                          <div className="text-muted small mb-1">
-                              Aadhar Number
-                            </div>
+                          
                             <div className="fs-5 fw-bold">
                               {userDetails.aadhar_number}
                             </div>
+                            <div className="text-muted small mb-1">Aadhar Number</div>
                            
                           </div>
 
                           <div className="mb-4">
-                          <div className="text-muted small mb-1">
-                              Date of Birth
-                            </div>
+                          
                             <div className="fs-5 fw-bold">
                               {formatDateForDisplay(userDetails.dob)}
                             </div>
+                            <div className="text-muted small mb-1">Date of Birth</div>
                             
                           </div>
                         </div>
