@@ -116,7 +116,11 @@ const MyProfile = () => {
     setEditMode(!editMode);
     // Reset form data when entering edit mode
     if (!editMode) {
-      setFormData({ ...userDetails });
+      // Convert date to input format when entering edit mode
+      setFormData({
+        ...userDetails,
+        dob: userDetails.dob ? formatDateForInput(userDetails.dob) : ''
+      });
     }
     // Clear any messages
     setError('');
@@ -232,20 +236,33 @@ const MyProfile = () => {
 
   // Format date for input field
   const formatDateForInput = (dateStr) => {
-    if (!dateStr) return '';
+    if (!dateStr || dateStr === 'Not provided') return '';
     try {
       // If the date is in "DD MMM YYYY" format, convert it to YYYY-MM-DD
       if (typeof dateStr === 'string' && dateStr.match(/^\d{2} [A-Za-z]{3} \d{4}$/)) {
         const [day, month, year] = dateStr.split(' ');
         const monthIndex = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].indexOf(month);
-        const date = new Date(year, monthIndex, day);
-        return date.toISOString().split('T')[0];
+        if (monthIndex !== -1) {
+          // Create date in UTC to avoid timezone offset
+          const date = new Date(Date.UTC(parseInt(year), monthIndex, parseInt(day)));
+          if (!isNaN(date.getTime())) {
+            return date.toISOString().split('T')[0];
+          }
+        }
       }
       
       // If it's a date object or ISO string, format it
-      const date = new Date(dateStr);
-      if (isNaN(date.getTime())) return '';
-      return date.toISOString().split('T')[0];
+      const dateObj = new Date(dateStr);
+      if (!isNaN(dateObj.getTime())) {
+        // Create new UTC date to avoid timezone offset
+        const utcDate = new Date(Date.UTC(
+          dateObj.getFullYear(),
+          dateObj.getMonth(),
+          dateObj.getDate()
+        ));
+        return utcDate.toISOString().split('T')[0];
+      }
+      return '';
     } catch (error) {
       console.error('Error formatting date for input:', error);
       return '';
