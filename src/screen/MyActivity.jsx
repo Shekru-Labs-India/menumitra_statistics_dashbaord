@@ -1,23 +1,41 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
-import { Card, CardContent, Typography, Box, CircularProgress, Alert, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import { 
+  Card, CardContent, Box, CircularProgress, Alert, 
+  Table, TableBody, TableCell, TableContainer, 
+  TableHead, TableRow, Paper, Pagination
+} from '@mui/material';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import VerticalSidebar from '../components/VerticalSidebar';
 import Header from '../components/Header';
+import debounce from 'lodash/debounce';
 
 const MyActivity = () => {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const itemsPerPage = 20;
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchActivityLog();
-  }, []);
+  // Memoized axios instance
+  const api = useMemo(() => axios.create({
+    baseURL: 'https://men4u.xyz',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('access')}`
+    }
+  }), []);
 
-  const fetchActivityLog = async () => {
+  useEffect(() => {
+    fetchActivityLog(page, searchTerm);
+  }, [page, searchTerm]);
+
+  const fetchActivityLog = async (currentPage, search = '') => {
     try {
       setLoading(true);
       setError('');
@@ -25,33 +43,28 @@ const MyActivity = () => {
       const userId = localStorage.getItem('user_id');
       const deviceToken = localStorage.getItem('device_token');
       
-      if (!userId) {
-        setError('User ID not found. Please login again.');
+      if (!userId || !deviceToken) {
+        setError('Authentication information missing. Please login again.');
+        navigate('/login');
         return;
       }
 
-      if (!deviceToken) {
-        setError('Device token not found. Please login again.');
-        return;
-      }
-
-      const response = await axios.post('https://men4u.xyz/common_api/activity_log', {
+      const response = await api.post('/common_api/activity_log', {
         user_id: parseInt(userId),
         device_token: deviceToken,
         device_id: localStorage.getItem('device_id') || '',
-        outlet_id: localStorage.getItem('outlet_id')
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('access')}`
-        }
+        outlet_id: localStorage.getItem('outlet_id'),
+        page: currentPage,
+        per_page: itemsPerPage,
+        search: search
       });
 
-      if (response.data && response.data.activity_logs) {
-        setActivities(response.data.activity_logs);
+      if (response.data) {
+        setActivities(response.data.activity_logs || []);
+        setTotalPages(Math.ceil((response.data.total || 0) / itemsPerPage));
       } else {
-        setError('No activity logs found');
+        setActivities([]);
+        setTotalPages(1);
       }
     } catch (error) {
       console.error('Error fetching activity log:', error);
@@ -64,6 +77,24 @@ const MyActivity = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Debounced search handler
+  const debouncedSearch = useCallback(
+    debounce((value) => {
+      setPage(1);
+      fetchActivityLog(1, value);
+    }, 500),
+    []
+  );
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    debouncedSearch(e.target.value);
+  };
+
+  const handlePageChange = (event, value) => {
+    setPage(value);
   };
 
   const formatDate = (dateString) => {
@@ -110,7 +141,7 @@ const MyActivity = () => {
                       className="form-control"
                       placeholder="Search activities..."
                       value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
+                      onChange={handleSearchChange}
                       style={{
                         borderLeft: 'none',
                         boxShadow: 'none'
@@ -121,35 +152,45 @@ const MyActivity = () => {
               </div>
               <Card>
                 <CardContent>
-                  <TableContainer component={Paper}>
-                    <Table>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>Date & Time</TableCell>
-                          {/* <TableCell>Module</TableCell> */}
-                          {/* <TableCell>Sub Module</TableCell> */}
-                          <TableCell>Activity</TableCell>
-                          {/* <TableCell>Outlet ID</TableCell> */}
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {activities
-                          .filter(activity => 
-                            activity.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            formatDate(activity.created_on).toLowerCase().includes(searchTerm.toLowerCase())
-                          )
-                          .map((activity) => (
-                          <TableRow key={activity.activity_log_id}>
-                            <TableCell>{formatDate(activity.created_on)}</TableCell>
-                            {/* <TableCell>{activity.module}</TableCell> */}
-                            {/* <TableCell>{activity.sub_module}</TableCell> */}
-                            <TableCell>{activity.title}</TableCell>
-                            {/* <TableCell>{activity.outlet_id}</TableCell> */}
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
+                  {loading ? (
+                    <Box display="flex" justifyContent="center" alignItems="center" p={3}>
+                      <CircularProgress />
+                    </Box>
+                  ) : error ? (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      {error}
+                    </Alert>
+                  ) : (
+                    <>
+                      <TableContainer component={Paper} sx={{ maxHeight: '60vh' }}>
+                        <Table stickyHeader>
+                          <TableHead>
+                            <TableRow>
+                              <TableCell style={{ fontWeight: 'bold' , fontSize: '16px'}}>Date & Time</TableCell>
+                              <TableCell style={{ fontWeight: 'bold' , fontSize: '16px'}}>Activity</TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {activities.map((activity) => (
+                              <TableRow key={activity.activity_log_id}>
+                                <TableCell>{formatDate(activity.created_on)}</TableCell>
+                                <TableCell>{activity.title}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                      <Box display="flex" justifyContent="center" mt={3}>
+                        <Pagination 
+                          count={totalPages} 
+                          page={page} 
+                          onChange={handlePageChange}
+                          color="primary"
+                          size="large"
+                        />
+                      </Box>
+                    </>
+                  )}
                 </CardContent>
               </Card>
             </div>
