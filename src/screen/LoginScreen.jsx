@@ -11,6 +11,7 @@ import logo from "../assets/img/company/MenuMitra_logo.png";
 // Import configuration
 import { menuMitraCompanyInfo, menuMitraSocialLinks, menuMitraAppInfo, apiEndpoint } from '../config/menuMitraConfig';
 import { requestNotificationPermission } from '../config/firebase';
+import { UpdateService } from '../config/UpdateService';
 
 function LoginScreen() {
   const [mobileNumber, setMobileNumber] = useState('');
@@ -20,21 +21,29 @@ function LoginScreen() {
   const [resendDisabled, setResendDisabled] = useState(true);
   const [isLoading, setIsLoading] = useState(false); // Add loading state
   const [error, setError] = useState(''); // Add error state
+  const [showUpdatePopup, setShowUpdatePopup] = useState(false);
+  const [versionInfo, setVersionInfo] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-  localStorage.removeItem('outlet_id');
-  localStorage.removeItem('user_id');
-  localStorage.removeItem('user_name');
-  localStorage.removeItem('mobile_number');
-  localStorage.removeItem('role');
-  localStorage.removeItem('access');
-  localStorage.removeItem('refresh');
-  localStorage.removeItem('fcm_token');
-
+    checkAppVersion();
+    localStorage.removeItem('outlet_id');
+    localStorage.removeItem('user_id');
+    localStorage.removeItem('user_name');
+    localStorage.removeItem('mobile_number');
+    localStorage.removeItem('role');
+    localStorage.removeItem('access');
+    localStorage.removeItem('refresh');
+    localStorage.removeItem('fcm_token');
   }, []);
 
-
+  const checkAppVersion = async () => {
+    const versionData = await UpdateService.checkForUpdates();
+    setVersionInfo(versionData);
+    if (versionData.hasUpdate) {
+      setShowUpdatePopup(true);
+    }
+  };
 
   // Start countdown timer when OTP form is shown
   useEffect(() => {
@@ -266,6 +275,98 @@ function LoginScreen() {
       setIsLoading(false);
     }
   };
+
+  if (showUpdatePopup) {
+    return (
+      <div className="authentication-wrapper authentication-basic container-p-y" 
+        style={{
+          maxWidth: "1100px",
+          margin: "0 auto",
+          padding: "2rem"
+        }}>
+        <div className="authentication-inner" style={{ width: "100%" }}>
+          <div className="card" style={{ boxShadow: "0 2px 6px 0 rgba(67, 89, 113, 0.12)" }}>
+            <div className="card-body p-3">
+              <div className="app-brand justify-content-center mt-4">
+                <div className="d-flex flex-column align-items-center">
+                  <span className="app-brand-logo demo mb-2">
+                    <img
+                      src={logo}
+                      alt={`${menuMitraAppInfo.name} Logo`}
+                      style={{
+                        width: "100px",
+                        height: "auto"
+                      }}
+                    />
+                  </span>
+                </div>
+              </div>
+              <div className="text-center mt-4">
+                <h3 className="mb-4" style={{ color: '#dc3545', fontSize: '1.75rem' }}>
+                  <i className="fas fa-exclamation-triangle me-2"></i>
+                  Update Required
+                </h3>
+
+                <div className="card mb-4" style={{ backgroundColor: '#f8f9fa' }}>
+                  <div className="card-body p-4">
+                    <h5 className="mb-4" style={{ fontSize: '1.25rem' }}>Need Help? Our Support Team is Here for You!</h5>
+                    
+                    <div className="row justify-content-center g-4">
+                      <div className="col-md-6 mb-3">
+                        <p className="mb-2">Call / WhatsApp</p>
+                        <p className="mb-2">
+                          <a href="tel:+919527279639" className="text-primary fw-bold fs-5">+91 95272 79639</a>
+                        </p>
+                        <div>
+                          <a href="tel:+919527279639" className="btn btn-primary btn-icon btn-lg me-2">
+                            <i className="fas fa-phone"></i>
+                          </a>
+                          <a href="https://wa.me/919527279639" className="btn btn-success btn-icon btn-lg">
+                            <i className="fab fa-whatsapp"></i>
+                          </a>
+                        </div>
+                      </div>
+                      <div className="col-md-6 mb-3">
+                        <p className="mb-2">Call / WhatsApp</p>
+                        <p className="mb-2">
+                          <a href="tel:+918600704616" className="text-primary fw-bold fs-5">+91 86007 04616</a>
+                        </p>
+                        <div>
+                          <a href="tel:+918600704616" className="btn btn-primary btn-icon btn-lg me-2">
+                            <i className="fas fa-phone"></i>
+                          </a>
+                          <a href="https://wa.me/918600704616" className="btn btn-success btn-icon btn-lg">
+                            <i className="fab fa-whatsapp"></i>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+
+                    <p className="mt-4 mb-0 fs-5">
+                      Or email <i className="fas fa-envelope me-1"></i> us at: {' '}
+                      <a href="mailto:menumitra.info@gmail.com" className="text-primary">
+                        menumitra.info@gmail.com
+                      </a>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <p className="mb-2 fs-5">Current Version: <strong>{versionInfo?.currentVersion || '1.0.0'}</strong></p>
+                  <p className="mb-4 fs-5">Latest Version: <strong>{versionInfo?.serverVersion || '1.3'}</strong></p>
+                </div>
+
+                <p className="text-danger fs-5">
+                  Please update your application to the latest version to continue.
+                </p>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="authentication-wrapper authentication-basic container-p-y">
