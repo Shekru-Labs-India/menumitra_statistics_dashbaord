@@ -109,9 +109,15 @@ const OrderAnalytics = () => {
   };
 
   const handleDateRangeChange = (range) => {
+    console.log('Date range changed to:', range);
     setDateRange(range);
-    setShowDatePicker(range === 'Custom Range');
-    if (range !== 'Custom Range') {
+    
+    if (range === 'Custom Range') {
+      // Only show date picker, don't reset dates
+      setShowDatePicker(true);
+    } else {
+      // For non-custom ranges, reset dates and fetch data
+      setShowDatePicker(false);
       setStartDate(null);
       setEndDate(null);
       fetchData(range);
@@ -119,135 +125,108 @@ const OrderAnalytics = () => {
   };
 
   const handleReload = () => {
-    // Always hit the API directly on reload
+    console.log('Reloading data...');
     setUserInteracted(true);
+    setIsGifPlaying(true);
     
-    // Check if we have valid startDate and endDate (indicating custom range)
-    if (startDate && endDate) {
-      console.log('Reloading with custom date range:', formatDate(startDate), 'to', formatDate(endDate));
-      // For custom range, explicitly use 'Custom Range'
-      fetchData('Custom Range');
-    } else {
-      // For other ranges, use the current dateRange state
-      console.log('Reloading with standard date range:', dateRange);
-      fetchData(dateRange);
-    }
+    // Always fetch fresh data on reload, regardless of the date range
+    fetchData(dateRange);
   };
 
   const fetchData = async (range) => {
     try {
       setLoading(true);
       setError('');
-      // Set user interaction flag to true
       setUserInteracted(true);
       
-      let requestData = {};
-      const today = new Date();
-      const outletId = localStorage.getItem('outlet_id');
-      
-      if (!outletId) {
-        console.error('No outlet ID found in localStorage');
-        setError('No outlet ID found. Please log in again.');
-        setLoading(false);
-        return;
-      }
-      
-      // Add outlet_id to request data
-      requestData.outlet_id = outletId;
-      
-      // Handle different date range options
-      if (range === 'All Time') {
-        // Don't add date range for All Time
-      } else if (range === 'Today') {
-        // Today - both start and end are today
-        requestData.start_date = formatDate(today);
-        requestData.end_date = formatDate(today);
-      } else if (range === 'Yesterday') {
-        // Yesterday
-        const yesterday = new Date(today);
-        yesterday.setDate(today.getDate() - 1);
-        requestData.start_date = formatDate(yesterday);
-        requestData.end_date = formatDate(yesterday);
-      } else if (range === 'Last 7 Days') {
-        // Last 7 Days
-        const sevenDaysAgo = new Date(today);
-        sevenDaysAgo.setDate(today.getDate() - 6); // -6 because it includes today
-        requestData.start_date = formatDate(sevenDaysAgo);
-        requestData.end_date = formatDate(today);
-      } else if (range === 'Last 30 Days') {
-        // Last 30 Days
-        const thirtyDaysAgo = new Date(today);
-        thirtyDaysAgo.setDate(today.getDate() - 29); // -29 because it includes today
-        requestData.start_date = formatDate(thirtyDaysAgo);
-        requestData.end_date = formatDate(today);
-      } else if (range === 'Current Month') {
-        // Current Month - from 1st of current month to today
-        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-        requestData.start_date = formatDate(firstDayOfMonth);
-        requestData.end_date = formatDate(today);
-      } else if (range === 'Last Month') {
-        // Last Month - from 1st to last day of previous month
-        const firstDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-        const lastDayOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
-        requestData.start_date = formatDate(firstDayOfLastMonth);
-        requestData.end_date = formatDate(lastDayOfLastMonth);
-      } else if (range === 'Custom Range' && startDate && endDate) {
-        // Custom Range - use the selected dates
+      const requestData = {
+        outlet_id: localStorage.getItem('outlet_id'),
+        device_token: localStorage.getItem('device_token'),
+        device_id: localStorage.getItem('device_id'),
+        start_date: '',
+        end_date: ''
+      };
+
+      // Add date range if not "All Time"
+      if (range === 'Custom Range' && startDate && endDate) {
         requestData.start_date = formatDate(startDate);
         requestData.end_date = formatDate(endDate);
-      } else {
-        // Default to today if something goes wrong
-        requestData.start_date = formatDate(today);
-        requestData.end_date = formatDate(today);
+      } else if (range !== 'All Time') {
+        const dateRange = getDateRange(range);
+        if (dateRange) {
+          requestData.start_date = dateRange.start_date;
+          requestData.end_date = dateRange.end_date;
+        }
       }
 
-      console.log('Sending request to order_analytics with data:', requestData);
-      
-      // Make API request
-      const response = await axios.post(`${apiEndpoint}order_analytics`, requestData, {
-        headers: getAuthHeaders()
-      });
-      
-      console.log('API Response:', response.data);
-      console.log('Response structure:', JSON.stringify(response.data, null, 2));
-      
-      if (response.data && response.data.message === 'success' && response.data.data) {
-        // The API returns nested data with a "data" object
-        const responseData = response.data.data;
-        console.log('Response data:', responseData);
-        
-        // Extract values using the correct field names from the API response
-        // Convert time values to minutes where needed
-        const analytics = {
-          // Use the exact field names from the API response
-          avg_first_order_time: responseData.first_order_time || '0 mins',
-          avg_last_order_time: responseData.last_order_time || '0 mins',
-          avg_order_time: responseData.average_order_time || '0 mins',
-          avg_cooking_time: responseData.average_cooking_time || '0 mins'
-        };
-        
-        console.log('Processed analytics data:', analytics);
-        setAnalyticsData(analytics);
+      console.log('Making API request with data:', requestData);
+
+      const response = await axios.post(
+        `${apiEndpoint}order_analytics`,
+        requestData,
+        {
+          headers: getAuthHeaders()
+        }
+      );
+
+      if (response.data && response.data.data) {
+        const data = response.data.data;
+        setAnalyticsData({
+          avg_first_order_time: data.first_order_time || '0 mins',
+          avg_last_order_time: data.last_order_time || '0 mins',
+          avg_order_time: data.average_order_time || '0 mins',
+          avg_cooking_time: data.average_cooking_time || '0 mins'
+        });
       } else {
-        console.warn('Empty or invalid response data');
-        setError('Received invalid data from server');
+        setError('No data available for the selected period');
       }
     } catch (error) {
-      console.error('Failed to fetch order analytics:', error);
-      // Log more details about the error
-      if (error.response) {
-        console.error('Error response:', error.response);
-        console.error('Error data:', error.response.data);
-        console.error('Error status:', error.response.status);
-      } else if (error.request) {
-        console.error('Error request:', error.request);
-      }
-      
-      const errorMessage = handleApiError(error);
-      setError(errorMessage || 'Failed to fetch order analytics. Please try again.');
+      console.error('API Error:', error);
+      setError(handleApiError(error));
     } finally {
       setLoading(false);
     }
+  };
+
+  // Helper function to get date range
+  const getDateRange = (range) => {
+    const today = new Date();
+    let start, end;
+    
+    switch (range) {
+      case 'Today':
+        start = end = new Date();
+        break;
+      case 'Yesterday':
+        start = end = new Date();
+        start.setDate(start.getDate() - 1);
+        break;
+      case 'Last 7 Days':
+        end = new Date();
+        start = new Date();
+        start.setDate(start.getDate() - 6);
+        break;
+      case 'Last 30 Days':
+        end = new Date();
+        start = new Date();
+        start.setDate(start.getDate() - 29);
+        break;
+      case 'Current Month':
+        start = new Date(today.getFullYear(), today.getMonth(), 1);
+        end = new Date();
+        break;
+      case 'Last Month':
+        start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+        end = new Date(today.getFullYear(), today.getMonth(), 0);
+        break;
+      default:
+        return null;
+    }
+    
+    return {
+      start_date: formatDate(start),
+      end_date: formatDate(end)
+    };
   };
 
   const handleCustomDateSelect = () => {

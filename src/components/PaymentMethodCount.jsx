@@ -12,16 +12,108 @@ const PaymentMethodCount = () => {
   const [loading, setLoading] = useState(false);
   const [dateRange, setDateRange] = useState('Today');
   
+  const fetchData = async (range) => {
+    try {
+      setLoading(true);
+      
+      // Prepare request data
+      const requestData = {
+        outlet_id: localStorage.getItem('outlet_id'),
+        device_token: localStorage.getItem('device_token') || '',
+        device_id: localStorage.getItem('device_id') || ''
+      };
+
+      // Add date range if not "All Time"
+      if (range === 'Custom Range' && startDate && endDate) {
+        requestData.start_date = formatDate(startDate);
+        requestData.end_date = formatDate(endDate);
+      } else if (range !== 'All Time') {
+        const dateRange = getDateRange(range);
+        if (dateRange) {
+          requestData.start_date = dateRange.start_date;
+          requestData.end_date = dateRange.end_date;
+        }
+      }
+
+      // Get authentication token
+      const accessToken = localStorage.getItem('access');
+      
+      // Make API request
+      const response = await axios.post(
+        'https://menusmitra.xyz/outlet_statistics/payment_method_counts',
+        requestData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': accessToken ? `Bearer ${accessToken}` : ''
+          }
+        }
+      );
+
+      if (response.data?.data) {
+        // Process the response data
+        const data = response.data.data;
+        setPaymentCounts({
+          cash: data.cash || 0,
+          upi: data.upi || 0,
+          card: data.card || 0,
+          complimentary: data.complimentary || 0
+        });
+      } else {
+        console.error('No data available in response');
+      }
+    } catch (error) {
+      console.error('Failed to fetch payment method counts:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Helper function to get date range
+  const getDateRange = (range) => {
+    const today = new Date();
+    let start, end;
+    
+    switch (range) {
+      case 'Today':
+        start = end = new Date();
+        break;
+      case 'Yesterday':
+        start = end = new Date();
+        start.setDate(start.getDate() - 1);
+        break;
+      case 'Last 7 Days':
+        end = new Date();
+        start = new Date();
+        start.setDate(start.getDate() - 6);
+        break;
+      case 'This Month':
+        start = new Date(today.getFullYear(), today.getMonth(), 1);
+        end = new Date();
+        break;
+      default:
+        return null;
+    }
+    
+    return {
+      start_date: formatDate(start),
+      end_date: formatDate(end)
+    };
+  };
+
+  const formatDate = (date) => {
+    if (!date) return '';
+    const day = date.getDate().toString().padStart(2, '0');
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    return `${day} ${month} ${year}`;
+  };
+
   useEffect(() => {
-    // In a real implementation, fetch payment method counts
-    // Example mock data for now
-    setPaymentCounts({
-      cash: 156,
-      upi: 243,
-      card: 87,
-      complimentary: 12
-    });
-  }, []);
+    fetchData(dateRange);
+  }, [dateRange]);
 
   // Calculate total count
   const totalCount = Object.values(paymentCounts).reduce((a, b) => a + b, 0);
@@ -31,7 +123,7 @@ const PaymentMethodCount = () => {
 
   // Calculate percentage width for progress bars
   const getPercentage = (count) => {
-    return (count / maxCount) * 100;
+    return maxCount === 0 ? 0 : (count / maxCount) * 100;
   };
 
   return (
@@ -39,15 +131,28 @@ const PaymentMethodCount = () => {
       <div className="card-header d-flex justify-content-between align-items-center">
         <h5 className="card-title mb-0">Total Payment counts</h5>
         <div className="dropdown">
-          <button className="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <button 
+            className="btn btn-outline-primary dropdown-toggle" 
+            type="button" 
+            data-bs-toggle="dropdown" 
+            aria-expanded="false"
+            disabled={loading}
+          >
             <i className="fas fa-calendar me-2"></i>
             {dateRange}
           </button>
           <ul className="dropdown-menu">
-            <li><a className="dropdown-item" href="#" onClick={() => setDateRange('Today')}>Today</a></li>
-            <li><a className="dropdown-item" href="#" onClick={() => setDateRange('Yesterday')}>Yesterday</a></li>
-            <li><a className="dropdown-item" href="#" onClick={() => setDateRange('Last 7 Days')}>Last 7 Days</a></li>
-            <li><a className="dropdown-item" href="#" onClick={() => setDateRange('This Month')}>This Month</a></li>
+            {['Today', 'Yesterday', 'Last 7 Days', 'This Month'].map((range) => (
+              <li key={range}>
+                <a 
+                  className="dropdown-item" 
+                  href="#" 
+                  onClick={() => setDateRange(range)}
+                >
+                  {range}
+                </a>
+              </li>
+            ))}
           </ul>
         </div>
       </div>
@@ -123,8 +228,6 @@ const PaymentMethodCount = () => {
             </div>
           </div>
         </div>
-        
-       
       </div>
     </div>
   )

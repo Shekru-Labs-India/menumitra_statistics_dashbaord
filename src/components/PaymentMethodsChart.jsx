@@ -122,99 +122,106 @@ const PaymentMethodsChart = () => {
 
   const fetchData = async (range) => {
     try {
-      setLoading(true);
-      // Get values from localStorage
-      const outlet_id = localStorage.getItem('outlet_id') ? parseInt(localStorage.getItem('outlet_id')) : 74;
-      const owner_id = localStorage.getItem('user_id') ? parseInt(localStorage.getItem('user_id')) : 412;
-      
-      // Prepare request data with proper date ranges
-      let requestData = {
-        outlet_id: outlet_id,
-        owner_id: owner_id
-      };
+        setLoading(true);
+        
+        // Prepare request data
+        const requestData = {
+            outlet_id: localStorage.getItem('outlet_id'),
+            device_token: localStorage.getItem('device_token') || '',
+            device_id: localStorage.getItem('device_id') || ''
+        };
 
-      // Handle different date range options (same as HomeScreen)
-      const today = new Date();
-      
-      switch(range) {
-        case 'All Time':
-          // Don't include date range for 'All Time'
-          break;
-        case 'Today':
-          requestData.start_date = formatDate(today);
-          requestData.end_date = formatDate(today);
-          break;
-        case 'Yesterday': {
-          const yesterday = new Date(today);
-          yesterday.setDate(today.getDate() - 1);
-          requestData.start_date = formatDate(yesterday);
-          requestData.end_date = formatDate(yesterday);
-          break;
-        }
-        case 'Last 7 Days': {
-          const sevenDaysAgo = new Date(today);
-          sevenDaysAgo.setDate(today.getDate() - 6); // -6 because it includes today
-          requestData.start_date = formatDate(sevenDaysAgo);
-          requestData.end_date = formatDate(today);
-          break;
-        }
-        case 'Last 30 Days': {
-          const thirtyDaysAgo = new Date(today);
-          thirtyDaysAgo.setDate(today.getDate() - 29); // -29 because it includes today
-          requestData.start_date = formatDate(thirtyDaysAgo);
-          requestData.end_date = formatDate(today);
-          break;
-        }
-        case 'Current Month': {
-          const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-          requestData.start_date = formatDate(firstDayOfMonth);
-          requestData.end_date = formatDate(today);
-          break;
-        }
-        case 'Last Month': {
-          const firstDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-          const lastDayOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
-          requestData.start_date = formatDate(firstDayOfLastMonth);
-          requestData.end_date = formatDate(lastDayOfLastMonth);
-          break;
-        }
-        case 'Custom Range': {
-          if (startDate && endDate) {
+        // Add date range if not "All Time"
+        if (range === 'Custom Range' && startDate && endDate) {
             requestData.start_date = formatDate(startDate);
             requestData.end_date = formatDate(endDate);
-          }
-          break;
+        } else if (range !== 'All Time') {
+            const dateRange = getDateRange(range);
+            if (dateRange) {
+                requestData.start_date = dateRange.start_date;
+                requestData.end_date = dateRange.end_date;
+            }
         }
-        default: {
-          // Default to Today if something goes wrong
-          requestData.start_date = formatDate(today);
-          requestData.end_date = formatDate(today);
-          break;
+
+        // Get authentication token
+        const accessToken = localStorage.getItem('access');
+        
+        // Make API request
+        const response = await axios.post(
+            'https://menusmitra.xyz/outlet_statistics/total_collection_source',
+            requestData,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': accessToken ? `Bearer ${accessToken}` : ''
+                }
+            }
+        );
+
+        if (response.data?.data) {
+            // Process the response data
+            const data = response.data.data;
+            setPaymentData({
+                upi_amount: data.upi_amount || 0,
+                upi_orders: data.upi_orders || 0,
+                cash_amount: data.cash_amount || 0,
+                cash_orders: data.cash_orders || 0,
+                card_amount: data.card_amount || 0,
+                card_orders: data.card_orders || 0,
+                complemenatry_amount: data.complemenatry_amount || 0,
+                complemenatry_orders: data.complemenatry_orders || 0
+            });
+        } else {
+            console.error('No data available in response');
         }
-      }
-
-      console.log('Sending request with data:', requestData);
-
-      // Make API call with auth headers
-      const response = await axios.post(
-        `https://menusmitra.xyz/outlet_statistics/total_collection_source`,
-        requestData,
-        {
-          headers: getAuthHeaders()
-        }
-      );
-
-      if (response.data && response.data.message === 'success') {
-        setPaymentData(response.data.data);
-      } else {
-        console.error('API response error:', response.data);
-      }
     } catch (error) {
-      console.error('Error fetching payment data:', error);
+        console.error('Failed to fetch payment methods data:', error);
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
+
+// Helper function to get date range
+const getDateRange = (range) => {
+    const today = new Date();
+    let start, end;
+    
+    switch (range) {
+        case 'Today':
+            start = end = new Date();
+            break;
+        case 'Yesterday':
+            start = end = new Date();
+            start.setDate(start.getDate() - 1);
+            break;
+        case 'Last 7 Days':
+            end = new Date();
+            start = new Date();
+            start.setDate(start.getDate() - 6);
+            break;
+        case 'Last 30 Days':
+            end = new Date();
+            start = new Date();
+            start.setDate(start.getDate() - 29);
+            break;
+        case 'Current Month':
+            start = new Date(today.getFullYear(), today.getMonth(), 1);
+            end = new Date();
+            break;
+        case 'Last Month':
+            start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+            end = new Date(today.getFullYear(), today.getMonth(), 0);
+            break;
+        default:
+            return null;
+    }
+    
+    return {
+        start_date: formatDate(start),
+        end_date: formatDate(end)
+    };
+};
 
   const handleCustomDateSelect = () => {
     if (startDate && endDate) {

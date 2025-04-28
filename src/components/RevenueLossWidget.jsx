@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import axios from 'axios';
 // Import both GIFs - static and animated
 import aiAnimationGif from '../assets/img/gif/AI-animation-unscreen.gif';
 import aiAnimationStillFrame from '../assets/img/gif/AI-animation-unscreen-still-frame.gif';
@@ -48,12 +49,104 @@ const handleReload = () => {
     setTimeout(() => setLoading(false), 1000);
 };
 
-const fetchData = (range) => {
-    if (range === 'Custom Range' && startDate && endDate) {
-        console.log('Fetching data for custom range:', startDate, endDate);
-    } else {
-        console.log('Fetching data for range:', range);
+const fetchData = async (range) => {
+    try {
+        setLoading(true);
+        
+        // Prepare request data
+        const requestData = {
+            outlet_id: localStorage.getItem('outlet_id'),
+            device_token: localStorage.getItem('device_token') || '',
+            device_id: localStorage.getItem('device_id') || ''
+        };
+
+        // Add date range if not "All Time"
+        if (range === 'Custom Range' && startDate && endDate) {
+            requestData.start_date = formatDate(startDate);
+            requestData.end_date = formatDate(endDate);
+        } else if (range !== 'All Time') {
+            const dateRange = getDateRange(range);
+            if (dateRange) {
+                requestData.start_date = dateRange.start_date;
+                requestData.end_date = dateRange.end_date;
+            }
+        }
+
+        // Get authentication token
+        const accessToken = localStorage.getItem('access');
+        
+        // Make API request
+        const response = await axios.post(
+            'https://menusmitra.xyz/outlet_statistics/revenue_leakage',
+            requestData,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': accessToken ? `Bearer ${accessToken}` : ''
+                }
+            }
+        );
+
+        if (response.data?.data) {
+            // Process the response data
+            const data = response.data.data;
+            // Update your metrics state here based on the response
+            // For example:
+            // setMetrics([
+            //     { title: 'Bills Modified', value: data.bills_modified || '0', subtitle: 'Bills Modified' },
+            //     { title: 'Bills Re-Printed', value: data.bills_reprinted || '0', subtitle: 'Bills Re-Printed' },
+            //     // ... other metrics
+            // ]);
+        } else {
+            console.error('No data available in response');
+        }
+    } catch (error) {
+        console.error('Failed to fetch revenue leakage data:', error);
+    } finally {
+        setLoading(false);
     }
+};
+
+// Helper function to get date range
+const getDateRange = (range) => {
+    const today = new Date();
+    let start, end;
+    
+    switch (range) {
+        case 'Today':
+            start = end = new Date();
+            break;
+        case 'Yesterday':
+            start = end = new Date();
+            start.setDate(start.getDate() - 1);
+            break;
+        case 'Last 7 Days':
+            end = new Date();
+            start = new Date();
+            start.setDate(start.getDate() - 6);
+            break;
+        case 'Last 30 Days':
+            end = new Date();
+            start = new Date();
+            start.setDate(start.getDate() - 29);
+            break;
+        case 'Current Month':
+            start = new Date(today.getFullYear(), today.getMonth(), 1);
+            end = new Date();
+            break;
+        case 'Last Month':
+            start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+            end = new Date(today.getFullYear(), today.getMonth(), 0);
+            break;
+        default:
+            return null;
+    }
+    
+    return {
+        start_date: formatDate(start),
+        end_date: formatDate(end)
+    };
 };
 
 const handleCustomDateSelect = () => {
