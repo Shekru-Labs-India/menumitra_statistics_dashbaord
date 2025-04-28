@@ -3,7 +3,7 @@ import axios from 'axios';
 import { 
   Card, CardContent, Box, CircularProgress, Alert, 
   Table, TableBody, TableCell, TableContainer, 
-  TableHead, TableRow, Paper, Pagination
+  TableHead, TableRow, Paper, Pagination, Typography
 } from '@mui/material';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
@@ -17,7 +17,13 @@ const MyActivity = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [paginationInfo, setPaginationInfo] = useState({
+    totalRecords: 0,
+    currentPage: 1,
+    totalPages: 1,
+    recordsPerPage: 25,
+    showingRecords: '0 to 0'
+  });
   const itemsPerPage = 20;
   const navigate = useNavigate();
 
@@ -61,10 +67,22 @@ const MyActivity = () => {
 
       if (response.data) {
         setActivities(response.data.activity_logs || []);
-        setTotalPages(Math.ceil((response.data.total || 0) / itemsPerPage));
+        setPaginationInfo({
+          totalRecords: response.data.pagination.total_records,
+          currentPage: response.data.pagination.current_page,
+          totalPages: response.data.pagination.total_pages,
+          recordsPerPage: response.data.pagination.records_per_page,
+          showingRecords: response.data.pagination.showing_records
+        });
       } else {
         setActivities([]);
-        setTotalPages(1);
+        setPaginationInfo({
+          totalRecords: 0,
+          currentPage: 1,
+          totalPages: 1,
+          recordsPerPage: 25,
+          showingRecords: '0 to 0'
+        });
       }
     } catch (error) {
       console.error('Error fetching activity log:', error);
@@ -104,14 +122,6 @@ const MyActivity = () => {
       return dateString;
     }
   };
-
-  // if (loading) {
-  //   return (
-  //     <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-  //       <CircularProgress />
-  //     </Box>
-  //   );
-  // }
 
   if (error) {
     return (
@@ -156,10 +166,6 @@ const MyActivity = () => {
                     <Box display="flex" justifyContent="center" alignItems="center" p={3}>
                       <CircularProgress />
                     </Box>
-                  ) : error ? (
-                    <Alert severity="error" sx={{ mt: 2 }}>
-                      {error}
-                    </Alert>
                   ) : (
                     <>
                       <TableContainer component={Paper} sx={{ maxHeight: '60vh' }}>
@@ -180,10 +186,13 @@ const MyActivity = () => {
                           </TableBody>
                         </Table>
                       </TableContainer>
-                      <Box display="flex" justifyContent="center" mt={3}>
+                      <Box display="flex" justifyContent="space-between" alignItems="center" mt={3}>
+                        <Typography variant="body2" color="text.secondary">
+                          Showing records {paginationInfo.showingRecords} of {paginationInfo.totalRecords} total records
+                        </Typography>
                         <Pagination 
-                          count={totalPages} 
-                          page={page} 
+                          count={paginationInfo.totalPages} 
+                          page={paginationInfo.currentPage} 
                           onChange={handlePageChange}
                           color="primary"
                           size="large"
