@@ -331,20 +331,7 @@ function Header() {
 
   return (
     <div>
-      <div 
-        style={{
-          backgroundColor: '#15a7f3 ',
-          color: '#664d03',
-          padding: '0.30rem',
-          textAlign: 'center',
-          fontWeight: 'bold',
-          borderBottom: '1px solid #ffecb5',
-          position: 'relative',
-          zIndex: 1030
-        }}
-      >
-         Testing Environment 
-      </div>
+     
       {/* Add custom CSS for React-Toastify to match Materio */}
       <style>
         {`
