@@ -4,7 +4,7 @@ export class UpdateService {
   static async checkForUpdates() {
     try {
       const response = await axios.post('https://menusmitra.xyz/common_api/check_version', {
-        app_type: "pos"
+        app_type: "statistics_dashboard"
       });
 
       console.log('Version check response:', response.data);
