@@ -141,7 +141,7 @@ const MyActivity = () => {
             <div className="container-xxl flex-grow-1 container-p-y">
               <div className="d-flex justify-content-between align-items-center py-3 mb-4">
                 <h4 className="fw-bold mb-0">Activity Log</h4>
-                <div className="search-container" style={{ maxWidth: '300px', width: '100%' }}>
+                {/* <div className="search-container" style={{ maxWidth: '300px', width: '100%' }}>
                   <div className="input-group">
                     <span className="input-group-text" style={{ backgroundColor: 'transparent' }}>
                       <i className="fas fa-search"></i>
@@ -158,7 +158,7 @@ const MyActivity = () => {
                       }}
                     />
                   </div>
-                </div>
+                </div> */}
               </div>
               <Card>
                 <CardContent>

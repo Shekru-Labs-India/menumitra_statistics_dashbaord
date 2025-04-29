@@ -22,6 +22,8 @@ import { useNavigate } from 'react-router-dom';
 import PaymentMethodCount from "../components/PaymentMethodCount";
 import WeeklyOrderStat from "../components/WeeklyOrderStat";
 import { useDashboard } from "../context/DashboardContext"; // Import the context
+import { UpdateService } from '../config/UpdateService'; // Import UpdateService
+import logo from "../assets/img/company/MenuMitra_logo.png"; // Import logo
 
 function HomeScreen() {
   // Get data from context
@@ -50,6 +52,12 @@ function HomeScreen() {
   const didInitialLoadRef = useRef(false); // Use ref instead of state to avoid re-renders
   const postLoginFetchedRef = useRef(false); // Track if we've already fetched after login
   const navigate = useNavigate();
+  
+  // Add state for version check
+  const [showUpdatePopup, setShowUpdatePopup] = useState(false);
+  const [versionInfo, setVersionInfo] = useState(null);
+  const [redirectProgress, setRedirectProgress] = useState(0);
+  const [redirectTimer, setRedirectTimer] = useState(null);
 
   // Check if user just arrived from login/OTP verification
   const isPostLogin = () => {
@@ -62,6 +70,42 @@ function HomeScreen() {
     const tokenTime = parseInt(tokenTimestamp, 10);
     return now - tokenTime < 10000; // 10 seconds
   };
+
+  // Check version on component mount
+  useEffect(() => {
+    const checkVersion = async () => {
+      const versionData = await UpdateService.checkForUpdates();
+      setVersionInfo(versionData);
+      
+      if (versionData.hasUpdate) {
+        setShowUpdatePopup(true);
+        
+        // Start progress bar for 5 seconds
+        let progress = 0;
+        const interval = setInterval(() => {
+          progress += 2; // 2% per 100ms = 100% in 5 seconds
+          setRedirectProgress(progress);
+          
+          if (progress >= 100) {
+            clearInterval(interval);
+            // Redirect to login after 5 seconds
+            navigate('/login');
+          }
+        }, 100);
+        
+        setRedirectTimer(interval);
+      }
+    };
+    
+    checkVersion();
+    
+    // Cleanup interval on unmount
+    return () => {
+      if (redirectTimer) {
+        clearInterval(redirectTimer);
+      }
+    };
+  }, [navigate]);
 
   // Check if user is logged in
   useEffect(() => {
@@ -464,6 +508,70 @@ function HomeScreen() {
   const isLoading = userInteracted ? loading : contextLoading;
   // Determine current error state
   const currentError = userInteracted ? error : contextError;
+
+  // If update popup is shown, render the update popup
+  if (showUpdatePopup) {
+    return (
+      <div className="layout-wrapper layout-content-navbar">
+        <div className="layout-container">
+          <div className="layout-page d-flex flex-column min-vh-100">
+            <div className="content-wrapper flex-grow-1">
+              <div className="container-fluid flex-grow-1 container-p-y">
+                <div className="row justify-content-center">
+                  <div className="col-md-8 col-lg-6">
+                    <div className="card">
+                      <div className="card-body p-4">
+                        <div className="text-center mb-4">
+                          <img
+                            src={logo}
+                            alt="MenuMitra Logo"
+                            style={{
+                              width: "150px",
+                              height: "auto",
+                              marginBottom: "1.5rem"
+                            }}
+                          />
+                          <h3 className="mb-3" style={{ color: '#dc3545' }}>
+                            <i className="fas fa-exclamation-triangle me-2"></i>
+                            Update Required
+                          </h3>
+                        </div>
+
+                        <div className="mb-4 text-center">
+                          <p className="mb-2 fs-5">Current Version: <strong>{versionInfo?.currentVersion || '1.0.0'}</strong></p>
+                          <p className="mb-4 fs-5">Latest Version: <strong>{versionInfo?.serverVersion || '1.3'}</strong></p>
+                        </div>
+
+                        <p className="text-danger fs-5">
+                          Please update your application to the latest version to continue.
+                        </p>
+
+                        <div className="mt-4">
+                          <div className="progress mb-2" style={{ height: '10px' }}>
+                            <div 
+                              className="progress-bar progress-bar-striped progress-bar-animated bg-danger" 
+                              role="progressbar" 
+                              style={{ width: `${redirectProgress}%` }}
+                              aria-valuenow={redirectProgress} 
+                              aria-valuemin="0" 
+                              aria-valuemax="100"
+                            ></div>
+                          </div>
+                          <p className="text-center text-muted">
+                            Redirecting to login in {Math.ceil((100 - redirectProgress) / 2)} seconds...
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="layout-wrapper layout-content-navbar">
