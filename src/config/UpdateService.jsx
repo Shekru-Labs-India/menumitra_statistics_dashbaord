@@ -4,7 +4,7 @@ export class UpdateService {
   static async checkForUpdates() {
     try {
       const response = await axios.post('https://men4u.xyz/common_api/check_version', {
-        app_type: "Statistics dashboard"
+        app_type: "statistics_dashboard"
       });
 
       console.log('Version check response:', response.data);
