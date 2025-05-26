@@ -227,7 +227,7 @@ const OrderType = () => {
       
       // Make API request
       const response = await axios.post(
-        'https://menusmitra.xyz/outlet_statistics/order_type_statistics',
+        'https://menusmitra.xyz/1.3/outlet_statistics/order_type_statistics',
         requestData,
         {
           headers: {

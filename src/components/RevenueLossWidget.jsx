@@ -77,7 +77,7 @@ const fetchData = async (range) => {
         
         // Make API request
         const response = await axios.post(
-            'https://menusmitra.xyz/outlet_statistics/revenue_leakage',
+            'https://menusmitra.xyz/1.3/outlet_statistics/revenue_leakage',
             requestData,
             {
                 headers: {

@@ -80,7 +80,7 @@ function Header() {
         return;
       }
 
-      const response = await fetch(`https://menusmitra.xyz/common_api/get_outlet_list`, {
+      const response = await fetch(`https://menusmitra.xyz/1.3/common_api/get_outlet_list`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

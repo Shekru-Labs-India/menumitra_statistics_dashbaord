@@ -168,7 +168,7 @@ const MyProfile = () => {
 
       const response = await axios({
         method: 'post',
-        url: 'https://menusmitra.xyz/common_api/update_profile_detail',
+        url: 'https://menusmitra.xyz/1.3/common_api/update_profile_detail',
         headers: getAuthHeaders(),
         data: payload
       });
