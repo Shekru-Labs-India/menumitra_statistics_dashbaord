@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import img from '../assets/img/avatars/1.png'
 import 'animate.css'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -89,7 +88,9 @@ function Header() {
           'Authorization': `Bearer ${accessToken}`
         },
         body: JSON.stringify({
-          owner_id: parseInt(userId)
+          owner_id: parseInt(userId),
+          device_token: localStorage.getItem('device_token') || '',
+          device_id: localStorage.getItem('device_id') || ''
         })
       });
 
@@ -330,6 +331,7 @@ function Header() {
 
   return (
     <div>
+     
       {/* Add custom CSS for React-Toastify to match Materio */}
       <style>
         {`
@@ -788,11 +790,7 @@ function Header() {
                     </small>
                   </div>
                   <div className="avatar ms-2">
-                    <img
-                      src={img}
-                      alt=""
-                      className="w-px-40 h-auto rounded-circle"
-                    />
+                    <i className="far fa-user-circle fa-2x text-gray"></i>
                   </div>
                 </a>
                 <ul className="dropdown-menu dropdown-menu-end mt-3 py-2">
@@ -801,11 +799,7 @@ function Header() {
                       <div className="d-flex align-items-center">
                         <div className="flex-shrink-0 me-2">
                           <div className="avatar">
-                            <img
-                              src={img}
-                              alt=""
-                              className="w-px-40 h-auto rounded-circle"
-                            />
+                            <i className="far fa-user-circle fa-2x text-gray"></i>
                           </div>
                         </div>
                         <div className="flex-grow-1">
@@ -827,7 +821,7 @@ function Header() {
                     </Link>
                   </li>
                   <li>
-                    <Link className="dropdown-item" to="/dashboard">
+                    <Link className="dropdown-item" to="/my-activity">
                       <i className="fas fa-tasks fa-lg me-2" />
                       <span className="align-middle">My activity</span>
                     </Link>

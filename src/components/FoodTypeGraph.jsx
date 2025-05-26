@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import axios from 'axios';
 import { apiEndpoint } from '../config/menuMitraConfig';
+import Chart from 'react-apexcharts';
 // Import both GIFs - static and animated
 import aiAnimationGif from '../assets/img/gif/AI-animation-unscreen.gif';
 import aiAnimationStillFrame from '../assets/img/gif/AI-animation-unscreen-still-frame.gif';
@@ -17,7 +17,7 @@ const FoodTypeGraph = () => {
       error: contextError
     } = useDashboard();
 
-    const [dateRange, setDateRange] = useState('Today');
+    const [dateRange, setDateRange] = useState('All time');
     const [loading, setLoading] = useState(false);
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
@@ -26,6 +26,7 @@ const FoodTypeGraph = () => {
     const [foodTypeData, setFoodTypeData] = useState([]);
     const [error, setError] = useState('');
     const [userInteracted, setUserInteracted] = useState(false); // Flag to track user interaction
+    const [showModal, setShowModal] = useState(false); // New state for modal
   
     // Helper function to get auth headers
     const getAuthHeaders = (includeAuth = true) => {
@@ -78,46 +79,8 @@ const FoodTypeGraph = () => {
 
     // Use context data when component mounts
     useEffect(() => {
-      if (foodTypeStatistics_from_context && Array.isArray(foodTypeStatistics_from_context)) {
-        // The context data is already an array of weeks
-        const weeks = foodTypeStatistics_from_context;
-        
-        // Map the API weeks data to our chart format
-        const chartData = weeks.map(week => ({
-          week: week.week,
-          Veg: week.veg || 0,
-          "Non-Veg": week.nonveg || 0,
-          Vegan: week.vegan || 0,
-          Eggs: week.egg || 0
-        }));
-        
-        // If we have less than 4 weeks, fill in the missing weeks with zeros
-        const weekNames = ["Week 1", "Week 2", "Week 3", "Week 4"];
-        
-        // Check which weeks we already have
-        const existingWeeks = chartData.map(data => data.week);
-        
-        // Add any missing weeks with zero values
-        weekNames.forEach(weekName => {
-          if (!existingWeeks.includes(weekName)) {
-            chartData.push({
-              week: weekName,
-              Veg: 0,
-              "Non-Veg": 0,
-              Vegan: 0,
-              Eggs: 0
-            });
-          }
-        });
-        
-        // Sort the data by week number to ensure correct order
-        chartData.sort((a, b) => {
-          const weekNumA = parseInt(a.week.split(' ')[1]);
-          const weekNumB = parseInt(b.week.split(' ')[1]);
-          return weekNumA - weekNumB;
-        });
-        
-        setFoodTypeData(chartData);
+      if (foodTypeStatistics_from_context) {
+        processFoodTypeData(foodTypeStatistics_from_context);
       }
     }, [foodTypeStatistics_from_context]);
 
@@ -128,6 +91,89 @@ const FoodTypeGraph = () => {
       }
     }, [contextError, userInteracted]);
 
+    // Function to get week date range
+    const getWeekDateRange = (weeksAgo = 0) => {
+        const today = new Date();
+        const currentDay = today.getDay(); // 0 is Sunday, 1 is Monday, etc.
+        const diff = currentDay === 0 ? 6 : currentDay - 1; // Adjust to make Monday the first day
+        
+        // Calculate the start of the current week (Monday)
+        const startOfCurrentWeek = new Date(today);
+        startOfCurrentWeek.setDate(today.getDate() - diff);
+        
+        // Calculate the start of the target week
+        const startOfTargetWeek = new Date(startOfCurrentWeek);
+        startOfTargetWeek.setDate(startOfCurrentWeek.getDate() - (weeksAgo * 7));
+        
+        // Calculate the end of the target week (Sunday)
+        const endOfTargetWeek = new Date(startOfTargetWeek);
+        endOfTargetWeek.setDate(startOfTargetWeek.getDate() + 6);
+        
+        return {
+            start: startOfTargetWeek,
+            end: endOfTargetWeek
+        };
+    };
+
+    // Function to format date range string
+    const formatDateRangeString = (start, end) => {
+        const formatDate = (date) => {
+            const day = date.getDate().toString().padStart(2, '0');
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const month = months[date.getMonth()];
+            return `${day} ${month}`;
+        };
+        
+        return `${formatDate(start)} - ${formatDate(end)}`;
+    };
+
+    // Function to get date range options
+    const getDateRangeOptions = () => {
+        const options = [];
+        
+        // All time option
+        options.push({
+            label: 'All time',
+            value: 'All time',
+            dateRange: null
+        });
+        
+        // This week
+        const thisWeek = getWeekDateRange(0);
+        options.push({
+            label: 'This week',
+            value: 'This week',
+            dateRange: formatDateRangeString(thisWeek.start, thisWeek.end)
+        });
+        
+        // Last week
+        const lastWeek = getWeekDateRange(1);
+        options.push({
+            label: 'Last week',
+            value: 'Last week',
+            dateRange: formatDateRangeString(lastWeek.start, lastWeek.end)
+        });
+        
+        // Previous weeks (up to 4 weeks ago)
+        for (let i = 2; i <= 4; i++) {
+            const week = getWeekDateRange(i);
+            options.push({
+                label: formatDateRangeString(week.start, week.end),
+                value: `Week ${i}`,
+                dateRange: formatDateRangeString(week.start, week.end)
+            });
+        }
+        
+        // Custom range
+        options.push({
+            label: 'Custom Range',
+            value: 'Custom Range',
+            dateRange: null
+        });
+        
+        return options;
+    };
+
     const formatDate = (date) => {
         if (!date) return '';
         const day = date.getDate().toString().padStart(2, '0');
@@ -137,10 +183,97 @@ const FoodTypeGraph = () => {
         return `${day} ${month} ${year}`;
     };
 
+    const processFoodTypeData = (data) => {
+        if (!data) {
+            console.log('No data received for processing');
+            setFoodTypeData([]);
+            return;
+        }
+
+        console.log('Raw data received:', data);
+
+        const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+        const chartData = days.map(day => {
+            const dayData = data[day] || {};
+            console.log(`Processing ${day} data:`, dayData);
+
+            return {
+                day: day.charAt(0).toUpperCase() + day.slice(1),
+                Veg: dayData.veg || 0,
+                "Non-Veg": dayData.nonveg || 0,
+                Vegan: dayData.vegan || 0,
+                Eggs: dayData.egg || 0
+            };
+        });
+        
+        console.log('Final chart data:', chartData);
+        setFoodTypeData(chartData);
+    };
+
+    // Function to get date range
+    const getDateRange = (range) => {
+        const today = new Date();
+        let start, end;
+        
+        switch (range) {
+            case 'This week': {
+                const firstDayOfWeek = new Date(today);
+                const day = today.getDay(); // 0 is Sunday, 1 is Monday, etc.
+                const diff = day === 0 ? 6 : day - 1; // Adjust to make Monday the first day
+                firstDayOfWeek.setDate(today.getDate() - diff);
+                start = firstDayOfWeek;
+                end = today;
+                break;
+            }
+            case 'Last week': {
+                const lastWeekEnd = new Date(today);
+                const day = today.getDay(); // 0 is Sunday, 1 is Monday, etc.
+                const diff = day === 0 ? 6 : day - 1; // Adjust to make Monday the first day
+                lastWeekEnd.setDate(today.getDate() - diff - 1); // End of previous week (Sunday)
+                const lastWeekStart = new Date(lastWeekEnd);
+                lastWeekStart.setDate(lastWeekEnd.getDate() - 6); // Start of previous week (Monday)
+                start = lastWeekStart;
+                end = lastWeekEnd;
+                break;
+            }
+            case 'Week 2': {
+                const week = getWeekDateRange(2);
+                start = week.start;
+                end = week.end;
+                break;
+            }
+            case 'Week 3': {
+                const week = getWeekDateRange(3);
+                start = week.start;
+                end = week.end;
+                break;
+            }
+            case 'Week 4': {
+                const week = getWeekDateRange(4);
+                start = week.start;
+                end = week.end;
+                break;
+            }
+            default:
+                return null;
+        }
+        
+        return {
+            start_date: formatDate(start),
+            end_date: formatDate(end)
+        };
+    };
+
     const handleDateRangeChange = (range) => {
+        console.log('Date range changed to:', range);
         setDateRange(range);
-        setShowDatePicker(range === 'Custom Range');
-        if (range !== 'Custom Range') {
+        
+        if (range === 'Custom Range') {
+            // Only show date picker, don't reset dates
+            setShowDatePicker(true);
+        } else {
+            // For non-custom ranges, reset dates and fetch data
+            setShowDatePicker(false);
             setStartDate(null);
             setEndDate(null);
             fetchData(range);
@@ -148,158 +281,130 @@ const FoodTypeGraph = () => {
     };
 
     const handleReload = () => {
-        setLoading(true);
-        // Set user interaction flag to true
+        console.log('Reloading data...');
         setUserInteracted(true);
+        setIsGifPlaying(true);
         
-        // Check if we have valid startDate and endDate (indicating custom range)
-        if (startDate && endDate) {
-            console.log('Reloading with custom date range:', formatDate(startDate), 'to', formatDate(endDate));
-            // For custom range, explicitly use 'Custom Range'
-            fetchData('Custom Range');
-        } else {
-            // For other ranges, use the current dateRange state
-            console.log('Reloading with standard date range:', dateRange);
-            fetchData(dateRange);
-        }
+        // Always fetch fresh data on reload, regardless of the date range
+        fetchData(dateRange);
+    };
+
+    // Function to prepare request data based on date range
+    const prepareRequestData = (range) => {
+        const today = new Date();
+        
+        const getDateRange = (range) => {
+            switch(range) {
+                case 'All time': {
+                    // For all time, we'll send an empty date range to get all data
+                    return {
+                        start_date: '',
+                        end_date: ''
+                    };
+                }
+                case 'This week': {
+                    const firstDayOfWeek = new Date(today);
+                    const day = today.getDay(); // 0 is Sunday, 1 is Monday, etc.
+                    const diff = day === 0 ? 6 : day - 1; // Adjust to make Monday the first day
+                    firstDayOfWeek.setDate(today.getDate() - diff);
+                    return {
+                        start_date: formatDate(firstDayOfWeek),
+                        end_date: formatDate(today)
+                    };
+                }
+                case 'Last week': {
+                    const lastWeekEnd = new Date(today);
+                    const day = today.getDay(); // 0 is Sunday, 1 is Monday, etc.
+                    const diff = day === 0 ? 6 : day - 1; // Adjust to make Monday the first day
+                    lastWeekEnd.setDate(today.getDate() - diff - 1); // End of previous week (Sunday)
+                    const lastWeekStart = new Date(lastWeekEnd);
+                    lastWeekStart.setDate(lastWeekEnd.getDate() - 6); // Start of previous week (Monday)
+                    return {
+                        start_date: formatDate(lastWeekStart),
+                        end_date: formatDate(lastWeekEnd)
+                    };
+                }
+                case 'Week 2':
+                case 'Week 3':
+                case 'Week 4': {
+                    const weekNumber = parseInt(range.split(' ')[1]);
+                    const week = getWeekDateRange(weekNumber);
+                    return {
+                        start_date: formatDate(week.start),
+                        end_date: formatDate(week.end)
+                    };
+                }
+                case 'Custom Range': {
+                    if (startDate && endDate) {
+                        return {
+                            start_date: formatDate(startDate),
+                            end_date: formatDate(endDate)
+                        };
+                    }
+                    return {};
+                }
+                default: {
+                    return {};
+                }
+            }
+        };
+
+        return getDateRange(range);
     };
 
     const fetchData = async (range) => {
         try {
             setLoading(true);
             setError('');
-            // Set user interaction flag to true
             setUserInteracted(true);
             
-            let requestData = {};
-            const today = new Date();
-            const outletId = localStorage.getItem('outlet_id');
-            
-            if (!outletId) {
-                console.error('No outlet ID found in localStorage');
-                setError('No outlet ID found. Please log in again.');
-                setLoading(false);
-                return;
-            }
-            
-            // Add outlet_id to request data
-            requestData.outlet_id = outletId;
-            
-            // Handle different date range options
-            if (range === 'Today') {
-                // Today - both start and end are today
-                requestData.start_date = formatDate(today);
-                requestData.end_date = formatDate(today);
-            } else if (range === 'Yesterday') {
-                // Yesterday
-                const yesterday = new Date(today);
-                yesterday.setDate(today.getDate() - 1);
-                requestData.start_date = formatDate(yesterday);
-                requestData.end_date = formatDate(yesterday);
-            } else if (range === 'Last 7 Days') {
-                // Last 7 Days
-                const sevenDaysAgo = new Date(today);
-                sevenDaysAgo.setDate(today.getDate() - 6); // -6 because it includes today
-                requestData.start_date = formatDate(sevenDaysAgo);
-                requestData.end_date = formatDate(today);
-            } else if (range === 'Last 30 Days') {
-                // Last 30 Days
-                const thirtyDaysAgo = new Date(today);
-                thirtyDaysAgo.setDate(today.getDate() - 29); // -29 because it includes today
-                requestData.start_date = formatDate(thirtyDaysAgo);
-                requestData.end_date = formatDate(today);
-            } else if (range === 'Current Month') {
-                // Current Month - from 1st of current month to today
-                const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-                requestData.start_date = formatDate(firstDayOfMonth);
-                requestData.end_date = formatDate(today);
-            } else if (range === 'Last Month') {
-                // Last Month - from 1st to last day of previous month
-                const firstDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-                const lastDayOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
-                requestData.start_date = formatDate(firstDayOfLastMonth);
-                requestData.end_date = formatDate(lastDayOfLastMonth);
-            } else if (range === 'Custom Range' && startDate && endDate) {
-                // Custom Range - use the selected dates
+            // Prepare request data
+            const requestData = {
+                outlet_id: localStorage.getItem('outlet_id'),
+                device_token: localStorage.getItem('device_token'),
+                device_id: localStorage.getItem('device_id')
+            };
+
+            // Add date range if not "All time"
+            if (range === 'Custom Range' && startDate && endDate) {
                 requestData.start_date = formatDate(startDate);
                 requestData.end_date = formatDate(endDate);
-            } else {
-                // Default to today if something goes wrong
-                requestData.start_date = formatDate(today);
-                requestData.end_date = formatDate(today);
+            } else if (range !== 'All time') {
+                const dateRange = getDateRange(range);
+                if (dateRange) {
+                    requestData.start_date = dateRange.start_date;
+                    requestData.end_date = dateRange.end_date;
+                }
             }
 
-            console.log('Sending request to food_type_statistics with data:', requestData);
-            
-            // Make API request
-            const response = await axios.post(`${apiEndpoint}food_type_statistics`, requestData, {
-                headers: getAuthHeaders()
-            });
+            console.log('Making API request with data:', requestData);
+
+            // Make the API call
+            const response = await axios.post(
+                `${apiEndpoint}food_type_statistics`,
+                requestData,
+                {
+                    headers: getAuthHeaders()
+                }
+            );
             
             console.log('API Response:', response.data);
-            
-            if (response.data && response.data.data && response.data.data.weeks) {
-                // The API now returns weekly data in the response
-                const { weeks } = response.data.data;
-                
-                // Map the API weeks data to our chart format
-                const chartData = weeks.map(week => ({
-                    week: week.week,
-                    Veg: week.veg || 0,
-                    "Non-Veg": week.nonveg || 0,
-                    Vegan: week.vegan || 0,
-                    Eggs: week.egg || 0
-                }));
-                
-                // If we have less than 4 weeks, fill in the missing weeks with zeros
-                const weekNames = ["Week 1", "Week 2", "Week 3", "Week 4"];
-                
-                // Check which weeks we already have
-                const existingWeeks = chartData.map(data => data.week);
-                
-                // Add any missing weeks with zero values
-                weekNames.forEach(weekName => {
-                    if (!existingWeeks.includes(weekName)) {
-                        chartData.push({
-                            week: weekName,
-                            Veg: 0,
-                            "Non-Veg": 0,
-                            Vegan: 0,
-                            Eggs: 0
-                        });
-                    }
-                });
-                
-                // Sort the data by week number to ensure correct order
-                chartData.sort((a, b) => {
-                    const weekNumA = parseInt(a.week.split(' ')[1]);
-                    const weekNumB = parseInt(b.week.split(' ')[1]);
-                    return weekNumA - weekNumB;
-                });
-                
-                setFoodTypeData(chartData);
+
+            if (response.data?.data) {
+                processFoodTypeData(response.data.data);
             } else {
-                // If no data or incorrect format, show default data
-                setError('No data available for the selected date range');
-                setFoodTypeData([
-                    { week: "Week 1", Veg: 0, "Non-Veg": 0, Vegan: 0, Eggs: 0 },
-                    { week: "Week 2", Veg: 0, "Non-Veg": 0, Vegan: 0, Eggs: 0 },
-                    { week: "Week 3", Veg: 0, "Non-Veg": 0, Vegan: 0, Eggs: 0 },
-                    { week: "Week 4", Veg: 0, "Non-Veg": 0, Vegan: 0, Eggs: 0 },
-                ]);
+                setError('No data available for the selected period');
+                setFoodTypeData([]);
             }
         } catch (error) {
-            console.error('Failed to fetch food type statistics:', error);
-            const errorMessage = handleApiError(error);
-            setError(errorMessage || 'Failed to fetch food type statistics. Please try again.');
-            
-            // Use default data on error
-            setFoodTypeData([
-                { week: "Week 1", Veg: 0, "Non-Veg": 0, Vegan: 0, Eggs: 0 },
-                { week: "Week 2", Veg: 0, "Non-Veg": 0, Vegan: 0, Eggs: 0 },
-                { week: "Week 3", Veg: 0, "Non-Veg": 0, Vegan: 0, Eggs: 0 },
-                { week: "Week 4", Veg: 0, "Non-Veg": 0, Vegan: 0, Eggs: 0 },
-            ]);
+            console.error('API Error:', error);
+            if (error.response) {
+                console.error('Error Response:', error.response.data);
+                setError(error.response.data.message || 'Failed to fetch data');
+            } else {
+                setError('Failed to connect to server');
+            }
+            setFoodTypeData([]);
         } finally {
             setLoading(false);
         }
@@ -307,6 +412,7 @@ const FoodTypeGraph = () => {
 
     const handleCustomDateSelect = () => {
         if (startDate && endDate) {
+            console.log('Custom date range selected:', formatDate(startDate), 'to', formatDate(endDate));
             setDateRange(`${formatDate(startDate)} - ${formatDate(endDate)}`);
             setShowDatePicker(false);
             fetchData('Custom Range');
@@ -318,13 +424,138 @@ const FoodTypeGraph = () => {
     // Determine current error state
     const currentError = userInteracted ? error : contextError;
 
+    const chartOptions = {
+        chart: {
+            type: 'bar',
+            stacked: true,
+            stackType: '100%',
+            toolbar: {
+                show: false
+            },
+            animations: {
+                enabled: true
+            }
+        },
+        plotOptions: {
+            bar: {
+                horizontal: false,
+                columnWidth: '55%',
+                borderRadius: 4,
+                distributed: false,
+                dataLabels: {
+                    position: 'center'
+                }
+            },
+        },
+        dataLabels: {
+            enabled: true,
+            formatter: function(val) {
+                return Math.round(val);
+            },
+            style: {
+                fontSize: '12px',
+                colors: ['#fff']
+            }
+        },
+        stroke: {
+            show: true,
+            width: 2,
+            colors: ['transparent']
+        },
+        xaxis: {
+            categories: foodTypeData.map(item => item.day),
+            labels: {
+                style: {
+                    colors: '#433c50',
+                    fontSize: '12px'
+                },
+                axisBorder: {
+                    show: true
+                },
+                axisTicks: {
+                    show: true
+                }
+            }
+        },
+        yaxis: {
+            show: true,
+            labels: {
+                formatter: function(val) {
+                    return Math.round(val);
+                },
+                style: {
+                    colors: '#433c50',
+                    fontSize: '12px'
+                }
+            }
+        },
+        fill: {
+            opacity: 1,
+            colors: ['#2e7d32', '#d32f2f', '#FFBF00', '#9e9e9e']
+        },
+        legend: {
+            position: 'top',
+            horizontalAlign: 'center',
+            offsetY: -10,
+            labels: {
+                colors: '#433c50',
+                useSeriesColors: false
+            },
+            markers: {
+                width: 12,
+                height: 12,
+                radius: 12
+            }
+        },
+        tooltip: {
+            y: {
+                formatter: function(val) {
+                    return Math.round(val);
+                }
+            },
+            shared: true,
+            intersect: false
+        },
+        responsive: [{
+            breakpoint: 480,
+            options: {
+                chart: {
+                    width: 200
+                },
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }]
+    };
+
+    const chartSeries = [
+        {
+            name: 'Veg',
+            data: foodTypeData.map(item => item.Veg)
+        },
+        {
+            name: 'Non-Veg',
+            data: foodTypeData.map(item => item['Non-Veg'])
+        },
+        {
+            name: 'Vegan',
+            data: foodTypeData.map(item => item.Vegan)
+        },
+        {
+            name: 'Eggs',
+            data: foodTypeData.map(item => item.Eggs)
+        }
+    ];
+
+    console.log('Chart series data:', chartSeries);
+
     return (
         <div className="card">
             <div className="card-header d-flex justify-content-between align-items-md-center align-items-start">
                 <h5 className="card-title mb-0">Food Type Analysis</h5>
                 <div className="d-flex align-items-center gap-3">
-                
-                <div className="dropdown">
+                    <div className="dropdown">
                         <button
                             type="button"
                             className="btn btn-outline-primary dropdown-toggle"
@@ -335,23 +566,22 @@ const FoodTypeGraph = () => {
                             {dateRange}
                         </button>
                         <ul className="dropdown-menu dropdown-menu-end">
-                            {['Today', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Current Month', 'Last Month'].map((range) => (
-                                <li key={range}>
-                                    <a href="javascript:void(0);"
+                            {getDateRangeOptions().map((option) => (
+                                <li key={option.value}>
+                                    <a
+                                        href="javascript:void(0);"
                                         className="dropdown-item d-flex align-items-center"
-                                        onClick={() => handleDateRangeChange(range)}>
-                                        {range}
+                                        onClick={() => handleDateRangeChange(option.value)}
+                                    >
+                                        <div className="d-flex flex-column">
+                                            <span>{option.label}</span>
+                                            {option.dateRange && (
+                                                <small className="text-muted">{option.dateRange}</small>
+                                            )}
+                                        </div>
                                     </a>
                                 </li>
                             ))}
-                            <li><hr className="dropdown-divider" /></li>
-                            <li>
-                                <a href="javascript:void(0);"
-                                    className="dropdown-item d-flex align-items-center"
-                                    onClick={() => handleDateRangeChange('Custom Range')}>
-                                    Custom Range
-                                </a>
-                            </li>
                         </ul>
                     </div>
 
@@ -382,9 +612,7 @@ const FoodTypeGraph = () => {
                         onClick={() => setIsGifPlaying(true)}
                         title={isGifPlaying ? "Animation playing" : "Click to play animation"}
                     >
-                        {/* Using two separate images - static frame and animated */}
                         {isGifPlaying ? (
-                            // Show animated GIF when playing
                             <img 
                                 src={aiAnimationGif} 
                                 alt="AI Animation (Playing)"
@@ -395,7 +623,6 @@ const FoodTypeGraph = () => {
                                 }}
                             />
                         ) : (
-                            // Show static frame when not playing
                             <img 
                                 src={aiAnimationStillFrame} 
                                 alt="AI Animation (Click to play)"
@@ -463,28 +690,82 @@ const FoodTypeGraph = () => {
                         </div>
                     </div>
                 ) : (
-                    <ResponsiveContainer width="100%" height={400}>
-                        <BarChart data={foodTypeData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                            <XAxis dataKey="week" stroke="#433c50" />
-                            <YAxis stroke="#433c50" />
-                            <Tooltip 
-                                contentStyle={{ 
-                                    backgroundColor: '#fff',
-                                    border: '1px solid #8c57ff',
-                                    borderRadius: '8px'
-                                }}
-                            />
-                            <Legend />
-                            <Bar dataKey="Veg" stackId="a" fill="#2e7d32" radius={[4, 4, 0, 0]} />
-                            <Bar dataKey="Non-Veg" stackId="a" fill="#d32f2f" radius={[4, 4, 0, 0]} />
-                            <Bar dataKey="Vegan" stackId="a" fill="#FFBF00" radius={[4, 4, 0, 0]} />
-                            <Bar dataKey="Eggs" stackId="a" fill="#9e9e9e" radius={[4, 4, 0, 0]} />
-                        </BarChart>
-                    </ResponsiveContainer>
+                    <div className="position-relative">
+                        <button
+                            type="button"
+                            className="btn btn-icon btn-sm btn-outline-primary position-absolute"
+                            style={{ 
+                                top: '-5px', 
+                                right: '55px',
+                                zIndex: 1
+                            }}
+                            onClick={() => setShowModal(true)}
+                            title="Expand Graph"
+                        >
+                            <i className="fas fa-expand"></i>
+                        </button>
+                        <Chart
+                            options={chartOptions}
+                            series={chartSeries}
+                            type="bar"
+                            height={400}
+                        />
+                    </div>
                 )}
             </div>
+
+            {/* Modal for expanded graph */}
+            {showModal && (
+                <div 
+                    className="modal fade show" 
+                    tabIndex="-1" 
+                    role="dialog"
+                    style={{ 
+                        display: 'block',
+                        backgroundColor: 'rgba(0,0,0,0.5)'
+                    }}
+                >
+                    <div className="modal-dialog modal-xl modal-dialog-centered">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Food Type Analysis</h5>
+                                <button 
+                                    type="button" 
+                                    className="btn-close" 
+                                    onClick={() => setShowModal(false)}
+                                    aria-label="Close"
+                                ></button>
+                            </div>
+                            <div className="modal-body">
+                                <Chart
+                                    options={{
+                                        ...chartOptions,
+                                        chart: {
+                                            ...chartOptions.chart,
+                                            toolbar: {
+                                                show: true,
+                                                tools: {
+                                                    download: true,
+                                                    selection: true,
+                                                    zoom: true,
+                                                    zoomin: true,
+                                                    zoomout: true,
+                                                    pan: true,
+                                                }
+                                            }
+                                        }
+                                    }}
+                                    series={chartSeries}
+                                    type="bar"
+                                    height={600}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
-}
+};
 
-export default FoodTypeGraph
+export default FoodTypeGraph;

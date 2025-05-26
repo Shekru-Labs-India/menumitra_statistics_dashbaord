@@ -4,7 +4,6 @@ import { apiEndpoint } from '../config/menuMitraConfig';
 import VerticalSidebar from "../components/VerticalSidebar";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import img from '../assets/img/avatars/1.png';
 
 const MyProfile = () => {
   const [userDetails, setUserDetails] = useState({
@@ -75,7 +74,12 @@ const MyProfile = () => {
         }
 
         const response = await axios.post('https://menusmitra.xyz/common_api/view_profile_detail', 
-          { user_id: user_id },
+          { 
+            user_id: user_id,
+            outlet_id: localStorage.getItem('outlet_id'),
+            device_token: localStorage.getItem('device_token') || '',
+            device_id: localStorage.getItem('device_id') || ''
+          },
           { headers: getAuthHeaders() }
         );
 
@@ -83,32 +87,18 @@ const MyProfile = () => {
           const userData = response.data.Data.user_details;
           const subscriptionData = response.data.Data.subscription_outlet?.[0] || {};
           
-          // Convert date format from "DD MMM YYYY" to "YYYY-MM-DD" for input type="date"
-          const parseDateForInput = (dateStr) => {
-            if (!dateStr) return '';
-            const parts = dateStr.split(' ');
-            if (parts.length !== 3) return '';
-            
-            const months = {'jan':0, 'feb':1, 'mar':2, 'apr':3, 'may':4, 'jun':5, 
-                          'jul':6, 'aug':7, 'sep':8, 'oct':9, 'nov':10, 'dec':11};
-            
-            // Use UTC date to avoid timezone issues
-            // Format: YYYY-MM-DD where day and month are zero-padded if needed
-            const day = parts[0].padStart(2, '0');
-            const month = (months[parts[1].toLowerCase()] + 1).toString().padStart(2, '0');
-            const year = parts[2];
-            
-            return `${year}-${month}-${day}`;
-          };
-
+          // Format the date of birth for display
           const formattedUserData = {
             ...userData,
-            dob: parseDateForInput(userData.dob),
+            dob: userData.dob ? formatDateForDisplay(userData.dob) : 'Not provided',
             subscription_outlet: response.data.Data.subscription_outlet || []
           };
           
           setUserDetails(formattedUserData);
-          setFormData(formattedUserData);
+          setFormData({
+            ...formattedUserData,
+            dob: userData.dob ? formatDateForInput(userData.dob) : ''
+          });
         } else {
           setError('Failed to fetch user profile');
         }
@@ -126,7 +116,11 @@ const MyProfile = () => {
     setEditMode(!editMode);
     // Reset form data when entering edit mode
     if (!editMode) {
-      setFormData({ ...userDetails });
+      // Convert date to input format when entering edit mode
+      setFormData({
+        ...userDetails,
+        dob: userDetails.dob ? formatDateForInput(userDetails.dob) : ''
+      });
     }
     // Clear any messages
     setError('');
@@ -146,21 +140,30 @@ const MyProfile = () => {
 
     try {
       // Format date to match API requirement (e.g., "06 oct 1990")
-      const formatDate = (dateString) => {
+      const formatDateForAPI = (dateString) => {
         if (!dateString) return '';
         const date = new Date(dateString);
+        if (isNaN(date.getTime())) return '';
+        
+        const day = String(date.getDate()).padStart(2, '0');
         const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
-        return `${String(date.getDate()).padStart(2, '0')} ${months[date.getMonth()]} ${date.getFullYear()}`;
+        const month = months[date.getMonth()];
+        const year = date.getFullYear();
+        
+        return `${day} ${month} ${year}`;
       };
 
       const payload = {
-        update_user_id: Number(localStorage.getItem("user_id")), // Convert to number
-        user_id: Number(localStorage.getItem("user_id")), // Convert to number
+        update_user_id: Number(localStorage.getItem("user_id")),
+        user_id: Number(localStorage.getItem("user_id")),
         name: formData.name,
         email: formData.email,
         mobile_number: formData.mobile_number,
-        dob: formatDate(formData.dob),
-        aadhar_number: formData.aadhar_number
+        dob: formatDateForAPI(formData.dob),
+        aadhar_number: formData.aadhar_number,
+        outlet_id: localStorage.getItem('outlet_id'),
+        device_token: localStorage.getItem('device_token') || '',
+        device_id: localStorage.getItem('device_id') || ''
       };
 
       const response = await axios({
@@ -207,14 +210,61 @@ const MyProfile = () => {
 
   // Format date for display in view mode
   const formatDateForDisplay = (dateStr) => {
-    if (!dateStr) return '';
+    if (!dateStr) return 'Not provided';
     try {
+      // If the date is already in "DD MMM YYYY" format, return it as is
+      if (typeof dateStr === 'string' && dateStr.match(/^\d{2} [A-Za-z]{3} \d{4}$/)) {
+        return dateStr;
+      }
+      
+      // If it's a date object or ISO string, format it
       const date = new Date(dateStr);
-      if (isNaN(date.getTime())) return dateStr; // Return original if invalid
+      if (isNaN(date.getTime())) return 'Not provided';
+      
+      const day = String(date.getDate()).padStart(2, '0');
       const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      return `${String(date.getDate()).padStart(2, '0')} ${months[date.getMonth()]} ${date.getFullYear()}`;
-    } catch {
-      return dateStr; // Return original if parsing fails
+      const month = months[date.getMonth()];
+      const year = date.getFullYear();
+      
+      return `${day} ${month} ${year}`;
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Not provided';
+    }
+  };
+
+  // Format date for input field
+  const formatDateForInput = (dateStr) => {
+    if (!dateStr || dateStr === 'Not provided') return '';
+    try {
+      // If the date is in "DD MMM YYYY" format, convert it to YYYY-MM-DD
+      if (typeof dateStr === 'string' && dateStr.match(/^\d{2} [A-Za-z]{3} \d{4}$/)) {
+        const [day, month, year] = dateStr.split(' ');
+        const monthIndex = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].indexOf(month);
+        if (monthIndex !== -1) {
+          // Create date in UTC to avoid timezone offset
+          const date = new Date(Date.UTC(parseInt(year), monthIndex, parseInt(day)));
+          if (!isNaN(date.getTime())) {
+            return date.toISOString().split('T')[0];
+          }
+        }
+      }
+      
+      // If it's a date object or ISO string, format it
+      const dateObj = new Date(dateStr);
+      if (!isNaN(dateObj.getTime())) {
+        // Create new UTC date to avoid timezone offset
+        const utcDate = new Date(Date.UTC(
+          dateObj.getFullYear(),
+          dateObj.getMonth(),
+          dateObj.getDate()
+        ));
+        return utcDate.toISOString().split('T')[0];
+      }
+      return '';
+    } catch (error) {
+      console.error('Error formatting date for input:', error);
+      return '';
     }
   };
 
@@ -265,7 +315,7 @@ const MyProfile = () => {
                     style={{ top: "-75px", left: "35px" }}
                   >
                     <div
-                      className="avatar avatar-xl"
+                      className="avatar avatar-xl d-flex align-items-center justify-content-center"
                       style={{
                         width: "110px",
                         height: "110px",
@@ -275,12 +325,7 @@ const MyProfile = () => {
                         boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
                       }}
                     >
-                      <img
-                        src={img}
-                        alt="Profile Image"
-                        className="w-100 h-100"
-                        style={{ objectFit: "cover", borderRadius: "5px" }}
-                      />
+                      <i className="far fa-user-circle fa-4x text-gray"></i>
                     </div>
                   </div>
 
@@ -333,47 +378,54 @@ const MyProfile = () => {
                       {!editMode ? (
                         <div className="ps-2">
                           <div className="mb-4">
+                          
                             <div className="fs-5 fw-bold">
                               {userDetails.name}
                             </div>
                             <div className="text-muted small mb-1">Name</div>
+                            
                           </div>
 
                           <div className="mb-4">
                             <div className="fs-5 fw-bold">
+                           
                               {userDetails.email || "Not provided"}
                             </div>
                             <div className="text-muted small mb-1">Email</div>
+                          
                           </div>
 
                           <div className="mb-4">
+                          
                             <div className="fs-5 fw-bold">
                               {userDetails.mobile_number}
                             </div>
                             <div className="text-muted small mb-1">Mobile</div>
+                            
                           </div>
 
                           <div className="mb-4">
+                          
                             <div className="fs-5 fw-bold">
                               {userDetails.aadhar_number}
                             </div>
-                            <div className="text-muted small mb-1">
-                              Aadhar Number
-                            </div>
+                            <div className="text-muted small mb-1">Aadhar Number</div>
+                           
                           </div>
 
                           <div className="mb-4">
+                          
                             <div className="fs-5 fw-bold">
                               {formatDateForDisplay(userDetails.dob)}
                             </div>
-                            <div className="text-muted small mb-1">
-                              Date of Birth
-                            </div>
+                            <div className="text-muted small mb-1">Date of Birth</div>
+                            
                           </div>
                         </div>
                       ) : (
                         <form onSubmit={handleSubmit} className="px-2">
                           <div className="mb-4">
+                            <label className="form-label fw-semibold mb-2">Name</label>
                             <input
                               type="text"
                               className="form-control form-control-lg"
@@ -382,10 +434,10 @@ const MyProfile = () => {
                               onChange={handleInputChange}
                               placeholder="Enter your name"
                             />
-                            <label className="form-label">Name</label>
                           </div>
 
                           <div className="mb-4">
+                            <label className="form-label fw-semibold mb-2">Email</label>
                             <input
                               type="email"
                               className="form-control form-control-lg"
@@ -394,10 +446,10 @@ const MyProfile = () => {
                               onChange={handleInputChange}
                               placeholder="Enter your email"
                             />
-                            <label className="form-label">Email</label>
                           </div>
 
                           <div className="mb-4">
+                            <label className="form-label fw-semibold mb-2">Mobile Number</label>
                             <input
                               type="tel"
                               className="form-control form-control-lg"
@@ -407,15 +459,13 @@ const MyProfile = () => {
                               placeholder="Enter mobile number"
                               disabled
                             />
-                            <label className="form-label">Mobile Number</label>
-
-                            <small className="text-danger ms-2">
-                              (Mobile number cannot be changed as it's used for
-                              login.)
+                            <small className="text-danger mt-1 d-block">
+                              (Mobile number cannot be changed as it's used for login.)
                             </small>
                           </div>
 
                           <div className="mb-4">
+                            <label className="form-label fw-semibold mb-2">Aadhar Number</label>
                             <input
                               type="text"
                               className="form-control form-control-lg"
@@ -424,10 +474,10 @@ const MyProfile = () => {
                               onChange={handleInputChange}
                               placeholder="Enter your aadhar number"
                             />
-                            <label className="form-label">Aadhar Number</label>
                           </div>
 
                           <div className="mb-4">
+                            <label className="form-label fw-semibold mb-2">Date of Birth</label>
                             <div className="position-relative">
                               <input
                                 type="date"
@@ -436,11 +486,7 @@ const MyProfile = () => {
                                 value={formData.dob || ""}
                                 onChange={handleInputChange}
                                 max={new Date().toISOString().split('T')[0]}
-                                style={{
-                                  paddingRight: "2.5rem"
-                                }}
                               />
-                              <label className="form-label">Date of Birth</label>
                             </div>
                           </div>
 

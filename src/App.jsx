@@ -12,9 +12,10 @@ import { ThemeProvider } from './components/ThemeContext'
 import { DashboardProvider } from './context/DashboardContext'
 
 import Header from './components/Header'
-import TopSell from './components/TopSell';
+import ProductAnalysis from './components/ProductAnalysis';
 import FoodTypeGraph from './components/FoodTypeGraph';
 import Settings from './screen/Settings';
+import MyActivity from './screen/MyActivity';
 
 function App() {
   return (
@@ -47,6 +48,7 @@ function App() {
 
                 {/* 404 - Not Found */}
                 <Route path="*" element={<Navigate to="/login" replace />} />
+                <Route path="/my-activity" element={<MyActivity />} />
               </Routes>
             </div>
           </div>

@@ -105,28 +105,18 @@ export const DashboardProvider = ({ children }) => {
       }
 
       // Prepare request body with date filters if provided
-      const requestBody = { outlet_id: outletId }; 
-      
-      // Add date filter if provided
-      if (dateFilter.start_date) requestBody.start_date = dateFilter.start_date;
-      if (dateFilter.end_date) requestBody.end_date = dateFilter.end_date;
-      // For backward compatibility
-      if (dateFilter.startDate) requestBody.start_date = dateFilter.startDate;
-      if (dateFilter.endDate) requestBody.end_date = dateFilter.endDate;
-      if (dateFilter.filterType) requestBody.filter_type = dateFilter.filterType;
+      const requestBody = {
+        outlet_id: outletId,
+        device_token: localStorage.getItem('device_token') || '',
+        device_id: localStorage.getItem('device_id') || ''
+      };
 
       console.log('Context API request data:', requestBody);
-      
-      // Format the token correctly - ensure Bearer prefix if not already present
-      let formattedToken = accessToken;
-      if (formattedToken && !formattedToken.toLowerCase().startsWith('bearer ')) {
-        formattedToken = `Bearer ${formattedToken}`;
-      }
       
       const headers = {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Authorization': formattedToken
+        'Authorization': `Bearer ${accessToken}`
       };
       
       // Make the API call
