@@ -80,7 +80,16 @@ function Header() {
         return;
       }
 
-      const response = await fetch(`https://menusmitra.xyz/1.3/common_api/get_outlet_list`, {
+      const deviceToken = localStorage.getItem('device_token');
+      const userRole = localStorage.getItem('role');
+
+      if (!deviceToken) {
+        setError('Device token not found. Please login again.');
+        navigate('/login');
+        return;
+      }
+
+      const response = await fetch(`https://menusmitra.xyz/1.3/common_api/get_outlet_list_admin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -88,43 +97,42 @@ function Header() {
           'Authorization': `Bearer ${accessToken}`
         },
         body: JSON.stringify({
-          owner_id: parseInt(userId),
-          device_token: localStorage.getItem('device_token') || '',
-          device_id: localStorage.getItem('device_id') || ''
+          device_token: deviceToken,
+          role: userRole
         })
       });
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          setError('Session expired. Please login again.');
-          navigate('/login');
-          return;
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
       const data = await response.json();
       
+      if (data.st === 5) {
+        setError('Session expired. Please login again.');
+        navigate('/login');
+        return;
+      }
+
       if (data.st === 1) {
-        const transformedOutlets = data.outlet_list.map(outlet => ({
-          name: outlet.name,
-          location: outlet.address,
-          status: outlet.is_open ? 'open' : 'closed',
-          outlet_id: outlet.outlet_id,
-          outlet_status: outlet.outlet_status
-        }));
-        
-        setOutlets(transformedOutlets);
+        setOutlets(data.outlet_list);
         
         // If there's a stored outlet_id, update selected outlet data
         if (storedOutletId) {
-          const matchingOutlet = transformedOutlets.find(o => o.outlet_id.toString() === storedOutletId);
+          const matchingOutlet = data.outlet_list.find(o => o.outlet_id.toString() === storedOutletId);
           if (matchingOutlet) {
             const truncatedName = truncateText(matchingOutlet.name, 20);
             setSelectedOutlet(truncatedName);
             setOutletId(matchingOutlet.outlet_id.toString());
             setSelectedOutletData(matchingOutlet);
           }
+        } else if (data.outlet_list.length > 0) {
+          // If no stored outlet_id, select the first outlet automatically
+          const firstOutlet = data.outlet_list[0];
+          const truncatedName = truncateText(firstOutlet.name, 20);
+          setSelectedOutlet(truncatedName);
+          setOutletId(firstOutlet.outlet_id.toString());
+          setSelectedOutletData(firstOutlet);
+          localStorage.setItem('outlet_id', firstOutlet.outlet_id.toString());
+          
+          // Trigger dashboard refresh with the selected outlet
+          refreshDashboard();
         }
       } else {
         setError(data.msg || 'Failed to fetch outlets');
@@ -958,12 +966,12 @@ function Header() {
                           </span>
                           <span
                             className={`outlet-status ${
-                              outlet.status === "open"
+                              outlet.is_open
                                 ? "status-open"
                                 : "status-closed"
                             }`}
                           >
-                            {outlet.status === "open" ? "Open" : "Closed"}
+                            {outlet.is_open ? "Open" : "Closed"}
                           </span>
                         </div>
                       </div>

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import { apiEndpoint } from '../config/menuMitraConfig';
+import { useNavigate } from 'react-router-dom';
 
 const DashboardContext = createContext();
 
@@ -25,6 +26,8 @@ export const DashboardProvider = ({ children }) => {
   const isFetchingRef = useRef(false);
   const lastFetchTimeRef = useRef(0);
   const initialFetchCompletedRef = useRef(false);
+
+  const navigate = useNavigate();
 
   // Check if we're already on the login page to prevent redirect loops
   const isLoginPage = () => {
@@ -66,9 +69,9 @@ export const DashboardProvider = ({ children }) => {
   useEffect(() => {
     if (shouldRedirectToLogin && !isLoginPage()) {
       console.log('Redirecting to login page from', window.location.pathname);
-      window.location.href = '/login';
+      navigate('/login');
     }
-  }, [shouldRedirectToLogin]);
+  }, [shouldRedirectToLogin, navigate]);
 
   const fetchDashboardData = useCallback(async (dateFilter = {}) => {
     // Skip if we're already fetching or on login page
@@ -104,11 +107,19 @@ export const DashboardProvider = ({ children }) => {
         throw new Error('Missing authentication credentials. Please login again.');
       }
 
-      // Prepare request body with date filters if provided
+      const deviceToken = localStorage.getItem('device_token');
+      const userRole = localStorage.getItem('role');
+
+      if (!deviceToken) {
+        setError('Device token not found. Please login again.');
+        navigate('/login');
+        return;
+      }
+
       const requestBody = {
-        outlet_id: outletId,
-        device_token: localStorage.getItem('device_token') || '',
-        device_id: localStorage.getItem('device_id') || ''
+        outlet_id: parseInt(outletId, 10),
+        device_token: deviceToken,
+        role: userRole
       };
 
       console.log('Context API request data:', requestBody);
@@ -126,25 +137,31 @@ export const DashboardProvider = ({ children }) => {
         { headers }
       );
 
-      if (response.data && response.data.message === "success") {
-        const data = response.data.data;
+      if (response.data.st === 5) {
+        setError('Session expired. Please login again.');
+        navigate('/login');
+        return;
+      }
+
+      if (response.data.message === 'success') {
+        const stats = response.data.data;
         console.log('Successfully fetched context data at:', new Date().toISOString());
         
         // Set individual state variables for each category
-        setAnalyticReports(data.analytic_reports || null);
-        setOrderAnalytics(data.order_analytics || null);
-        setFoodTypeStatistics(data.food_type_statistics || null);
-        setOrderTypeStatistics(data.order_type_statistics || null);
-        setOrderStatistics(data.order_statistics || null);
-        setTotalCollectionSource(data.total_collection_source || null);
-        setSalesPerformance(data.sales_performance || null);
-        setWeeklyOrderStats(data.weekly_order_stats || null);
+        setAnalyticReports(stats.analytic_reports || null);
+        setOrderAnalytics(stats.order_analytics || null);
+        setFoodTypeStatistics(stats.food_type_statistics || null);
+        setOrderTypeStatistics(stats.order_type_statistics || null);
+        setOrderStatistics(stats.order_statistics || null);
+        setTotalCollectionSource(stats.total_collection_source || null);
+        setSalesPerformance(stats.sales_performance || null);
+        setWeeklyOrderStats(stats.weekly_order_stats || null);
         
         setError(null);
         lastFetchTimeRef.current = Date.now();
         initialFetchCompletedRef.current = true;
       } else {
-        throw new Error('Invalid response format');
+        throw new Error('Failed to fetch dashboard statistics');
       }
     } catch (err) {
       console.error('Error details:', err);
@@ -168,7 +185,7 @@ export const DashboardProvider = ({ children }) => {
       // Release the fetching lock
       isFetchingRef.current = false;
     }
-  }, [getAuthCredentials, isLoginPage]);
+  }, [getAuthCredentials, isLoginPage, navigate]);
 
   useEffect(() => {
     // Skip data fetching if we're on the login page
