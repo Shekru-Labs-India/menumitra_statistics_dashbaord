@@ -231,16 +231,6 @@
     display: block !important;
   }
 }
-
-/* Remove the unnecessary classes */
-.mobile-visible {
-  /* Replaced with Bootstrap classes */
-}
-
-.layout-menu.mobile .mobile-visible {
-  /* Replaced with Bootstrap classes */
-}
-
 /* Active menu item styles */
 .menu-item.active .menu-link {
   color: white;
@@ -294,18 +284,13 @@
 }
 
 /* Hover effect for menu items */
-.menu-link:hover {
-  color: #7367f0;
-  background: #f8f8ff;
+.menu-item:hover {
+  background: #5b5bea;
 }
-
-.menu-link:hover .menu-icon {
-  color: #7367f0;
-}
-
-.menu-item.active .menu-link:hover {
-  color: white;
-  background: #7367f0;
+.menu-item:hover .menu-link,
+.menu-item:hover .menu-icon,
+.menu-item:hover .d-block {
+  color: #000;
 }
 
 /* App brand link styles */

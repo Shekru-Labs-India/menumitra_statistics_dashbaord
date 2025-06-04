@@ -325,17 +325,24 @@ function Header() {
   const handleRefresh = () => {
     setIsRotating(true);
     setStartTime(new Date());
-    
-    // Show rotating animation for a moment before reload
+    refreshDashboard();
     setTimeout(() => {
-      // Reload the page - simplest way to reset all filters and get fresh data
-      window.location.reload();
-    }, 500); // Shorter timeout so the reload happens during the animation
+      setIsRotating(false);
+    }, 1000); // Stop rotation after 1s
   };
 
   const handleClearSearch = () => {
     setSearchTerm('');
   };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refreshDashboard();
+      setStartTime(new Date()); // Optionally update the "Last updated" timer
+    }, 60000); // 60 seconds
+
+    return () => clearInterval(interval);
+  }, [refreshDashboard]);
 
   return (
     <div>
@@ -418,7 +425,7 @@ function Header() {
             }
 
             .outlet-modal-header {
-              padding: 1rem;
+              padding: 0.1rem;
             }
 
             .outlet-modal-body {
@@ -491,7 +498,10 @@ function Header() {
           }
           
           .outlet-modal-header {
-            padding: 1.5rem;
+            padding-top: 1rem;
+            padding-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            padding-right: 1.5rem;
             border-bottom: 1px solid #e9ecef;
             display: flex;
             justify-content: space-between;
@@ -502,18 +512,23 @@ function Header() {
             z-index: 1;
           }
           
+          .outlet-modal-header h5 {
+            margin: 0;
+          }
+          
           .outlet-modal-body {
-            padding: 1.5rem;
+            padding: 1rem 1.5rem 1rem 1.5rem;
           }
           
           .outlet-search {
             position: relative;
-            margin-bottom: 1rem;
+            margin-top: 0;
+            margin-bottom: 0.5rem;
             position: sticky;
             top: 72px;
             background: white;
             z-index: 1;
-            padding: 0.5rem 0;
+            padding: 0;
           }
           
           .outlet-search input {
@@ -544,20 +559,7 @@ function Header() {
             padding: 0.25rem 0.5rem;
           }
           
-          .quick-filters {
-            display: flex;
-            flex-wrap: nowrap;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-            padding: 0.75rem;
-            background: #f8f9fa;
-            border-radius: 8px;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            position: sticky;
-            top: 130px;
-            z-index: 1;
-          }
+          
           
           .quick-filter {
             padding: 0.5rem 1rem;
@@ -934,7 +936,9 @@ function Header() {
                         outlet.name.toLowerCase().includes(search) ||
                         outlet.outlet_id.toString().includes(search) ||
                         (outlet.location &&
-                          outlet.location.toLowerCase().includes(search))
+                          outlet.location.toLowerCase().includes(search)) ||
+                        (outlet.address &&
+                          outlet.address.toLowerCase().includes(search))
                       );
                     })
                     .map((outlet) => (
@@ -953,17 +957,20 @@ function Header() {
                         ></i>
                         <div className="outlet-info">
                           <span className="outlet-name">{outlet.name}</span>
-                          {outlet.location && (
+                          {(outlet.address || outlet.location) && (
                             <span className="outlet-location">
                               <i className="fas fa-map-marker-alt me-1"></i>
-                              {outlet.location}
+                              {outlet.address || outlet.location}
                             </span>
                           )}
                         </div>
                         <div className="outlet-meta">
-                          <span className="outlet-id">
-                            [ID: {outlet.outlet_id}]
-                          </span>
+                        
+                          {outlet.Owner_id__account_type && (
+                            <span className={`account-type-badge ${outlet.Owner_id__account_type === 'live' ? 'live' : 'test'}`} style={{ marginLeft: 0, marginRight: 0, fontWeight: 500, color: outlet.Owner_id__account_type === 'live' ? '#8b57ff' : '#ff9f43' }}>
+                              {outlet.Owner_id__account_type === 'live' ? 'Live' : 'Test'}
+                            </span>
+                          )}
                           <span
                             className={`outlet-status ${
                               outlet.is_open

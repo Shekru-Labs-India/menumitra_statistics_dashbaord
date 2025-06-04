@@ -18,6 +18,7 @@ const WeeklyOrderStat = () => {
 
   const [dateRange, setDateRange] = useState('All time');
   const [loading, setLoading] = useState(false);
+  const [isReloading, setIsReloading] = useState(false); // New state for reload action
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -95,9 +96,14 @@ const WeeklyOrderStat = () => {
   };
 
   // Function to fetch weekly order stats
-  const fetchWeeklyOrderStats = async (range = 'This Week') => {
+  const fetchWeeklyOrderStats = async (range = 'This Week', isReloadAction = false) => {
     try {
-      setLoading(true);
+      // Use isReloading for reload actions, main loading state otherwise
+      if (isReloadAction) {
+        setIsReloading(true);
+      } else {
+        setLoading(true);
+      }
       setError('');
       setUserInteracted(true);
 
@@ -164,7 +170,11 @@ const WeeklyOrderStat = () => {
       setMaxOrders(0);
       setMinOrders(0);
     } finally {
-      setLoading(false);
+      if (isReloadAction) {
+        setIsReloading(false);
+      } else {
+        setLoading(false);
+      }
     }
   };
 
@@ -559,11 +569,11 @@ const WeeklyOrderStat = () => {
     if (startDate && endDate) {
       console.log('Reloading with custom date range:', formatDate(startDate), 'to', formatDate(endDate));
       // For custom range, explicitly use 'Custom Range'
-      fetchWeeklyOrderStats('Custom Range');
+      fetchWeeklyOrderStats('Custom Range', true);
     } else {
       // For other ranges, use the current dateRange state
       console.log('Reloading with standard date range:', dateRange);
-      fetchWeeklyOrderStats(dateRange);
+      fetchWeeklyOrderStats(dateRange, true);
     }
   };
 
@@ -623,54 +633,15 @@ const WeeklyOrderStat = () => {
 
           <button
             type="button"
-            className={`btn btn-icon p-0 ${isLoading ? 'disabled' : ''}`}
+            className={`btn btn-icon p-0 ${isReloading ? "disabled" : ""}`}
             onClick={handleReload}
-            disabled={isLoading}
-            style={{ border: '1px solid var(--bs-primary)' }}
+            disabled={isReloading}
+            style={{ border: "1px solid var(--bs-primary)" }}
           >
-            <i className={`fas fa-sync-alt ${isLoading ? 'fa-spin' : ''}`}></i>
+            <i className={`fas fa-sync-alt ${isReloading ? "fa-spin" : ""}`}></i>
           </button>
 
-          <button
-            type="button"
-            className="btn btn-icon btn-sm p-0"
-            style={{ 
-              width: '40px', 
-              height: '40px', 
-              borderRadius: '50%', 
-              display: 'flex', 
-              justifyContent: 'center', 
-              alignItems: 'center',
-              overflow: 'hidden',
-              position: 'relative',
-              border: '1px solid #e9ecef'
-            }}
-            onClick={() => setIsGifPlaying(true)}
-            title={isGifPlaying ? "Animation playing" : "Click to play animation"}
-          >
-            {isGifPlaying ? (
-              <img 
-                src={aiAnimationGif} 
-                alt="AI Animation (Playing)"
-                style={{ 
-                  width: '24px', 
-                  height: '24px',
-                  objectFit: 'contain'
-                }}
-              />
-            ) : (
-              <img 
-                src={aiAnimationStillFrame} 
-                alt="AI Animation (Click to play)"
-                style={{ 
-                  width: '24px', 
-                  height: '24px',
-                  objectFit: 'contain',
-                  opacity: 0.9
-                }}
-              />
-            )}
-          </button>
+        
         </div>
       </div>
 
@@ -753,25 +724,42 @@ const WeeklyOrderStat = () => {
             </div>
           ) : (
             <div className="position-relative">
-              <button
-                type="button"
-                className="btn btn-icon btn-sm btn-outline-primary position-absolute"
-                style={{ 
-                  top: '-60px', 
-                  right: '50px',
-                  zIndex: 1
-                }}
-                onClick={() => setShowModal(true)}
-                title="Expand Graph"
-              >
-                <i className="fas fa-expand"></i>
-              </button>
-              <ReactApexChart 
-                options={chartOptions} 
-                series={chartSeries} 
-                type="bar" 
-                height={450}
-              />
+              {isReloading && (
+                <div 
+                  className="position-absolute w-100 h-100 d-flex justify-content-center align-items-center"
+                  style={{ 
+                    top: 0, 
+                    left: 0, 
+                    background: 'rgba(255, 255, 255, 0.8)',
+                    zIndex: 1 
+                  }}
+                >
+                  <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Reloading...</span>
+                  </div>
+                </div>
+              )}
+              <div className={isReloading ? 'opacity-50' : ''}>
+                <button
+                  type="button"
+                  className="btn btn-icon btn-sm btn-outline-primary position-absolute"
+                  style={{ 
+                    top: '-60px', 
+                    right: '3px',
+                    zIndex: 1
+                  }}
+                  onClick={() => setShowModal(true)}
+                  title="Expand Graph"
+                >
+                  <i className="fas fa-expand"></i>
+                </button>
+                <ReactApexChart 
+                  options={chartOptions} 
+                  series={chartSeries} 
+                  type="bar" 
+                  height={450}
+                />
+              </div>
             </div>
           )}
         </div>

@@ -586,223 +586,181 @@ function HomeScreen() {
                   {currentError}
                 </div>
               )}
-              {/* Welcome Card Section */}
-              <div className="row mb-4">
-                <div className="col-12">
-                  <div className="card">
-                    <div className="card-header d-flex justify-content-between align-items-md-center align-items-start p-4">
-                      <h5 className="card-title mb-0">
-                        Welcome to MenuMitra Owner Dashboard
-                      </h5>
-                      <div className="d-flex align-items-center gap-3">
-                        <div className="dropdown">
-                          <button
-                            type="button"
-                            className="btn btn-outline-primary dropdown-toggle"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
+              {/* Welcome and Filter Controls */}
+              <div className="row mb-4 align-items-center">
+                <div className="col-12 col-md-6">
+                  <h5 className="mb-3 mb-md-0">Welcome to MenuMitra admin Dashboard</h5>
+                </div>
+                <div className="col-12 col-md-6 d-flex justify-content-md-end align-items-center gap-3">
+                  <div className="dropdown">
+                    <button
+                      type="button"
+                      className="btn btn-outline-primary dropdown-toggle"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      <i className="fas fa-calendar me-2"></i>
+                      {dateRange}
+                    </button>
+                    <ul className="dropdown-menu dropdown-menu-end">
+                      {[
+                        "All Time",
+                        "Today",
+                        "Yesterday",
+                        "Last 7 Days",
+                        "Last 30 Days",
+                        "Current Month",
+                        "Last Month",
+                      ].map((range) => (
+                        <li key={range}>
+                          <a
+                            href="javascript:void(0);"
+                            className="dropdown-item d-flex align-items-center"
+                            onClick={() => handleDateRangeChange(range)}
                           >
-                            <i className="fas fa-calendar me-2"></i>
-                            {dateRange}
-                          </button>
-                          <ul className="dropdown-menu dropdown-menu-end">
-                            {[
-                              "All Time",
-                              "Today",
-                              "Yesterday",
-                              "Last 7 Days",
-                              "Last 30 Days",
-                              "Current Month",
-                              "Last Month",
-                            ].map((range) => (
-                              <li key={range}>
-                                <a
-                                  href="javascript:void(0);"
-                                  className="dropdown-item d-flex align-items-center"
-                                  onClick={() => handleDateRangeChange(range)}
-                                >
-                                  {range}
-                                </a>
-                              </li>
-                            ))}
-                            <li>
-                              <hr className="dropdown-divider" />
-                            </li>
-                            <li>
-                              <a
-                                href="javascript:void(0);"
-                                className="dropdown-item d-flex align-items-center"
-                                onClick={() =>
-                                  handleDateRangeChange("Custom Range")
-                                }
-                              >
-                                Custom Range
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
-                        <button
-                          type="button"
-                          className={`btn btn-icon p-0 ${
-                            isLoading ? "disabled" : ""
-                          }`}
-                          onClick={handleReload}
-                          disabled={isLoading}
-                          style={{ border: "1px solid var(--bs-primary)" }}
+                            {range}
+                          </a>
+                        </li>
+                      ))}
+                      <li>
+                        <hr className="dropdown-divider" />
+                      </li>
+                      <li>
+                        <a
+                          href="javascript:void(0);"
+                          className="dropdown-item d-flex align-items-center"
+                          onClick={() => handleDateRangeChange("Custom Range")}
                         >
-                          <i
-                            className={`fas fa-sync-alt ${
-                              isLoading ? "fa-spin" : ""
-                            }`}
-                          ></i>
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-icon btn-sm p-0"
-                          style={{
-                            width: "40px",
-                            height: "40px",
-                            borderRadius: "50%",
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            overflow: "hidden",
-                            position: "relative",
-                            border: "1px solid #e9ecef",
-                          }}
-                          onClick={() => setIsGifPlaying(true)}
-                          title={
-                            isGifPlaying
-                              ? "Animation playing"
-                              : "Click to play animation"
-                          }
-                        >
-                          {/* Using two separate images - static frame and animated */}
-                          {isGifPlaying ? (
-                            // Show animated GIF when playing
-                            <img
-                              src={aiAnimationGif}
-                              alt="AI Animation (Playing)"
-                              style={{
-                                width: "24px",
-                                height: "24px",
-                                objectFit: "contain",
-                              }}
-                            />
-                          ) : (
-                            // Show static frame when not playing
-                            <img
-                              src={aiAnimationStillFrame}
-                              alt="AI Animation (Click to play)"
-                              style={{
-                                width: "24px",
-                                height: "24px",
-                                objectFit: "contain",
-                                opacity: 0.9,
-                              }}
-                            />
-                          )}
-                        </button>
-                      </div>
-                    </div>
-
-                    {showDatePicker && (
-                      <div className="card-body px-4 py-3">
-                        <div className="d-flex flex-column gap-2">
-                          <label>Select Date Range:</label>
-                          <div className="d-flex gap-2 flex-wrap">
-                            <DatePicker
-                              selected={startDate}
-                              onChange={(date) => setStartDate(date)}
-                              selectsStart
-                              startDate={startDate}
-                              endDate={endDate}
-                              maxDate={new Date()}
-                              placeholderText="DD MMM YYYY"
-                              className="form-control"
-                              dateFormat="dd MMM yyyy"
-                            />
-                            <DatePicker
-                              selected={endDate}
-                              onChange={(date) => setEndDate(date)}
-                              selectsEnd
-                              startDate={startDate}
-                              endDate={endDate}
-                              minDate={startDate}
-                              maxDate={new Date()}
-                              placeholderText="DD MMM YYYY"
-                              className="form-control"
-                              dateFormat="dd MMM yyyy"
-                            />
-                          </div>
-                          <button
-                            className="btn btn-primary mt-2"
-                            onClick={handleCustomDateSelect}
-                            disabled={!startDate || !endDate}
-                          >
-                            Apply
-                          </button>
-                        </div>
-                      </div>
+                          Custom Range
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                  <button
+                    type="button"
+                    className={`btn btn-icon p-0 ${isLoading ? "disabled" : ""}`}
+                    onClick={handleReload}
+                    disabled={isLoading}
+                    style={{ border: "1px solid var(--bs-primary)" }}
+                  >
+                    <i className={`fas fa-sync-alt ${isLoading ? "fa-spin" : ""}`}></i>
+                  </button>
+                  {/* <button
+                    type="button"
+                    className="btn btn-icon btn-sm p-0"
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      borderRadius: "50%",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      overflow: "hidden",
+                      position: "relative",
+                      border: "1px solid #e9ecef",
+                    }}
+                    onClick={() => setIsGifPlaying(true)}
+                    title={isGifPlaying ? "Animation playing" : "Click to play animation"}
+                  >
+                    {isGifPlaying ? (
+                      <img
+                        src={aiAnimationGif}
+                        alt="AI Animation (Playing)"
+                        style={{ width: "24px", height: "24px", objectFit: "contain" }}
+                      />
+                    ) : (
+                      <img
+                        src={aiAnimationStillFrame}
+                        alt="AI Animation (Click to play)"
+                        style={{ width: "24px", height: "24px", objectFit: "contain", opacity: 0.9 }}
+                      />
                     )}
-
-                    <div className="card-body p-4">
-                      <p className="mb-4">
-                        Select an outlet from the search menu above to view
-                        detailed analytics and reports.
-                      </p>
-                      {/* Stats Cards */}
-                      <div className="row g-4">
-                        {isLoading ? (
-                          <>
-                            <StatCardSkeleton color="primary" />
-                            <StatCardSkeleton color="success" />
-                            {/* <StatCardSkeleton color="warning" /> */}
-                            <StatCardSkeleton color="info" />
-                            <StatCardSkeleton color="danger" />
-                          </>
-                        ) : (
-                          <>
-                            <StatCard
-                              title="Total Orders"
-                              value={statistics.total_orders}
-                              icon="fas fa-shopping-cart"
-                              color="primary"
-                              isPrice={false}
-                            />
-                            <StatCard
-                              title="Total Revenue"
-                              value={statistics.total_revenue}
-                              icon="fas fa-rupee-sign"
-                              color="success"
-                              isPrice={true}
-                            />
-                            {/* <StatCard
-                              title="Customers count"
-                              value={statistics.customer_count}
-                              icon="fas fa-users"
-                              color="warning"
-                            /> */}
-                            <StatCard
-                              title="Average Order Value"
-                              value={statistics.average_order_value}
-                              icon="fas fa-chart-line"
-                              color="info"
-                              isPrice={true}
-                            />
-                            <StatCard
-                              title="Table Turnover"
-                              value={statistics.average_turnover_time}
-                              icon="fas fa-chair"
-                              color="danger"
-                              isPrice={false}
-                            />
-                          </>
-                        )}
+                  </button> */}
+                </div>
+                {showDatePicker && (
+                  <div className="col-12 mt-3">
+                    <div className="d-flex flex-column gap-2">
+                      <label>Select Date Range:</label>
+                      <div className="d-flex gap-2 flex-wrap">
+                        <DatePicker
+                          selected={startDate}
+                          onChange={(date) => setStartDate(date)}
+                          selectsStart
+                          startDate={startDate}
+                          endDate={endDate}
+                          maxDate={new Date()}
+                          placeholderText="DD MMM YYYY"
+                          className="form-control"
+                          dateFormat="dd MMM yyyy"
+                        />
+                        <DatePicker
+                          selected={endDate}
+                          onChange={(date) => setEndDate(date)}
+                          selectsEnd
+                          startDate={startDate}
+                          endDate={endDate}
+                          minDate={startDate}
+                          maxDate={new Date()}
+                          placeholderText="DD MMM YYYY"
+                          className="form-control"
+                          dateFormat="dd MMM yyyy"
+                        />
                       </div>
+                      <button
+                        className="btn btn-primary mt-2"
+                        onClick={handleCustomDateSelect}
+                        disabled={!startDate || !endDate}
+                      >
+                        Apply
+                      </button>
                     </div>
                   </div>
-                </div>
+                )}
+              </div>
+              <p className="mb-4">
+                Select an outlet from the search menu above to view detailed analytics and reports.
+              </p>
+              {/* Stats Cards Only (no outer card) */}
+              <div className="row g-4 mb-4">
+                {isLoading ? (
+                  <>
+                    <StatCardSkeleton color="primary" />
+                    <StatCardSkeleton color="success" />
+                    <StatCardSkeleton color="info" />
+                    <StatCardSkeleton color="danger" />
+                  </>
+                ) : (
+                  <>
+                    <StatCard
+                      title="Total Orders"
+                      value={statistics.total_orders}
+                      icon="fas fa-shopping-cart"
+                      color="primary"
+                      isPrice={false}
+                    />
+                    <StatCard
+                      title="Total Revenue"
+                      value={statistics.total_revenue}
+                      icon="fas fa-rupee-sign"
+                      color="success"
+                      isPrice={true}
+                    />
+                    <StatCard
+                      title="Average Order Value"
+                      value={statistics.average_order_value}
+                      icon="fas fa-chart-line"
+                      color="info"
+                      isPrice={true}
+                    />
+                    <StatCard
+                      title="Table Turnover"
+                      value={statistics.average_turnover_time}
+                      icon="fas fa-chair"
+                      color="danger"
+                      isPrice={false}
+                    />
+                  </>
+                )}
               </div>
 
               {/* Charts Section */}
@@ -851,9 +809,9 @@ function HomeScreen() {
                   </div>
                 </div>
 
-                <div className="row mt-4">
+                {/* <div className="row mt-4">
                   <OrderAnalytics />
-                </div>
+                </div> */}
               </div>
             </div>
             <Footer />

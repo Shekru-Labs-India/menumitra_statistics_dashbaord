@@ -18,6 +18,7 @@ const OrderAnalytics = () => {
 
   const [dateRange, setDateRange] = useState('All Time');
   const [loading, setLoading] = useState(false);
+  const [isReloading, setIsReloading] = useState(false); // New state for reload action
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -127,15 +128,27 @@ const OrderAnalytics = () => {
   const handleReload = () => {
     console.log('Reloading data...');
     setUserInteracted(true);
-    setIsGifPlaying(true);
     
-    // Always fetch fresh data on reload, regardless of the date range
-    fetchData(dateRange);
+    // Check if we have valid startDate and endDate (indicating custom range)
+    if (startDate && endDate) {
+      console.log('Reloading with custom date range:', formatDate(startDate), 'to', formatDate(endDate));
+      // For custom range, explicitly use 'Custom Range'
+      fetchData('Custom Range', true);
+    } else {
+      // For other ranges, use the current dateRange state
+      console.log('Reloading with standard date range:', dateRange);
+      fetchData(dateRange, true);
+    }
   };
 
-  const fetchData = async (range) => {
+  const fetchData = async (range, isReloadAction = false) => {
     try {
-      setLoading(true);
+      // Use isReloading for reload actions, main loading state otherwise
+      if (isReloadAction) {
+        setIsReloading(true);
+      } else {
+        setLoading(true);
+      }
       setError('');
       setUserInteracted(true);
       
@@ -184,7 +197,11 @@ const OrderAnalytics = () => {
       console.error('API Error:', error);
       setError(handleApiError(error));
     } finally {
-      setLoading(false);
+      if (isReloadAction) {
+        setIsReloading(false);
+      } else {
+        setLoading(false);
+      }
     }
   };
 
@@ -295,59 +312,15 @@ const OrderAnalytics = () => {
 
             <button
               type="button"
-              className={`btn btn-icon p-0 ${isLoading ? "disabled" : ""}`}
+              className={`btn btn-icon p-0 ${isReloading ? "disabled" : ""}`}
               onClick={handleReload}
-              disabled={isLoading}
-              style={{ border: '1px solid var(--bs-primary)' }}
+              disabled={isReloading}
+              style={{ border: "1px solid var(--bs-primary)" }}
             >
-              <i className={`fas fa-sync-alt ${isLoading ? "fa-spin" : ""}`}></i>
+              <i className={`fas fa-sync-alt ${isReloading ? "fa-spin" : ""}`}></i>
             </button>
 
-            <button
-              type="button"
-              className="btn btn-icon btn-sm p-0"
-              style={{
-                width: "40px",
-                height: "40px",
-                borderRadius: "50%",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                overflow: "hidden",
-                position: "relative",
-                border: '1px solid #e9ecef'
-              }}
-              onClick={() => setIsGifPlaying(true)}
-              title={
-                isGifPlaying ? "Animation playing" : "Click to play animation"
-              }
-            >
-              {/* Using two separate images - static frame and animated */}
-              {isGifPlaying ? (
-                // Show animated GIF when playing
-                <img
-                  src={aiAnimationGif}
-                  alt="AI Animation (Playing)"
-                  style={{
-                    width: "24px",
-                    height: "24px",
-                    objectFit: "contain",
-                  }}
-                />
-              ) : (
-                // Show static frame when not playing
-                <img
-                  src={aiAnimationStillFrame}
-                  alt="AI Animation (Click to play)"
-                  style={{
-                    width: "24px",
-                    height: "24px",
-                    objectFit: "contain",
-                    opacity: 0.9,
-                  }}
-                />
-              )}
-            </button>
+             
           </div>
         </div>
 
@@ -423,63 +396,80 @@ const OrderAnalytics = () => {
               ))}
             </div>
           ) : (
-            <div className="row g-4">
-              <div className="col-md-6">
-                <div className="d-flex align-items-center mb-4 pt-1">
-                  <div
-                    className="icon-bg bg-primary rounded-circle d-flex align-items-center justify-content-center"
-                    style={{ width: "40px", height: "40px" }}
-                  >
-                    <i className="fas fa-clock text-white"></i>
-                  </div>
-                  <div className="ms-4 d-flex flex-column">
-                    <h5 className="mb-0">Avg First Order Time</h5>
-                    <p className="mb-0">{analyticsData.avg_first_order_time}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="col-md-6">
-                <div className="d-flex align-items-center mb-4">
-                  <div
-                    className="icon-bg bg-success rounded-circle d-flex align-items-center justify-content-center"
-                    style={{ width: "40px", height: "40px" }}
-                  >
-                    <i className="fas fa-hourglass-half text-white"></i>
-                  </div>
-                  <div className="ms-4 d-flex flex-column">
-                    <h5 className="mb-0">Avg Last Order Time</h5>
-                    <p className="mb-0">{analyticsData.avg_last_order_time}</p>
+            <div className="position-relative w-100">
+              {isReloading && (
+                <div 
+                  className="position-absolute w-100 h-100 d-flex justify-content-center align-items-center"
+                  style={{ 
+                    top: 0, 
+                    left: 0, 
+                    background: 'rgba(255, 255, 255, 0.8)',
+                    zIndex: 1 
+                  }}
+                >
+                  <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Reloading...</span>
                   </div>
                 </div>
-              </div>
-
-              <div className="col-md-6">
-                <div className="d-flex align-items-center mb-4 mb-md-0">
-                  <div
-                    className="icon-bg bg-warning rounded-circle d-flex align-items-center justify-content-center"
-                    style={{ width: "40px", height: "40px" }}
-                  >
-                    <i className="fas fa-tachometer-alt text-white"></i>
-                  </div>
-                  <div className="ms-4 d-flex flex-column">
-                    <h5 className="mb-0">Avg Order Time</h5>
-                    <p className="mb-0">{analyticsData.avg_order_time}</p>
+              )}
+              <div className={`row g-4 ${isReloading ? 'opacity-50' : ''}`}>
+                <div className="col-md-6">
+                  <div className="d-flex align-items-center mb-4 pt-1">
+                    <div
+                      className="icon-bg bg-primary rounded-circle d-flex align-items-center justify-content-center"
+                      style={{ width: "40px", height: "40px" }}
+                    >
+                      <i className="fas fa-clock text-white"></i>
+                    </div>
+                    <div className="ms-4 d-flex flex-column">
+                      <h5 className="mb-0">Avg First Order Time</h5>
+                      <p className="mb-0">{analyticsData.avg_first_order_time}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="col-md-6">
-                <div className="d-flex align-items-center">
-                  <div
-                    className="icon-bg bg-danger rounded-circle d-flex align-items-center justify-content-center"
-                    style={{ width: "40px", height: "40px" }}
-                  >
-                    <i className="fas fa-utensils text-white"></i>
+                <div className="col-md-6">
+                  <div className="d-flex align-items-center mb-4">
+                    <div
+                      className="icon-bg bg-success rounded-circle d-flex align-items-center justify-content-center"
+                      style={{ width: "40px", height: "40px" }}
+                    >
+                      <i className="fas fa-hourglass-half text-white"></i>
+                    </div>
+                    <div className="ms-4 d-flex flex-column">
+                      <h5 className="mb-0">Avg Last Order Time</h5>
+                      <p className="mb-0">{analyticsData.avg_last_order_time}</p>
+                    </div>
                   </div>
-                  <div className="ms-4 d-flex flex-column">
-                    <h5 className="mb-0">Avg Cooking Time</h5>
-                    <p className="mb-0">{analyticsData.avg_cooking_time}</p>
+                </div>
+
+                <div className="col-md-6">
+                  <div className="d-flex align-items-center mb-4 mb-md-0">
+                    <div
+                      className="icon-bg bg-warning rounded-circle d-flex align-items-center justify-content-center"
+                      style={{ width: "40px", height: "40px" }}
+                    >
+                      <i className="fas fa-tachometer-alt text-white"></i>
+                    </div>
+                    <div className="ms-4 d-flex flex-column">
+                      <h5 className="mb-0">Avg Order Time</h5>
+                      <p className="mb-0">{analyticsData.avg_order_time}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col-md-6">
+                  <div className="d-flex align-items-center">
+                    <div
+                      className="icon-bg bg-danger rounded-circle d-flex align-items-center justify-content-center"
+                      style={{ width: "40px", height: "40px" }}
+                    >
+                      <i className="fas fa-utensils text-white"></i>
+                    </div>
+                    <div className="ms-4 d-flex flex-column">
+                      <h5 className="mb-0">Avg Cooking Time</h5>
+                      <p className="mb-0">{analyticsData.avg_cooking_time}</p>
+                    </div>
                   </div>
                 </div>
               </div>

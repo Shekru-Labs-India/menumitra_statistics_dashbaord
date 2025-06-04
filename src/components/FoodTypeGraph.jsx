@@ -19,6 +19,7 @@ const FoodTypeGraph = () => {
 
     const [dateRange, setDateRange] = useState('All time');
     const [loading, setLoading] = useState(false);
+    const [isReloading, setIsReloading] = useState(false); // New state for reload action
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const [showDatePicker, setShowDatePicker] = useState(false);
@@ -352,20 +353,23 @@ const FoodTypeGraph = () => {
         return getDateRange(range);
     };
 
-    const fetchData = async (range) => {
+    const fetchData = async (range, isReloadAction = false) => {
         try {
-            setLoading(true);
+            // Use isReloading for reload actions, main loading state otherwise
+            if (isReloadAction) {
+                setIsReloading(true);
+            } else {
+                setLoading(true);
+            }
             setError('');
             setUserInteracted(true);
             
-            // Prepare request data
             const requestData = {
                 outlet_id: localStorage.getItem('outlet_id'),
                 device_token: localStorage.getItem('device_token'),
                 device_id: localStorage.getItem('device_id')
             };
 
-            // Add date range if not "All time"
             if (range === 'Custom Range' && startDate && endDate) {
                 requestData.start_date = formatDate(startDate);
                 requestData.end_date = formatDate(endDate);
@@ -377,9 +381,6 @@ const FoodTypeGraph = () => {
                 }
             }
 
-            console.log('Making API request with data:', requestData);
-
-            // Make the API call
             const response = await axios.post(
                 `${apiEndpoint}food_type_statistics`,
                 requestData,
@@ -388,8 +389,6 @@ const FoodTypeGraph = () => {
                 }
             );
             
-            console.log('API Response:', response.data);
-
             if (response.data?.data) {
                 processFoodTypeData(response.data.data);
             } else {
@@ -399,14 +398,17 @@ const FoodTypeGraph = () => {
         } catch (error) {
             console.error('API Error:', error);
             if (error.response) {
-                console.error('Error Response:', error.response.data);
                 setError(error.response.data.message || 'Failed to fetch data');
             } else {
                 setError('Failed to connect to server');
             }
             setFoodTypeData([]);
         } finally {
-            setLoading(false);
+            if (isReloadAction) {
+                setIsReloading(false);
+            } else {
+                setLoading(false);
+            }
         }
     };
 
@@ -587,15 +589,15 @@ const FoodTypeGraph = () => {
 
                     <button
                         type="button"
-                        className={`btn btn-icon p-0 ${isLoading ? 'disabled' : ''}`}
-                        onClick={handleReload}
-                        disabled={isLoading}
+                        className={`btn btn-icon p-0 ${isReloading ? 'disabled' : ''}`}
+                        onClick={() => fetchData(dateRange, true)}
+                        disabled={isReloading}
                         style={{ border: '1px solid var(--bs-primary)' }}
                     >
-                        <i className={`fas fa-sync-alt ${isLoading ? 'fa-spin' : ''}`}></i>
+                        <i className={`fas fa-sync-alt ${isReloading ? 'fa-spin' : ''}`}></i>
                     </button>
 
-                    <button
+                    {/* <button
                         type="button"
                         className="btn btn-icon btn-sm p-0"
                         style={{ 
@@ -634,7 +636,7 @@ const FoodTypeGraph = () => {
                                 }}
                             />
                         )}
-                    </button>
+                    </button> */}
                 </div>
             </div>
 
@@ -691,25 +693,42 @@ const FoodTypeGraph = () => {
                     </div>
                 ) : (
                     <div className="position-relative">
-                        <button
-                            type="button"
-                            className="btn btn-icon btn-sm btn-outline-primary position-absolute"
-                            style={{ 
-                                top: '-5px', 
-                                right: '55px',
-                                zIndex: 1
-                            }}
-                            onClick={() => setShowModal(true)}
-                            title="Expand Graph"
-                        >
-                            <i className="fas fa-expand"></i>
-                        </button>
-                        <Chart
-                            options={chartOptions}
-                            series={chartSeries}
-                            type="bar"
-                            height={400}
-                        />
+                        {isReloading && (
+                            <div 
+                                className="position-absolute w-100 h-100 d-flex justify-content-center align-items-center"
+                                style={{ 
+                                    top: 0, 
+                                    left: 0, 
+                                    background: 'rgba(255, 255, 255, 0.8)',
+                                    zIndex: 1 
+                                }}
+                            >
+                                <div className="spinner-border text-primary" role="status">
+                                    <span className="visually-hidden">Reloading...</span>
+                                </div>
+                            </div>
+                        )}
+                        <div className={isReloading ? 'opacity-50' : ''}>
+                            <button
+                                type="button"
+                                className="btn btn-icon btn-sm btn-outline-primary position-absolute"
+                                style={{ 
+                                    top: '-5px', 
+                                    right: '3px',
+                                    zIndex: 1
+                                }}
+                                onClick={() => setShowModal(true)}
+                                title="Expand Graph"
+                            >
+                                <i className="fas fa-expand"></i>
+                            </button>
+                            <Chart
+                                options={chartOptions}
+                                series={chartSeries}
+                                type="bar"
+                                height={400}
+                            />
+                        </div>
                     </div>
                 )}
             </div>
