@@ -193,11 +193,26 @@ const FoodTypeGraph = () => {
 
         console.log('Raw data received:', data);
 
+        // Check if the outlet has any non-veg items
+        const hasNonVegItems = Object.values(data).some(dayData => 
+            (dayData.nonveg && dayData.nonveg > 0) || (dayData.egg && dayData.egg > 0)
+        );
+
         const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
         const chartData = days.map(day => {
             const dayData = data[day] || {};
             console.log(`Processing ${day} data:`, dayData);
 
+            // For veg-only outlets, only include veg and vegan data
+            if (!hasNonVegItems) {
+                return {
+                    day: day.charAt(0).toUpperCase() + day.slice(1),
+                    Veg: dayData.veg || 0,
+                    Vegan: dayData.vegan || 0
+                };
+            }
+
+            // For non-veg outlets, include all categories in specific order
             return {
                 day: day.charAt(0).toUpperCase() + day.slice(1),
                 Veg: dayData.veg || 0,
@@ -209,6 +224,13 @@ const FoodTypeGraph = () => {
         
         console.log('Final chart data:', chartData);
         setFoodTypeData(chartData);
+
+        // Update chart colors based on outlet type
+        const colors = !hasNonVegItems ? 
+            ['#2e7d32', '#FFBF00'] :  // For veg outlets: Veg (green), Vegan (yellow)
+            ['#2e7d32', '#d32f2f', '#FFBF00', '#9e9e9e'];  // For non-veg outlets: Veg (green), Non-Veg (red), Vegan (yellow), Eggs (grey)
+        
+        chartOptions.fill.colors = colors;
     };
 
     // Function to get date range
@@ -426,6 +448,22 @@ const FoodTypeGraph = () => {
     // Determine current error state
     const currentError = userInteracted ? error : contextError;
 
+    const categoryColors = {
+        'Veg': '#2e7d32',     // green
+        'Non-Veg': '#d32f2f', // red
+        'Vegan': '#FFBF00',   // yellow
+        'Eggs': '#9e9e9e'     // grey
+    };
+
+    const chartSeries = !foodTypeData.length ? [] :
+        Object.keys(foodTypeData[0])
+            .filter(key => key !== 'day')
+            .map(category => ({
+                name: category,
+                data: foodTypeData.map(item => item[category]),
+                color: categoryColors[category]
+            }));
+
     const chartOptions = {
         chart: {
             type: 'bar',
@@ -492,8 +530,7 @@ const FoodTypeGraph = () => {
             }
         },
         fill: {
-            opacity: 1,
-            colors: ['#2e7d32', '#d32f2f', '#FFBF00', '#9e9e9e']
+            opacity: 1
         },
         legend: {
             position: 'top',
@@ -501,7 +538,7 @@ const FoodTypeGraph = () => {
             offsetY: -10,
             labels: {
                 colors: '#433c50',
-                useSeriesColors: false
+                useSeriesColors: true
             },
             markers: {
                 width: 12,
@@ -530,25 +567,6 @@ const FoodTypeGraph = () => {
             }
         }]
     };
-
-    const chartSeries = [
-        {
-            name: 'Veg',
-            data: foodTypeData.map(item => item.Veg)
-        },
-        {
-            name: 'Non-Veg',
-            data: foodTypeData.map(item => item['Non-Veg'])
-        },
-        {
-            name: 'Vegan',
-            data: foodTypeData.map(item => item.Vegan)
-        },
-        {
-            name: 'Eggs',
-            data: foodTypeData.map(item => item.Eggs)
-        }
-    ];
 
     console.log('Chart series data:', chartSeries);
 
