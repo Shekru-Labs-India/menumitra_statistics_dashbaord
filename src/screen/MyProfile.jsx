@@ -157,10 +157,10 @@ const MyProfile = () => {
         update_user_id: Number(localStorage.getItem("user_id")),
         user_id: Number(localStorage.getItem("user_id")),
         name: formData.name,
-        email: formData.email,
+        email: formData.email || '',
         mobile_number: formData.mobile_number,
         dob: formatDateForAPI(formData.dob),
-        aadhar_number: formData.aadhar_number,
+        aadhar_number: formData.aadhar_number || '',
         outlet_id: localStorage.getItem('outlet_id'),
         device_token: localStorage.getItem('device_token') || '',
         device_id: localStorage.getItem('device_id') || ''
@@ -190,19 +190,26 @@ const MyProfile = () => {
         
         // Update state with formatted date and current updated_on timestamp
         setUserDetails({
+          ...userDetails,
           ...formData,
-          dob: formatDate(formData.dob),
+          dob: formatDateForDisplay(formData.dob),
           updated_on: updatedOn
         });
         setSuccess(response.data.msg || 'Profile updated successfully!');
         setEditMode(false);
+        return; // Exit the function after successful update
       } else {
-        setError(response.data.msg || 'Failed to update profile');
+        throw new Error(response.data.msg || 'Failed to update profile');
       }
     } catch (error) {
       console.error('Failed to update profile:', error);
-      const errorMessage = handleApiError(error);
-      setError(errorMessage || 'Failed to update profile. Please try again.');
+      if (error.response?.data?.msg) {
+        setError(error.response.data.msg);
+      } else if (error.message) {
+        setError(error.message);
+      } else {
+        setError('Failed to update profile. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -416,7 +423,7 @@ const MyProfile = () => {
                           <div className="mb-4">
                           
                             <div className="fs-5 fw-bold">
-                              {formatDateForDisplay(userDetails.dob)}
+                              {formatDateForDisplay(userDetails.dob) === 'Not provided' ? '-' : formatDateForDisplay(userDetails.dob)}
                             </div>
                             <div className="text-muted small mb-1">Date of Birth</div>
                             
@@ -626,7 +633,7 @@ const MyProfile = () => {
                         <div className="col-12 col-md-6 mb-3">
                           <div className="d-flex flex-column">
                             <span className="fw-bold">
-                              {userDetails.created_on}
+                              {userDetails.created_on || '-'}
                             </span>
                             <small className="text-muted mb-1">
                               Created On
@@ -636,7 +643,7 @@ const MyProfile = () => {
                         <div className="col-12 col-md-6 mb-3">
                           <div className="d-flex flex-column">
                             <span className="fw-bold">
-                              {userDetails.created_by}
+                              {userDetails.created_by || '-'}
                             </span>
                             <small className="text-muted mb-1">
                               Created By
@@ -646,7 +653,7 @@ const MyProfile = () => {
                         <div className="col-12 col-md-6 mb-3">
                           <div className="d-flex flex-column">
                             <span className="fw-bold">
-                              {userDetails.updated_on}
+                              {userDetails.updated_on || '-'}
                             </span>
                             <small className="text-muted mb-1">
                               Updated On
@@ -656,7 +663,7 @@ const MyProfile = () => {
                         <div className="col-12 col-md-6 mb-3">
                           <div className="d-flex flex-column">
                             <span className="fw-bold">
-                              {userDetails.updated_by}
+                              {userDetails.updated_by || '-'}
                             </span>
                             <small className="text-muted mb-1">
                               Updated By
@@ -665,7 +672,7 @@ const MyProfile = () => {
                         </div>
                         <div className="d-flex flex-column">
                           <span className="fw-bold">
-                            {userDetails.last_login}
+                            {userDetails.last_login || '-'}
                           </span>
                           <small className="text-muted mb-1">Last Login</small>
                         </div>

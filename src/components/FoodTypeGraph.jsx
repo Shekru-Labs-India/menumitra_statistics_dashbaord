@@ -729,7 +729,7 @@ const FoodTypeGraph = () => {
                         <div className={isReloading ? 'opacity-50' : ''}>
                             <button
                                 type="button"
-                                className="btn btn-icon btn-sm btn-outline-primary position-absolute"
+                                className="btn btn-icon btn-sm btn-outline-primary position-absolute d-none d-md-block"
                                 style={{ 
                                     top: '-5px', 
                                     right: '3px',

@@ -10,7 +10,7 @@ const Footer = () => {
     <div className="container-xxl">
       <div className="footer-container d-flex align-items-center justify-content-end py-4 flex-md-row flex-column">
         <div className="text-body mb-2 mb-md-0">
-          © MenuMitra, Powered by{" "}
+          © MenuMitra, Powered{" "}
           <span className="text-danger">
             
           </span>{" "}

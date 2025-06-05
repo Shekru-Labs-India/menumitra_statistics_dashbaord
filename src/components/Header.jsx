@@ -344,6 +344,25 @@ function Header() {
     return () => clearInterval(interval);
   }, [refreshDashboard]);
 
+  useEffect(() => {
+    // Add click event listener to close menu when clicking outside
+    const handleOverlayClick = (e) => {
+      if (e.target.classList.contains('layout-overlay')) {
+        document.documentElement.classList.remove('layout-menu-expanded');
+        const menu = document.querySelector('.layout-menu');
+        if (menu) {
+          menu.classList.remove('expanded');
+        }
+      }
+    };
+
+    document.addEventListener('click', handleOverlayClick);
+
+    return () => {
+      document.removeEventListener('click', handleOverlayClick);
+    };
+  }, []);
+
   return (
     <div>
      
@@ -369,184 +388,86 @@ function Header() {
           .materio-toast {
             font-family: inherit;
           }
-          .inactive-outlet-banner {
-            background-color: #9747FF;
-            color: white;
-            text-align: center;
-            padding: 12px;
-            font-size: 16px;
-            font-weight: 500;
-            width: 100%;
+
+          /* Mobile styles for outlet selector */
+          @media (max-width: 768px) {
+            .outlet-select-btn {
+              padding: 4px 10px !important;
+              font-size: 0.875rem !important;
+            }
+            .outlet-select-btn i {
+              font-size: 0.875rem !important;
+            }
+            .outlet-select-btn span {
+              max-width: 120px;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+              display: inline-block;
+            }
           }
+
+          /* Outlet Modal Styles */
           .outlet-modal {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
+            padding-top: 2rem;
             z-index: 1050;
-            padding: 1rem;
           }
-          
+
           .outlet-modal-content {
             background: white;
             border-radius: 8px;
             width: 90%;
             max-width: 600px;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-            animation: modalFadeIn 0.3s ease-out;
-          }
-          
-          @keyframes modalFadeIn {
-            from {
-              opacity: 0;
-              transform: translateY(-20px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-          
-          @media (max-width: 768px) {
-            .outlet-modal-content {
-              width: 95%;
-              max-height: 95vh;
-            }
-
-            .outlet-modal {
-              padding: 0.5rem;
-            }
-
-            .outlet-modal-header {
-              padding: 0.1rem;
-            }
-
-            .outlet-modal-body {
-              padding: 1rem;
-            }
-
-            .outlet-item {
-              flex-direction: column;
-              align-items: flex-start;
-              gap: 0.5rem;
-              padding: 0.75rem;
-            }
-
-            .outlet-meta {
-              width: 100%;
-              justify-content: space-between;
-              margin-left: 0;
-            }
-
-            .outlet-info {
-              width: 100%;
-            }
-
-            .outlet-name {
-              font-size: 0.9rem;
-            }
-
-            .outlet-location {
-              font-size: 0.8rem;
-            }
-
-            .outlet-id {
-              font-size: 0.75rem;
-            }
-
-            .outlet-status {
-              font-size: 0.7rem;
-              padding: 0.2rem 0.4rem;
-            }
+            max-height: 85vh;
+            overflow: hidden;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.15);
           }
 
-          @media (max-width: 480px) {
-            .outlet-modal-content {
-              width: 100%;
-              height: 100%;
-              max-height: 100vh;
-              border-radius: 0;
-            }
-
-            .outlet-modal {
-              padding: 0;
-            }
-
-            .quick-filters {
-              padding: 0.5rem;
-              overflow-x: auto;
-              -webkit-overflow-scrolling: touch;
-              scrollbar-width: none;
-              -ms-overflow-style: none;
-            }
-
-            .quick-filters::-webkit-scrollbar {
-              display: none;
-            }
-
-            .outlet-search input {
-              font-size: 0.9rem;
-              padding: 0.5rem 1rem 0.5rem 2rem;
-            }
-          }
-          
           .outlet-modal-header {
-            padding-top: 1rem;
-            padding-bottom: 0.5rem;
-            padding-left: 1.5rem;
-            padding-right: 1.5rem;
+            padding: 0.75rem 1.5rem;
             border-bottom: 1px solid #e9ecef;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: sticky;
-            top: 0;
-            background: white;
-            z-index: 1;
           }
-          
-          .outlet-modal-header h5 {
-            margin: 0;
-          }
-          
+
           .outlet-modal-body {
-            padding: 1rem 1.5rem 1rem 1.5rem;
+            padding: 0.75rem 1.5rem;
+            overflow-y: auto;
+            max-height: calc(85vh - 70px);
           }
-          
+
+          /* Outlet Search Styles */
           .outlet-search {
             position: relative;
-            margin-top: 0;
-            margin-bottom: 0.5rem;
-            position: sticky;
-            top: 72px;
-            background: white;
-            z-index: 1;
-            padding: 0;
+            margin-bottom: 0.10rem;
           }
-          
+
           .outlet-search input {
             width: 100%;
-            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            padding: 0.5rem 2.5rem;
             border: 1px solid #e9ecef;
-            border-radius: 8px;
-            font-size: 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
           }
-          
+
           .outlet-search i {
             position: absolute;
             left: 1rem;
             top: 50%;
             transform: translateY(-50%);
-            color: #566a7f;
+            color: #666;
           }
-          
+
           .outlet-search .clear-btn {
             position: absolute;
             right: 1rem;
@@ -554,109 +475,138 @@ function Header() {
             transform: translateY(-50%);
             border: none;
             background: none;
-            color: #566a7f;
+            color: #666;
             cursor: pointer;
-            padding: 0.25rem 0.5rem;
-          }
-          
-          
-          
-          .quick-filter {
-            padding: 0.5rem 1rem;
-            background: white;
-            border-radius: 20px;
-            border: 1px solid #e9ecef;
-            color: #566a7f;
-            cursor: pointer;
-            white-space: nowrap;
-            font-size: 0.875rem;
-            flex-shrink: 0;
-            transition: all 0.2s ease;
+            padding: 0;
           }
 
-          .quick-filter:hover {
-            background: #f8f9fa;
-            border-color: #566a7f;
-          }
-          
+          /* Outlet List Styles */
           .outlet-list {
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
+            margin-top: 0.5rem;
           }
-          
+
           .outlet-item {
-            padding: 1rem;
-            border-bottom: 1px solid #e9ecef;
             display: flex;
             align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
             cursor: pointer;
-            gap: 1rem;
-            transition: background-color 0.2s ease;
+            transition: all 0.2s;
           }
-          
+
           .outlet-item:hover {
-            background: #f8f9fa;
-          }
-          
-          .outlet-icon {
-            color: #566a7f;
-            flex-shrink: 0;
-            font-size: 1.2rem;
+            background-color: #f8f9fa;
+            border-color: #dee2e6;
           }
 
           .outlet-info {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 0.25rem;
+            flex: 1;
             min-width: 0;
           }
 
-          .outlet-name {
+          .outlet-name-container {
             font-weight: 500;
-            color: #566a7f;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            color: #333;
+          }
+
+          .outlet-name-container i {
+            font-size: 1rem;
+            color: #666;
+            width: 20px;
+            text-align: center;
           }
 
           .outlet-location {
-            font-size: 0.875rem;
-            color: #999;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            font-size: 0.8rem;
+            color: #6c757d;
           }
-          
+
+          .outlet-location i {
+            font-size: 0.875rem;
+            color: #6c757d;
+            width: 20px;
+            text-align: center;
+          }
+
           .outlet-meta {
             display: flex;
             align-items: center;
-            gap: 1rem;
-            margin-left: auto;
-            flex-shrink: 0;
+            gap: 0.5rem;
+            margin-left: 1rem;
           }
-          
-          .outlet-id {
-            color: #999;
-            font-size: 0.875rem;
+
+          .account-type-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
           }
 
           .outlet-status {
+            padding: 0.15rem 0.3rem;
+            border-radius: 10px;
             font-size: 0.75rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 1rem;
             font-weight: 500;
           }
 
           .status-open {
-            background-color: #28c76f1a;
-            color: #28c76f;
+            background-color: #e8f5e9;
+            color:rgb(35, 152, 41);
           }
 
           .status-closed {
-            background-color: #ea54551a;
-            color: #ea5455;
+            background-color: #ffebee;
+            color: #c62828;
+          }
+
+          /* Quick Filters */
+          .quick-filters {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
+          }
+
+          .quick-filter {
+            padding: 0.25rem 0.75rem;
+            border: 1px solid #e9ecef;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            background: none;
+            cursor: pointer;
+            transition: all 0.2s;
+          }
+
+          .quick-filter:hover {
+            background-color: #f8f9fa;
+            border-color: #dee2e6;
+          }
+
+          /* Mobile Responsive Styles */
+          @media (max-width: 768px) {
+            .outlet-modal-content {
+              width: 95%;
+              margin: 0.5rem;
+            }
+
+            .outlet-modal-body {
+              padding: 1rem;
+            }
+
+            .outlet-item {
+              padding: 0.5rem;
+            }
+
+            .outlet-meta {
+              flex-direction: column;
+              gap: 0.25rem;
+              margin-left: 0.5rem;
+            }
           }
         `}
       </style>
@@ -675,6 +625,55 @@ function Header() {
         theme="colored"
       />
 
+      <style>
+        {`
+          @keyframes rotate {
+            from {
+              transform: rotate(0deg);
+            }
+            to {
+              transform: rotate(360deg);
+            }
+          }
+          .rotate-animation {
+            animation: rotate 1s linear;
+          }
+
+          .last-updated-bar {
+            padding: 4px 1.5rem;
+            font-size: 0.75rem;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+           
+          }
+
+          .last-updated-bar button {
+            padding: 2px 4px;
+            background: transparent;
+            border: none;
+            color: #666;
+            cursor: pointer;
+          }
+
+          .last-updated-bar button:hover {
+            color: var(--bs-primary);
+          }
+
+          @media (max-width: 768px) {
+            .last-updated-bar {
+              padding: 2px 1rem;
+              font-size: 0.7rem;
+            }
+          }
+        `}
+      </style>
+
+      {/* Add overlay div */}
+      <div className="layout-overlay"></div>
+
       <nav
         className="layout-navbar navbar navbar-expand-xl align-items-center bg-navbar-theme"
         id="layout-navbar"
@@ -687,24 +686,9 @@ function Header() {
           paddingTop: "2.5rem",
           paddingBottom: "2.5rem",
           marginBottom:
-            selectedOutletData?.outlet_status === false ? "0" : "1.5rem",
+            selectedOutletData?.outlet_status === false ? "0" : "0",
         }}
       >
-        <style>
-          {`
-            @keyframes rotate {
-              from {
-                transform: rotate(0deg);
-              }
-              to {
-                transform: rotate(360deg);
-              }
-            }
-            .rotate-animation {
-              animation: rotate 1s linear;
-            }
-          `}
-        </style>
         <div
           className="container-xxl"
           style={{
@@ -713,16 +697,25 @@ function Header() {
             marginBottom: "0.5rem",
           }}
         >
-          <div className="layout-menu-toggle navbar-nav align-items-xl-center me-4 me-xl-0 d-xl-none">
-            <a
-              className="nav-item nav-link px-0 me-xl-6"
-              href="javascript:void(0)"
-              onClick={toggleMenu}
-              style={{ padding: "0.75rem" }}
-            >
-              <i className={`fas fa-${isMenuCollapsed ? "bars" : "times"}`} />
-            </a>
-          </div>
+          {/* Add Mobile Menu Button */}
+          <button 
+            className="d-xl-none btn btn-icon btn-ghost-secondary"
+            onClick={() => {
+              document.documentElement.classList.toggle('layout-menu-expanded');
+              const menu = document.querySelector('.layout-menu');
+              if (menu) {
+                menu.classList.toggle('expanded');
+              }
+            }}
+            style={{
+              padding: '0.5rem',
+              border: 'none',
+              marginLeft: '-1.5rem'
+            }}
+          >
+            <i className="fas fa-bars"></i>
+          </button>
+
           <div
             className="navbar-nav-right d-flex align-items-center"
             id="navbar-collapse"
@@ -732,7 +725,7 @@ function Header() {
             <div className="navbar-nav flex-row">
               <li className="nav-item dropdown me-3">
                 <button
-                  className="btn btn-outline-primary dropdown-toggle d-flex align-items-center"
+                  className="btn btn-outline-primary dropdown-toggle d-flex align-items-center outlet-select-btn"
                   style={{
                     borderRadius: "8px",
                     padding: "8px 16px",
@@ -743,31 +736,15 @@ function Header() {
                   onClick={() => setShowOutletModal(true)}
                 >
                   <i className="fas fa-store me-2"></i>
-                  {selectedOutlet || "Select Outlet"}
+                  <span>{selectedOutlet || "Select Outlet"}</span>
                 </button>
               </li>
-              {/* <li className="nav-item me-3">
-                <Link 
-                  to="/compare-outlets" 
-                  className="btn btn-primary d-none d-md-flex align-items-center"
-                  style={{
-                    borderRadius: '8px',
-                    padding: '8px 16px',
-                    fontWeight: 600,
-                    boxShadow: 'rgba(105, 108, 255, 0.4) 0px 2px 4px',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  <i className="fas fa-code-compare me-2"></i>
-                  Compare Outlets
-                </Link>
-              </li> */}
             </div>
 
             {/* Right aligned items */}
             <ul className="navbar-nav flex-row align-items-center ms-auto">
-              {/* Updated Time */}
-              <li className="nav-item me-3 mb-4">
+              {/* Updated Time - Visible only on desktop */}
+              <li className="nav-item me-3 mb-4 d-none d-md-block">
                 <div className="d-flex flex-column align-items-start">
                   <button
                     className="btn btn-icon btn-sm btn-ghost-secondary mb-0"
@@ -874,6 +851,17 @@ function Header() {
         </div>
       </nav>
 
+      {/* Last Updated bar - Visible only on mobile */}
+      <div className="last-updated-bar d-md-none">
+        <button
+          onClick={handleRefresh}
+          className={isRotating ? "rotate-animation" : ""}
+        >
+          <i className="fas fa-sync-alt"></i>
+        </button>
+        <span>Last updated {timeElapsed}</span>
+      </div>
+
       {/* Outlet Selection Modal */}
       {showOutletModal && (
         <div className="outlet-modal">
@@ -950,22 +938,19 @@ function Header() {
                           setShowOutletModal(false);
                         }}
                       >
-                        <i
-                          className={`fas ${
-                            outlet.outlet_status ? "fa-store" : "fa-store-slash"
-                          } outlet-icon`}
-                        ></i>
                         <div className="outlet-info">
-                          <span className="outlet-name">{outlet.name}</span>
+                          <div className="outlet-name-container d-flex align-items-center mb-1">
+                            <i className={`fas ${outlet.outlet_status ? "fa-store" : "fa-store-slash"} me-2`}></i>
+                            <span className="outlet-name">{outlet.name}</span>
+                          </div>
                           {(outlet.address || outlet.location) && (
-                            <span className="outlet-location">
-                              <i className="fas fa-map-marker-alt me-1"></i>
-                              {outlet.address || outlet.location}
-                            </span>
+                            <div className="outlet-location d-flex align-items-center">
+                              <i className="fas fa-map-marker-alt me-2"></i>
+                              <span>{outlet.address || outlet.location}</span>
+                            </div>
                           )}
                         </div>
                         <div className="outlet-meta">
-                        
                           {outlet.Owner_id__account_type && (
                             <span className={`account-type-badge ${outlet.Owner_id__account_type === 'live' ? 'live' : 'test'}`} style={{ marginLeft: 0, marginRight: 0, fontWeight: 500, color: outlet.Owner_id__account_type === 'live' ? '#8b57ff' : '#ff9f43' }}>
                               {outlet.Owner_id__account_type === 'live' ? 'Live' : 'Test'}

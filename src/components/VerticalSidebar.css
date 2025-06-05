@@ -21,15 +21,30 @@
 /* Mobile state */
 .layout-menu.mobile {
   position: fixed !important;
-  transform: translateX(-100%);
+  top: 0 !important;
+  height: 100% !important;
+  left: -70px !important;
+  margin: 0 !important;
+  transform: none;
   z-index: 1090;
-  width: 260px; /* Always use expanded width on mobile */
+  width: 70px !important;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  transition: left 0.3s ease-in-out;
 }
 
 /* When mobile menu is expanded */
 .layout-menu.mobile.expanded {
-  transform: translateX(0);
+  left: 0 !important;
+  transform: none;
+}
+
+/* Ensure main content doesn't get overlapped */
+.layout-page {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  padding-left: 0;
+  transition: padding-left 0.3s ease-in-out;
 }
 
 /* Overlay for mobile menu */
@@ -40,14 +55,98 @@
   right: 0;
   bottom: 0;
   background-color: rgba(38, 41, 45, 0.5);
-  z-index: 1049;
-  animation: fadeIn 0.2s;
-  cursor: pointer;
+  z-index: 1089; /* Just below the menu */
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  cursor: pointer; /* Add cursor pointer to indicate clickable */
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+/* Show overlay when menu is expanded */
+.layout-menu-expanded .layout-overlay {
+  display: block;
+  opacity: 1;
+  pointer-events: auto; /* Enable click events on overlay */
+}
+
+/* Ensure content wrapper takes full width */
+.content-wrapper {
+  width: 100%;
+  min-height: 100vh;
+  transition: margin-left 0.3s ease-in-out;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 1199.98px) {
+  .layout-menu {
+    position: fixed !important;
+    top: 0 !important;
+    height: 100% !important;
+    left: -260px !important;
+    margin: 0 !important;
+    z-index: 1090;
+  }
+
+  .layout-menu-expanded .layout-menu {
+    left: 0 !important;
+  }
+
+  .layout-menu-expanded .layout-page {
+    overflow: hidden;
+  }
+
+  /* Ensure overlay is clickable */
+  .layout-menu-expanded .layout-overlay {
+    display: block;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Hide text and show only icons in mobile view */
+  .menu-link {
+    justify-content: flex-start !important;
+    padding: 0.625rem 1rem !important;
+    margin: 0.125rem 0.5rem !important;
+    width: calc(100% - 1rem) !important;
+  }
+
+  .menu-link div,
+  .menu-header,
+  .sidebar-brand-text,
+  .menu-search {
+    display: none !important;
+  }
+
+  .menu-icon {
+    margin-right: 0 !important;
+    font-size: 1.25rem !important;
+  }
+
+  .sidebar-brand {
+    padding: 0.5rem !important;
+  }
+
+  .menu-inner {
+    padding-top: 0.5rem !important;
+  }
+
+  /* Active menu item in mobile */
+  .menu-item.active .menu-link {
+    background: #7367f0;
+    color: white;
+  }
+}
+
+/* Ensure proper stacking context */
+.layout-wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+/* Prevent horizontal scrolling when menu is open */
+html.layout-menu-expanded,
+html.layout-menu-expanded body {
+  overflow: hidden;
 }
 
 /* Search bar styles */
@@ -233,13 +332,14 @@
 }
 /* Active menu item styles */
 .menu-item.active .menu-link {
-  color: white;
+  color: white !important;
   background: #7367f0;
   box-shadow: 0 2px 6px 0 rgba(115, 103, 240, 0.48);
 }
 
-.menu-item.active .menu-icon {
-  color: white;
+.menu-item.active .menu-icon,
+.menu-item.active .d-block {
+  color: white !important;
 }
 
 /* Brand section adjustments */
@@ -285,12 +385,17 @@
 
 /* Hover effect for menu items */
 .menu-item:hover {
-  background: #5b5bea;
+  background: transparent;
 }
-.menu-item:hover .menu-link,
+.menu-item:hover .menu-link {
+  background: #7367f0;
+  color: #7367f0 !important;
+  transition: all 0.3s ease;
+}
 .menu-item:hover .menu-icon,
 .menu-item:hover .d-block {
-  color: #000;
+  color: #7367f0 !important;
+  transition: all 0.3s ease;
 }
 
 /* App brand link styles */
@@ -303,18 +408,6 @@
 /* Adjust logo container in STATIC state */
 .layout-menu:not(.docked):not(.hovered) .sidebar-brand-logo {
   margin: 0;
-}
-
-/* Apply the layout-menu-expanded class to the body to manage overlay and behavior */
-html.layout-menu-expanded {
-  overflow: hidden;
-}
-
-/* Improve sidebar scrolling on mobile */
-@media (max-width: 1199.98px) {
-  .layout-menu.mobile {
-    -webkit-overflow-scrolling: touch;
-  }
 }
 
 /* Special class to ensure text visibility on mobile */

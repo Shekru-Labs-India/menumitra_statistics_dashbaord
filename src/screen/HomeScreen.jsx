@@ -717,9 +717,6 @@ function HomeScreen() {
                   </div>
                 )}
               </div>
-              <p className="mb-4">
-                Select an outlet from the search menu above to view detailed analytics and reports.
-              </p>
               {/* Stats Cards Only (no outer card) */}
               <div className="row g-4 mb-4">
                 {isLoading ? (
