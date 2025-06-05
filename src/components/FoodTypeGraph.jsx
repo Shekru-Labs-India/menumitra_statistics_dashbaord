@@ -474,7 +474,8 @@ const FoodTypeGraph = () => {
             },
             animations: {
                 enabled: true
-            }
+            },
+            width: '100%'
         },
         plotOptions: {
             bar: {
@@ -493,7 +494,7 @@ const FoodTypeGraph = () => {
                 return Math.round(val);
             },
             style: {
-                fontSize: '12px',
+                fontSize: '10px',
                 colors: ['#fff']
             }
         },
@@ -507,7 +508,7 @@ const FoodTypeGraph = () => {
             labels: {
                 style: {
                     colors: '#433c50',
-                    fontSize: '12px'
+                    fontSize: '10px'
                 },
                 axisBorder: {
                     show: true
@@ -525,7 +526,7 @@ const FoodTypeGraph = () => {
                 },
                 style: {
                     colors: '#433c50',
-                    fontSize: '12px'
+                    fontSize: '10px'
                 }
             }
         },
@@ -536,14 +537,19 @@ const FoodTypeGraph = () => {
             position: 'top',
             horizontalAlign: 'center',
             offsetY: -10,
+            fontSize: '12px',
             labels: {
                 colors: '#433c50',
                 useSeriesColors: true
             },
             markers: {
-                width: 12,
-                height: 12,
-                radius: 12
+                width: 10,
+                height: 10,
+                radius: 10
+            },
+            itemMargin: {
+                horizontal: 8,
+                vertical: 0
             }
         },
         tooltip: {
@@ -559,10 +565,27 @@ const FoodTypeGraph = () => {
             breakpoint: 480,
             options: {
                 chart: {
-                    width: 200
+                    width: '100%'
                 },
                 legend: {
-                    position: 'bottom'
+                    position: 'bottom',
+                    offsetY: 0,
+                    itemMargin: {
+                        horizontal: 5,
+                        vertical: 0
+                    }
+                },
+                plotOptions: {
+                    bar: {
+                        columnWidth: '70%'
+                    }
+                },
+                xaxis: {
+                    labels: {
+                        style: {
+                            fontSize: '8px'
+                        }
+                    }
                 }
             }
         }]
@@ -745,6 +768,7 @@ const FoodTypeGraph = () => {
                                 series={chartSeries}
                                 type="bar"
                                 height={400}
+                                width="100%"
                             />
                         </div>
                     </div>
@@ -795,6 +819,7 @@ const FoodTypeGraph = () => {
                                     series={chartSeries}
                                     type="bar"
                                     height={600}
+                                    width="100%"
                                 />
                             </div>
                         </div>
