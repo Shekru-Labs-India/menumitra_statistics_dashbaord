@@ -589,93 +589,95 @@ function HomeScreen() {
               {/* Welcome and Filter Controls */}
               <div className="row mb-4 align-items-center">
                 <div className="col-12 col-md-6">
-                  <h5 className="mb-3 mb-md-0">Welcome to MenuMitra admin Dashboard</h5>
+                  
                 </div>
-                <div className="col-12 col-md-6 d-flex justify-content-md-end align-items-center gap-3">
-                  <div className="dropdown">
-                    <button
-                      type="button"
-                      className="btn btn-outline-primary dropdown-toggle"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
-                    >
-                      <i className="fas fa-calendar me-2"></i>
-                      {dateRange}
-                    </button>
-                    <ul className="dropdown-menu dropdown-menu-end">
-                      {[
-                        "All Time",
-                        "Today",
-                        "Yesterday",
-                        "Last 7 Days",
-                        "Last 30 Days",
-                        "Current Month",
-                        "Last Month",
-                      ].map((range) => (
-                        <li key={range}>
+                <div className="col-12 col-md-6">
+                  <div className="d-flex justify-content-end align-items-center gap-3">
+                    <div className="dropdown">
+                      <button
+                        type="button"
+                        className="btn btn-outline-primary dropdown-toggle"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      >
+                        <i className="fas fa-calendar me-2"></i>
+                        {dateRange}
+                      </button>
+                      <ul className="dropdown-menu dropdown-menu-end">
+                        {[
+                          "All Time",
+                          "Today",
+                          "Yesterday",
+                          "Last 7 Days",
+                          "Last 30 Days",
+                          "Current Month",
+                          "Last Month",
+                        ].map((range) => (
+                          <li key={range}>
+                            <a
+                              href="javascript:void(0);"
+                              className="dropdown-item d-flex align-items-center"
+                              onClick={() => handleDateRangeChange(range)}
+                            >
+                              {range}
+                            </a>
+                          </li>
+                        ))}
+                        <li>
+                          <hr className="dropdown-divider" />
+                        </li>
+                        <li>
                           <a
                             href="javascript:void(0);"
                             className="dropdown-item d-flex align-items-center"
-                            onClick={() => handleDateRangeChange(range)}
+                            onClick={() => handleDateRangeChange("Custom Range")}
                           >
-                            {range}
+                            Custom Range
                           </a>
                         </li>
-                      ))}
-                      <li>
-                        <hr className="dropdown-divider" />
-                      </li>
-                      <li>
-                        <a
-                          href="javascript:void(0);"
-                          className="dropdown-item d-flex align-items-center"
-                          onClick={() => handleDateRangeChange("Custom Range")}
-                        >
-                          Custom Range
-                        </a>
-                      </li>
-                    </ul>
+                      </ul>
+                    </div>
+                    <button
+                      type="button"
+                      className={`btn btn-icon p-0 ${isLoading ? "disabled" : ""}`}
+                      onClick={handleReload}
+                      disabled={isLoading}
+                      style={{ border: "1px solid var(--bs-primary)" }}
+                    >
+                      <i className={`fas fa-sync-alt ${isLoading ? "fa-spin" : ""}`}></i>
+                    </button>
+                    {/* <button
+                      type="button"
+                      className="btn btn-icon btn-sm p-0"
+                      style={{
+                        width: "40px",
+                        height: "40px",
+                        borderRadius: "50%",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        overflow: "hidden",
+                        position: "relative",
+                        border: "1px solid #e9ecef",
+                      }}
+                      onClick={() => setIsGifPlaying(true)}
+                      title={isGifPlaying ? "Animation playing" : "Click to play animation"}
+                    >
+                      {isGifPlaying ? (
+                        <img
+                          src={aiAnimationGif}
+                          alt="AI Animation (Playing)"
+                          style={{ width: "24px", height: "24px", objectFit: "contain" }}
+                        />
+                      ) : (
+                        <img
+                          src={aiAnimationStillFrame}
+                          alt="AI Animation (Click to play)"
+                          style={{ width: "24px", height: "24px", objectFit: "contain", opacity: 0.9 }}
+                        />
+                      )}
+                    </button> */}
                   </div>
-                  <button
-                    type="button"
-                    className={`btn btn-icon p-0 ${isLoading ? "disabled" : ""}`}
-                    onClick={handleReload}
-                    disabled={isLoading}
-                    style={{ border: "1px solid var(--bs-primary)" }}
-                  >
-                    <i className={`fas fa-sync-alt ${isLoading ? "fa-spin" : ""}`}></i>
-                  </button>
-                  {/* <button
-                    type="button"
-                    className="btn btn-icon btn-sm p-0"
-                    style={{
-                      width: "40px",
-                      height: "40px",
-                      borderRadius: "50%",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      overflow: "hidden",
-                      position: "relative",
-                      border: "1px solid #e9ecef",
-                    }}
-                    onClick={() => setIsGifPlaying(true)}
-                    title={isGifPlaying ? "Animation playing" : "Click to play animation"}
-                  >
-                    {isGifPlaying ? (
-                      <img
-                        src={aiAnimationGif}
-                        alt="AI Animation (Playing)"
-                        style={{ width: "24px", height: "24px", objectFit: "contain" }}
-                      />
-                    ) : (
-                      <img
-                        src={aiAnimationStillFrame}
-                        alt="AI Animation (Click to play)"
-                        style={{ width: "24px", height: "24px", objectFit: "contain", opacity: 0.9 }}
-                      />
-                    )}
-                  </button> */}
                 </div>
                 {showDatePicker && (
                   <div className="col-12 mt-3">

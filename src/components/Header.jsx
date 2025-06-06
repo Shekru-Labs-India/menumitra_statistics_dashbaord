@@ -336,15 +336,6 @@ function Header() {
   };
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      refreshDashboard();
-      setStartTime(new Date()); // Optionally update the "Last updated" timer
-    }, 60000); // 60 seconds
-
-    return () => clearInterval(interval);
-  }, [refreshDashboard]);
-
-  useEffect(() => {
     // Add click event listener to close menu when clicking outside
     const handleOverlayClick = (e) => {
       if (e.target.classList.contains('layout-overlay')) {
@@ -736,7 +727,7 @@ function Header() {
                   onClick={() => setShowOutletModal(true)}
                 >
                   <i className="fas fa-store me-2"></i>
-                  <span>{selectedOutlet || "Select Outlet"}</span>
+                  <span>{selectedOutlet || "All Outlets"}</span>
                 </button>
               </li>
             </div>
@@ -747,14 +738,15 @@ function Header() {
               <li className="nav-item me-3 mb-4 d-none d-md-block">
                 <div className="d-flex flex-column align-items-start">
                   <button
-                    className="btn btn-icon btn-sm btn-ghost-secondary mb-0"
+                    className="btn btn-icon btn-sm btn-outline-primary mb-0"
                     onClick={handleRefresh}
-                    style={{ padding: "4px" }}
+                    style={{ padding: "2px", borderRadius: "20%", border: "1px solid var(--bs-primary)" }}
                   >
                     <i
                       className={`fas fa-sync-alt ${
                         isRotating ? "rotate-animation" : ""
                       }`}
+                      style={{ color: "#6c757d" }}
                     ></i>
                   </button>
                   <small className="text-muted">
@@ -807,12 +799,7 @@ function Header() {
                       <span className="align-middle">My Profile</span>
                     </Link>
                   </li>
-                  <li>
-                    <Link className="dropdown-item" to="/my-activity">
-                      <i className="fas fa-tasks fa-lg me-2" />
-                      <span className="align-middle">My activity</span>
-                    </Link>
-                  </li>
+                 
                   <li>
                     <Link className="dropdown-item" to="/settings">
                       <i className="fas fa-cog fa-lg me-2" />
@@ -856,8 +843,9 @@ function Header() {
         <button
           onClick={handleRefresh}
           className={isRotating ? "rotate-animation" : ""}
+          style={{ padding: "3px", border: "1px solid var(--bs-primary)", borderRadius: "20%" }}
         >
-          <i className="fas fa-sync-alt"></i>
+          <i className="fas fa-sync-alt" style={{ color: "#6c757d" }}></i>
         </button>
         <span>Last updated {timeElapsed}</span>
       </div>
@@ -904,11 +892,15 @@ function Header() {
                 ))}
               </div>
 
-              {/* All Outlets Section */}
+              {/* Outlet List */}
               <div className="outlet-list">
                 <div className="outlet-item">
-                  <i className="fas fa-store outlet-icon"></i>
-                  <span>All Outlet</span>
+                  <div className="outlet-info">
+                    <div className="outlet-name-container d-flex align-items-center mb-1">
+                      <i className="fas fa-store me-2"></i>
+                      <span>All Outlets</span>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Outlet List */}
