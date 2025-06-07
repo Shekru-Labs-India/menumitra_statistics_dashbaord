@@ -85,6 +85,21 @@ const WeeklyOrderStat = () => {
     }
   }, [contextError, userInteracted]);
 
+  // Add event listener for header reload
+  useEffect(() => {
+    const handleHeaderReload = () => {
+      setDateRange('All time');
+      setStartDate(null);
+      setEndDate(null);
+      setShowDatePicker(false);
+      setUserInteracted(false);
+      fetchWeeklyOrderStats('All time');
+    };
+
+    window.addEventListener('resetFiltersToAllTime', handleHeaderReload);
+    return () => window.removeEventListener('resetFiltersToAllTime', handleHeaderReload);
+  }, []);
+
   // Date formatting function
   const formatDate = (date) => {
     if (!date) return '';

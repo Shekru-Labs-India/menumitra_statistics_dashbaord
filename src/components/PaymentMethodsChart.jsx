@@ -18,6 +18,7 @@ const PaymentMethodsChart = () => {
 
   const [dateRange, setDateRange] = useState('All Time');
   const [loading, setLoading] = useState(false);
+  const [isReloading, setIsReloading] = useState(false); // Add new state for reload action
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -107,6 +108,7 @@ const PaymentMethodsChart = () => {
   const handleReload = () => {
     // Set user interaction flag to true
     setUserInteracted(true);
+    setIsReloading(true); // Use isReloading for reload action
     
     // Check if we have valid startDate and endDate (indicating custom range)
     if (startDate && endDate) {
@@ -122,7 +124,9 @@ const PaymentMethodsChart = () => {
 
   const fetchData = async (range) => {
     try {
-        setLoading(true);
+        if (!userInteracted) {
+            setLoading(true);
+        }
         
         // Prepare request data
         const requestData = {
@@ -179,6 +183,7 @@ const PaymentMethodsChart = () => {
         console.error('Failed to fetch payment methods data:', error);
     } finally {
         setLoading(false);
+        setIsReloading(false); // Always reset isReloading
     }
 };
 
@@ -244,6 +249,24 @@ const getDateRange = (range) => {
   // Determine current loading state
   const isLoading = userInteracted ? loading : contextLoading;
 
+  useEffect(() => {
+    // Add event listener for filter reset
+    const handleFilterReset = () => {
+      setDateRange('All Time');
+      setStartDate(null);
+      setEndDate(null);
+      setShowDatePicker(false);
+      setUserInteracted(false);
+      fetchData('All Time');
+    };
+
+    window.addEventListener('resetFiltersToAllTime', handleFilterReset);
+
+    return () => {
+      window.removeEventListener('resetFiltersToAllTime', handleFilterReset);
+    };
+  }, []);
+
   return (
     <div className="card">
       <div className="card-header d-flex justify-content-between align-items-md-center align-items-start">
@@ -296,12 +319,12 @@ const getDateRange = (range) => {
 
           <button
             type="button"
-            className={`btn btn-icon p-0 ${isLoading ? "disabled" : ""}`}
+            className={`btn btn-icon p-0 ${isReloading ? "disabled" : ""}`}
             onClick={handleReload}
-            disabled={isLoading}
+            disabled={isReloading}
             style={{ border: "1px solid var(--bs-primary)" }}
           >
-            <i className={`fas fa-sync-alt ${isLoading ? "fa-spin" : ""}`}></i>
+            <i className={`fas fa-sync-alt ${isReloading ? "fa-spin" : ""}`}></i>
           </button>
 
          

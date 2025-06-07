@@ -183,32 +183,23 @@ const OrderType = () => {
   };
 
   const handleReload = () => {
-    // Set user interaction flag to true
-    setUserInteracted(true);
-    
     // Check if we have valid startDate and endDate (indicating custom range)
     if (startDate && endDate) {
-      console.log('Reloading with custom date range:', formatDate(startDate), 'to', formatDate(endDate));
-      // For custom range, explicitly use 'Custom Range'
       fetchData('Custom Range', true);
     } else {
-      // For other ranges, use the current dateRange state
-      console.log('Reloading with standard date range:', dateRange);
       fetchData(dateRange, true);
     }
   };
 
   const fetchData = async (range, isReloadAction = false) => {
     try {
-      // Use isReloading for reload actions, main loading state otherwise
-      if (isReloadAction) {
-        setIsReloading(true);
-      } else {
+      // Only show loading state for initial load, not for reload
+      if (!isReloadAction) {
         setLoading(true);
       }
       setError('');
+      setUserInteracted(true);
       
-      // Prepare request data
       const requestData = {
         outlet_id: localStorage.getItem('outlet_id'),
         device_token: localStorage.getItem('device_token') || '',
@@ -227,26 +218,17 @@ const OrderType = () => {
         }
       }
 
-      // Get authentication token
-      const accessToken = localStorage.getItem('access');
-      
-      // Make API request
       const response = await axios.post(
         'https://menusmitra.xyz/1.3/outlet_statistics/order_type_statistics',
         requestData,
         {
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': accessToken ? `Bearer ${accessToken}` : ''
-          }
+          headers: getAuthHeaders()
         }
       );
 
       if (response.data?.data) {
-        // Process the response data
         const data = response.data.data;
-        setOrderTypes([
+        const orderTypesArray = [
           {
             name: "Dine In",
             icon: "fas fa-utensils",
@@ -279,18 +261,29 @@ const OrderType = () => {
             trendUp: true,
             color: "warning"
           }
-        ]);
+        ];
+
+        // Add counter type if it exists in the response
+        if (data.counter !== undefined) {
+          orderTypesArray.push({
+            name: "Counter",
+            icon: "fas fa-cash-register",
+            count: data.counter || 0,
+            trend: "0%",
+            trendUp: true,
+            color: "danger"
+          });
+        }
+
+        setOrderTypes(orderTypesArray);
       } else {
-        console.error('No data available in response');
         setError('No data available');
       }
     } catch (error) {
       console.error('Failed to fetch order type statistics:', error);
       setError('Failed to fetch order type statistics');
     } finally {
-      if (isReloadAction) {
-        setIsReloading(false);
-      } else {
+      if (!isReloadAction) {
         setLoading(false);
       }
     }
@@ -356,6 +349,21 @@ const OrderType = () => {
       return () => clearTimeout(timer);
     }
   }, [isGifPlaying]);
+
+  // Add event listener for header reload
+  useEffect(() => {
+    const handleHeaderReload = () => {
+      setDateRange('All Time');
+      setStartDate(null);
+      setEndDate(null);
+      setShowDatePicker(false);
+      setUserInteracted(false);
+      fetchData('All Time');
+    };
+
+    window.addEventListener('resetFiltersToAllTime', handleHeaderReload);
+    return () => window.removeEventListener('resetFiltersToAllTime', handleHeaderReload);
+  }, []);
 
   // Determine current loading state
   const isLoading = userInteracted ? loading : contextLoading;
@@ -526,66 +534,35 @@ const OrderType = () => {
                       }}
                     ></div>
                   </div>
-                  <div className="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center">
-                    <div
-                      className="spinner-border text-primary"
-                      role="status"
-                    >
-                      <span className="visually-hidden">Loading...</span>
-                    </div>
-                  </div>
                 </div>
               </div>
             ))
           ) : (
-            <div className="position-relative w-100">
-              {isReloading && (
-                <div 
-                  className="position-absolute w-100 h-100 d-flex justify-content-center align-items-center"
-                  style={{ 
-                    top: 0, 
-                    left: 0, 
-                    background: 'rgba(255, 255, 255, 0.8)',
-                    zIndex: 1 
-                  }}
-                >
-                  <div className="spinner-border text-primary" role="status">
-                    <span className="visually-hidden">Reloading...</span>
-                  </div>
-                </div>
-              )}
-              <div className={`row g-3 ${isReloading ? 'opacity-50' : ''}`}>
-                {orderTypes.map((order, index) => (
-                  <div key={index} className="col-md-4 col-sm-6">
-                    <div
-                      className={`card shadow-none bg-label-${order.color} h-100`}
-                    >
-                      <div className="card-body">
-                        <div className="d-flex align-items-center mb-2">
-                          <div
-                            className={`rounded-2 avatar avatar-sm me-2 bg-${order.color} d-flex align-items-center justify-content-center`}
-                            style={{ width: "35px", height: "35px" }}
-                          >
-                            <i
-                              className={`${order.icon} text-white`}
-                              style={{ fontSize: "1rem" }}
-                            ></i>
-                          </div>
-                          <span className="fw-semibold">{order.name}</span>
+            <div className="row g-3">
+              {orderTypes.map((order, index) => (
+                <div key={index} className="col-md-4 col-sm-6">
+                  <div className={`card shadow-none bg-label-${order.color} h-100`}>
+                    <div className="card-body">
+                      <div className="d-flex align-items-center mb-2">
+                        <div
+                          className={`rounded-2 avatar avatar-sm me-2 bg-${order.color} d-flex align-items-center justify-content-center`}
+                          style={{ width: "35px", height: "35px" }}
+                        >
+                          <i
+                            className={`${order.icon} text-white`}
+                            style={{ fontSize: "1rem" }}
+                          ></i>
                         </div>
-                        <div className="d-flex align-items-center mt-3">
-                          <h4 className="mb-0 me-2">{order.count}</h4>
-                          {/* <small className={`${order.trendUp ? 'text-success' : 'text-danger'} fw-semibold`}>
-                          <i className={`fas fa-arrow-${order.trendUp ? 'up' : 'down'}`}></i>
-                          {order.trend}
-                        </small> */}
-                        </div>
-                        <small className="text-muted">Total Orders</small>
+                        <span className="fw-semibold">{order.name}</span>
                       </div>
+                      <div className="d-flex align-items-center mt-3">
+                        <h4 className="mb-0 me-2">{order.count}</h4>
+                      </div>
+                      <small className="text-muted">Total Orders</small>
                     </div>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           )}
         </div>
@@ -595,3 +572,4 @@ const OrderType = () => {
 };
 
 export default OrderType;
+

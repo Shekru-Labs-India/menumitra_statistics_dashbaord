@@ -92,6 +92,21 @@ const FoodTypeGraph = () => {
       }
     }, [contextError, userInteracted]);
 
+    // Add event listener for header reload
+    useEffect(() => {
+      const handleHeaderReload = () => {
+        setDateRange('All time');
+        setStartDate(null);
+        setEndDate(null);
+        setShowDatePicker(false);
+        setUserInteracted(false);
+        fetchData('All time');
+      };
+
+      window.addEventListener('resetFiltersToAllTime', handleHeaderReload);
+      return () => window.removeEventListener('resetFiltersToAllTime', handleHeaderReload);
+    }, []);
+
     // Function to get week date range
     const getWeekDateRange = (weeksAgo = 0) => {
         const today = new Date();

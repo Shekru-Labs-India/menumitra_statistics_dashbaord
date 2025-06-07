@@ -8,7 +8,11 @@ import { apiEndpoint } from '../config/menuMitraConfig'
 
 function Header() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedOutlet, setSelectedOutlet] = useState('');
+  const [selectedOutlet, setSelectedOutlet] = useState(() => {
+    // Initialize with stored outlet name if available
+    const storedOutletId = localStorage.getItem('outlet_id');
+    return storedOutletId ? 'Loading...' : '';
+  });
   const [isMenuCollapsed, setIsMenuCollapsed] = useState(false);
   const [userName, setUserName] = useState('User');
   const [outletId, setOutletId] = useState('');
@@ -325,6 +329,10 @@ function Header() {
   const handleRefresh = () => {
     setIsRotating(true);
     setStartTime(new Date());
+    // Dispatch a custom event for filter reset
+    const resetEvent = new CustomEvent('resetFiltersToAllTime');
+    window.dispatchEvent(resetEvent);
+    // Call refresh dashboard after dispatching event
     refreshDashboard();
     setTimeout(() => {
       setIsRotating(false);
@@ -354,8 +362,57 @@ function Header() {
     };
   }, []);
 
+  // Add click outside listener for outlet modal
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const modalContent = document.querySelector('.outlet-modal-content');
+      const modalTrigger = document.querySelector('.outlet-select-btn');
+      
+      if (showOutletModal && modalContent && !modalContent.contains(event.target) && !modalTrigger?.contains(event.target)) {
+        setShowOutletModal(false);
+      }
+    };
+
+    if (showOutletModal) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showOutletModal]);
+
+  // Add styles for outlet modal
+  const modalStyles = `
+    .outlet-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding-top: 2rem;
+      z-index: 1050;
+    }
+
+    .outlet-modal-content {
+      background: white;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 85vh;
+      overflow: hidden;
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.15);
+      position: relative;
+    }
+  `;
+
   return (
     <div>
+      <style>{modalStyles}</style>
      
       {/* Add custom CSS for React-Toastify to match Materio */}
       <style>
@@ -722,12 +779,19 @@ function Header() {
                     padding: "8px 16px",
                     fontWeight: 600,
                     boxShadow: "rgba(0, 0, 0, 0.05) 0px 1px 2px",
+                    minWidth: "150px", // Add minimum width
+                    justifyContent: "space-between" // Ensure icon stays at the end
                   }}
                   type="button"
                   onClick={() => setShowOutletModal(true)}
+                  disabled={isLoading} // Disable button while loading
                 >
-                  <i className="fas fa-store me-2"></i>
-                  <span>{selectedOutlet || "All Outlets"}</span>
+                  <div className="d-flex align-items-center">
+                    <i className="fas fa-store me-2"></i>
+                    <span style={{ maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {isLoading ? "" : selectedOutlet || "Select Outlet"}
+                    </span>
+                  </div>
                 </button>
               </li>
             </div>
@@ -772,9 +836,9 @@ function Header() {
                     <i className="far fa-user-circle fa-2x text-gray"></i>
                   </div>
                 </a>
-                <ul className="dropdown-menu dropdown-menu-end mt-3 py-2">
+                <ul className="dropdown-menu dropdown-menu-end mt-3">
                   <li>
-                    <Link className="dropdown-item" to="/profile">
+                    <div className="dropdown-item px-3 py-2">
                       <div className="d-flex align-items-center">
                         <div className="flex-shrink-0 me-2">
                           <div className="avatar">
@@ -788,32 +852,13 @@ function Header() {
                           </small>
                         </div>
                       </div>
-                    </Link>
+                    </div>
                   </li>
+                  <li><hr className="dropdown-divider my-2" /></li>
                   <li>
-                    <div className="dropdown-divider" />
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="/profile">
-                      <i className="far fa-user fa-lg me-2" />
-                      <span className="align-middle">My Profile</span>
-                    </Link>
-                  </li>
-                 
-                  <li>
-                    <Link className="dropdown-item" to="/settings">
-                      <i className="fas fa-cog fa-lg me-2" />
-                      <span className="align-middle">Settings</span>
-                    </Link>
-                  </li>
-                  <li>
-                    <div className="dropdown-divider" />
-                  </li>
-
-                  <li>
-                    <div className="d-grid px-4 pt-2 pb-1">
+                    <div className="px-3 pb-2">
                       <button
-                        className="btn btn-danger d-flex align-items-center justify-content-center"
+                        className="btn btn-danger btn-sm w-100 d-flex align-items-center justify-content-center"
                         onClick={handleLogout}
                       >
                         <small className="align-middle">Logout</small>

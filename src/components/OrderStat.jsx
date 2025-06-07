@@ -100,6 +100,21 @@ const OrderStat = () => {
         }
     }, [isGifPlaying]);
 
+    // Add event listener for header reload
+    useEffect(() => {
+        const handleHeaderReload = () => {
+            setDateRange('All Time');
+            setStartDate(null);
+            setEndDate(null);
+            setShowDatePicker(false);
+            setUserInteracted(false);
+            fetchData('All Time');
+        };
+
+        window.addEventListener('resetFiltersToAllTime', handleHeaderReload);
+        return () => window.removeEventListener('resetFiltersToAllTime', handleHeaderReload);
+    }, []);
+
     const formatDate = (date) => {
         if (!date) return '';
         const day = date.getDate().toString().padStart(2, '0');
@@ -380,62 +395,24 @@ const OrderStat = () => {
 
             <div className="card-body">
                 <div className="row g-4">
-                    {isLoading ? (
-                        // Loading skeletons for metrics
-                        Array(4).fill(0).map((_, index) => (
-                            <div key={index} className="col-md-6">
-                                <div className="d-flex flex-column p-3 rounded" style={{ background: '#f3f3f3', minHeight: '120px' }}>
-                                    <div className="bg-secondary mb-2" style={{ width: '120px', height: '20px', opacity: 0.5 }}></div>
-                                    <div className="d-flex align-items-center">
-                                        <div className="bg-primary rounded me-2" style={{ width: '4px', height: '40px', opacity: 0.5 }}></div>
-                                        <div>
-                                            <div className="bg-secondary mb-1" style={{ width: '50px', height: '24px', opacity: 0.5 }}></div>
-                                            <div className="bg-secondary" style={{ width: '80px', height: '16px', opacity: 0.5 }}></div>
-                                        </div>
-                                    </div>
-                                    <div className="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center">
-                                        <div className="spinner-border spinner-border-sm text-primary" role="status">
-                                            <span className="visually-hidden">Loading...</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        ))
-                    ) : (
-                        <div className="position-relative w-100">
-                            {isReloading && (
-                                <div 
-                                    className="position-absolute w-100 h-100 d-flex justify-content-center align-items-center"
-                                    style={{ 
-                                        top: 0, 
-                                        left: 0, 
-                                        background: 'rgba(255, 255, 255, 0.8)',
-                                        zIndex: 1 
-                                    }}
-                                >
-                                    <div className="spinner-border text-primary" role="status">
-                                        <span className="visually-hidden">Reloading...</span>
-                                    </div>
-                                </div>
-                            )}
-                            <div className={`row g-4 ${isReloading ? 'opacity-50' : ''}`}>
-                                {getMetrics().map((metric, index) => (
-                                    <div key={index} className="col-md-6">
-                                        <div className="d-flex flex-column p-3 rounded" style={{ background: '#f3f3f3' }}>
-                                            <div className="text-heading mb-2">{metric.title}</div>
-                                            <div className="d-flex align-items-center">
-                                                <div className="bg-primary rounded me-2" style={{ width: '4px', height: '40px' }}></div>
-                                                <div>
-                                                    <h4 className="mb-0 text-heading fw-medium fs-4">{metric.value}</h4>
-                                                    <small className="text-muted">{metric.subtitle}</small>
-                                                </div>
+                    <div className="position-relative w-100">
+                        <div className="row g-4">
+                            {getMetrics().map((metric, index) => (
+                                <div key={index} className="col-md-6">
+                                    <div className="d-flex flex-column p-3 rounded" style={{ background: '#f3f3f3', position: 'relative' }}>
+                                        <div className="text-heading mb-2">{metric.title}</div>
+                                        <div className="d-flex align-items-center">
+                                            <div className="bg-primary rounded me-2" style={{ width: '4px', height: '40px' }}></div>
+                                            <div>
+                                                <h4 className="mb-0 text-heading fw-medium fs-4">{metric.value}</h4>
+                                                <small className="text-muted">{metric.subtitle}</small>
                                             </div>
                                         </div>
                                     </div>
-                                ))}
-                            </div>
+                                </div>
+                            ))}
                         </div>
-                    )}
+                    </div>
                 </div>
             </div>
         </div>

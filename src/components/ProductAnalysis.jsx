@@ -116,10 +116,8 @@ function TopSell() {
 
   // Modify fetchData to handle reload separately
   const fetchData = async (range, isReloadAction = false) => {
-    // If it's a reload action, use isReloading state instead of main loading state
-    if (isReloadAction) {
-      setIsReloading(true);
-    } else {
+    // Only show loading state for initial load, not for reload
+    if (!isReloadAction) {
       setLoading(true);
     }
     setError(null);
@@ -168,11 +166,17 @@ function TopSell() {
       console.error("Error fetching data:", err);
       setError("Failed to load sales data. Please try again.");
     } finally {
-      if (isReloadAction) {
-        setIsReloading(false);
-      } else {
+      if (!isReloadAction) {
         setLoading(false);
       }
+    }
+  };
+
+  const handleReload = () => {
+    if (startDate && endDate) {
+      fetchData('Custom Range', true);
+    } else {
+      fetchData(dateRange, true);
     }
   };
 
@@ -223,41 +227,24 @@ function TopSell() {
     
     return (
       <div className="table-responsive">
-        <div className={`position-relative ${isReloading ? 'opacity-50' : ''}`}>
-          {isReloading && (
-            <div 
-              className="position-absolute w-100 h-100 d-flex justify-content-center align-items-center"
-              style={{ 
-                top: 0, 
-                left: 0, 
-                background: 'rgba(255, 255, 255, 0.8)',
-                zIndex: 1 
-              }}
-            >
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Reloading...</span>
-              </div>
-            </div>
-          )}
-          <table className="table table-hover">
-            <thead>
-              <tr>
-                <th>Menu Name</th>
-                <th>Sales Count</th>
-                {hasQuantity && <th>Total Quantity</th>}
+        <table className="table table-hover">
+          <thead>
+            <tr>
+              <th>Menu Name</th>
+              <th>Sales Count</th>
+              {hasQuantity && <th>Total Quantity</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((product) => (
+              <tr key={product.item_id}>
+                <td>{product.name}</td>
+                <td>{product.sales_count}</td>
+                {hasQuantity && <td>{product.total_quantity}</td>}
               </tr>
-            </thead>
-            <tbody>
-              {data.map((product) => (
-                <tr key={product.item_id}>
-                  <td>{product.name}</td>
-                  <td>{product.sales_count}</td>
-                  {hasQuantity && <td>{product.total_quantity}</td>}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       </div>
     );
   };
@@ -302,6 +289,21 @@ function TopSell() {
     );
   };
 
+  // Add event listener for header reload
+  useEffect(() => {
+    const handleHeaderReload = () => {
+      setDateRange('All Time');
+      setStartDate(null);
+      setEndDate(null);
+      setShowDatePicker(false);
+      setUserInteracted(false);
+      fetchData('All Time');
+    };
+
+    window.addEventListener('resetFiltersToAllTime', handleHeaderReload);
+    return () => window.removeEventListener('resetFiltersToAllTime', handleHeaderReload);
+  }, []);
+
   return (
     <div className="card">
       {/* Header */}
@@ -314,7 +316,7 @@ function TopSell() {
           <button
             type="button"
             className="btn btn-icon p-0"
-            onClick={() => fetchData(dateRange, true)} // Pass true to indicate reload action
+            onClick={handleReload}
             disabled={isReloading}
             style={{ border: "1px solid var(--bs-primary)" }}
           >

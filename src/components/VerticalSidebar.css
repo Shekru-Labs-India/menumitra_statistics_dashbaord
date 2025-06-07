@@ -385,16 +385,16 @@ html.layout-menu-expanded body {
 
 /* Hover effect for menu items */
 .menu-item:hover {
-  background: transparent;
+  background: #7063ff;
 }
 .menu-item:hover .menu-link {
-  background: #7367f0;
-  color: #7367f0 !important;
+  background: #6e61fc;
+  color: #fffefe !important;
   transition: all 0.3s ease;
 }
 .menu-item:hover .menu-icon,
 .menu-item:hover .d-block {
-  color: #7367f0 !important;
+  color: #ffffff !important;
   transition: all 0.3s ease;
 }
 
