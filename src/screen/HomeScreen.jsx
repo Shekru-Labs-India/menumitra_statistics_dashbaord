@@ -58,6 +58,7 @@ function HomeScreen() {
   const [versionInfo, setVersionInfo] = useState(null);
   const [redirectProgress, setRedirectProgress] = useState(0);
   const [redirectTimer, setRedirectTimer] = useState(null);
+  const [isReloading, setIsReloading] = useState(false);
 
   // Check if user just arrived from login/OTP verification
   const isPostLogin = () => {
@@ -385,6 +386,7 @@ function HomeScreen() {
   };
 
   const handleReload = () => {
+    setIsReloading(true);
     if (startDate && endDate) {
       fetchStatistics('Custom Range', true);
     } else {
@@ -570,23 +572,29 @@ function HomeScreen() {
     );
   }
 
+  // Add event listener for header reload
   useEffect(() => {
-    // Add event listener for filter reset
-    const handleFilterReset = () => {
+    const handleHeaderReload = (event) => {
+      // Only reset filters, don't trigger rotation animation
       setDateRange('All Time');
       setStartDate(null);
       setEndDate(null);
       setShowDatePicker(false);
       setUserInteracted(false);
-      // Call fetchStatistics without isReloadAction
-      fetchStatistics('All Time', false);
+      
+      // Check if the reload is from header
+      if (event.detail?.source === 'header') {
+        // Don't set isReloading to true for header reloads
+        fetchStatistics('All Time', false);
+      } else {
+        // For personal reloads, set isReloading to true
+        setIsReloading(true);
+        fetchStatistics('All Time', true);
+      }
     };
 
-    window.addEventListener('resetFiltersToAllTime', handleFilterReset);
-
-    return () => {
-      window.removeEventListener('resetFiltersToAllTime', handleFilterReset);
-    };
+    window.addEventListener('resetFiltersToAllTime', handleHeaderReload);
+    return () => window.removeEventListener('resetFiltersToAllTime', handleHeaderReload);
   }, []);
 
   return (

@@ -695,15 +695,28 @@ function Header() {
             align-items: center;
             justify-content: flex-end;
             gap: 8px;
-           
           }
 
           .last-updated-bar button {
             padding: 2px 4px;
             background: transparent;
-            border: none;
+            border: 1px solid var(--bs-primary);
+            border-radius: 20%;
             color: #666;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+          }
+
+          .last-updated-bar button i {
+            display: inline-block;
+          }
+
+          .last-updated-bar button i.rotate-animation {
+            animation: rotate 1s linear;
           }
 
           .last-updated-bar button:hover {
@@ -887,10 +900,11 @@ function Header() {
       <div className="last-updated-bar d-md-none">
         <button
           onClick={handleRefresh}
-          className={isRotating ? "rotate-animation" : ""}
-          style={{ padding: "3px", border: "1px solid var(--bs-primary)", borderRadius: "20%" }}
         >
-          <i className="fas fa-sync-alt" style={{ color: "#6c757d" }}></i>
+          <i 
+            className={`fas fa-sync-alt ${isRotating ? "rotate-animation" : ""}`} 
+            style={{ color: "#6c757d" }}
+          ></i>
         </button>
         <span>Last updated {timeElapsed}</span>
       </div>
