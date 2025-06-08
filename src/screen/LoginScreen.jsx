@@ -84,14 +84,14 @@ function LoginScreen() {
           // Check role from response
           const { role } = response.data;
           
-          // Only proceed if role is admin
-          if (role === 'admin') {
+          // Allow both admin and owner roles
+          if (role === 'admin' || role === 'owner' || role ==='captain'  || role ==='manager') {
             setShowOtpForm(true);
             setCountdown(15);
             setResendDisabled(true);
           } else {
-            // Show error if role is not admin
-            setError('Access denied. Only admin users can access this dashboard.');
+            // Show error if role is not admin or owner
+            setError('Access denied. Only admin and owner users can access this dashboard.');
           }
         }
       } catch (error) {

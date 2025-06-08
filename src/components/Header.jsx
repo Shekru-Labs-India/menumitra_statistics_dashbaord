@@ -86,7 +86,8 @@ function Header() {
 
       const deviceToken = localStorage.getItem('device_token');
       const userRole = localStorage.getItem('role');
-
+      const ownerId = localStorage.getItem('user_id'); // Get owner_id from user_id
+      
       if (!deviceToken) {
         setError('Device token not found. Please login again.');
         navigate('/login');
@@ -102,7 +103,8 @@ function Header() {
         },
         body: JSON.stringify({
           device_token: deviceToken,
-          role: userRole
+          role: userRole,
+          owner_id: ownerId
         })
       });
 
