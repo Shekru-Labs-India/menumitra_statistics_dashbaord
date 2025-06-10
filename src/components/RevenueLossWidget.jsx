@@ -26,6 +26,20 @@ const RevenueLossWidget = () => {
     }
   }, [isGifPlaying]);
 
+  // Add event listener for header reload
+  useEffect(() => {
+    const handleHeaderReload = () => {
+      setDateRange('All Time');
+      setStartDate(null);
+      setEndDate(null);
+      setShowDatePicker(false);
+      fetchData('All Time');
+    };
+
+    window.addEventListener('resetFiltersToAllTime', handleHeaderReload);
+    return () => window.removeEventListener('resetFiltersToAllTime', handleHeaderReload);
+  }, []);
+
   const formatDate = (date) => {
     if (!date) return '';
     const day = date.getDate().toString().padStart(2, '0');
@@ -77,7 +91,7 @@ const fetchData = async (range) => {
         
         // Make API request
         const response = await axios.post(
-            'https://men4u.xyz/outlet_statistics/revenue_leakage',
+            'https://men4u.xyz/1.3/outlet_statistics/revenue_leakage',
             requestData,
             {
                 headers: {
@@ -211,49 +225,7 @@ const handleCustomDateSelect = () => {
             <i className={`fas fa-sync-alt ${loading ? 'fa-spin' : ''}`}></i>
           </button>
 
-          <button
-            type="button"
-            className="btn btn-icon btn-sm p-0"
-            style={{ 
-              width: '40px', 
-              height: '40px', 
-              borderRadius: '50%', 
-              display: 'flex', 
-              justifyContent: 'center', 
-              alignItems: 'center',
-              overflow: 'hidden',
-              position: 'relative',
-              border: '1px solid #e9ecef'
-            }}
-            onClick={() => setIsGifPlaying(true)}
-            title={isGifPlaying ? "Animation playing" : "Click to play animation"}
-          >
-            {/* Using two separate images - static frame and animated */}
-            {isGifPlaying ? (
-              // Show animated GIF when playing
-              <img 
-                src={aiAnimationGif} 
-                alt="AI Animation (Playing)"
-                style={{ 
-                  width: '24px', 
-                  height: '24px',
-                  objectFit: 'contain'
-                }}
-              />
-            ) : (
-              // Show static frame when not playing
-              <img 
-                src={aiAnimationStillFrame} 
-                alt="AI Animation (Click to play)"
-                style={{ 
-                  width: '24px', 
-                  height: '24px',
-                  objectFit: 'contain',
-                  opacity: 0.9
-                }}
-              />
-            )}
-          </button>
+         
         </div>
       </div>
 

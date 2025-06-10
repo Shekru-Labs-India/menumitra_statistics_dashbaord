@@ -55,6 +55,7 @@ const OrderType = () => {
 
   const [dateRange, setDateRange] = useState('All Time');
   const [loading, setLoading] = useState(false);
+  const [isReloading, setIsReloading] = useState(false); // New state for reload action
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -182,28 +183,23 @@ const OrderType = () => {
   };
 
   const handleReload = () => {
-    setLoading(true);
-    // Set user interaction flag to true
-    setUserInteracted(true);
-    
     // Check if we have valid startDate and endDate (indicating custom range)
     if (startDate && endDate) {
-      console.log('Reloading with custom date range:', formatDate(startDate), 'to', formatDate(endDate));
-      // For custom range, explicitly use 'Custom Range'
-      fetchData('Custom Range');
+      fetchData('Custom Range', true);
     } else {
-      // For other ranges, use the current dateRange state
-      console.log('Reloading with standard date range:', dateRange);
-      fetchData(dateRange);
+      fetchData(dateRange, true);
     }
   };
 
-  const fetchData = async (range) => {
+  const fetchData = async (range, isReloadAction = false) => {
     try {
-      setLoading(true);
+      // Only show loading state for initial load, not for reload
+      if (!isReloadAction) {
+        setLoading(true);
+      }
       setError('');
+      setUserInteracted(true);
       
-      // Prepare request data
       const requestData = {
         outlet_id: localStorage.getItem('outlet_id'),
         device_token: localStorage.getItem('device_token') || '',
@@ -222,26 +218,17 @@ const OrderType = () => {
         }
       }
 
-      // Get authentication token
-      const accessToken = localStorage.getItem('access');
-      
-      // Make API request
       const response = await axios.post(
-        'https://men4u.xyz/outlet_statistics/order_type_statistics',
+        'https://men4u.xyz/1.3/outlet_statistics/order_type_statistics',
         requestData,
         {
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': accessToken ? `Bearer ${accessToken}` : ''
-          }
+          headers: getAuthHeaders()
         }
       );
 
       if (response.data?.data) {
-        // Process the response data
         const data = response.data.data;
-        setOrderTypes([
+        const orderTypesArray = [
           {
             name: "Dine In",
             icon: "fas fa-utensils",
@@ -274,16 +261,31 @@ const OrderType = () => {
             trendUp: true,
             color: "warning"
           }
-        ]);
+        ];
+
+        // Add counter type if it exists in the response
+        if (data.counter !== undefined) {
+          orderTypesArray.push({
+            name: "Counter",
+            icon: "fas fa-cash-register",
+            count: data.counter || 0,
+            trend: "0%",
+            trendUp: true,
+            color: "danger"
+          });
+        }
+
+        setOrderTypes(orderTypesArray);
       } else {
-        console.error('No data available in response');
         setError('No data available');
       }
     } catch (error) {
       console.error('Failed to fetch order type statistics:', error);
       setError('Failed to fetch order type statistics');
     } finally {
-      setLoading(false);
+      if (!isReloadAction) {
+        setLoading(false);
+      }
     }
   };
 
@@ -348,6 +350,21 @@ const OrderType = () => {
     }
   }, [isGifPlaying]);
 
+  // Add event listener for header reload
+  useEffect(() => {
+    const handleHeaderReload = () => {
+      setDateRange('All Time');
+      setStartDate(null);
+      setEndDate(null);
+      setShowDatePicker(false);
+      setUserInteracted(false);
+      fetchData('All Time');
+    };
+
+    window.addEventListener('resetFiltersToAllTime', handleHeaderReload);
+    return () => window.removeEventListener('resetFiltersToAllTime', handleHeaderReload);
+  }, []);
+
   // Determine current loading state
   const isLoading = userInteracted ? loading : contextLoading;
   // Determine current error state
@@ -404,59 +421,15 @@ const OrderType = () => {
           </div>
           <button
             type="button"
-            className={`btn btn-icon p-0 ${isLoading ? "disabled" : ""}`}
+            className={`btn btn-icon p-0 ${isReloading ? "disabled" : ""}`}
             onClick={handleReload}
-            disabled={isLoading}
+            disabled={isReloading}
             style={{ border: "1px solid var(--bs-primary)" }}
           >
-            <i className={`fas fa-sync-alt ${isLoading ? "fa-spin" : ""}`}></i>
+            <i className={`fas fa-sync-alt ${isReloading ? "fa-spin" : ""}`}></i>
           </button>
 
-          <button
-            type="button"
-            className="btn btn-icon btn-sm p-0"
-            style={{
-              width: "40px",
-              height: "40px",
-              borderRadius: "50%",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              overflow: "hidden",
-              position: "relative",
-              border: "1px solid #e9ecef",
-            }}
-            onClick={() => setIsGifPlaying(true)}
-            title={
-              isGifPlaying ? "Animation playing" : "Click to play animation"
-            }
-          >
-            {/* Using two separate images - static frame and animated */}
-            {isGifPlaying ? (
-              // Show animated GIF when playing
-              <img
-                src={aiAnimationGif}
-                alt="AI Animation (Playing)"
-                style={{
-                  width: "24px",
-                  height: "24px",
-                  objectFit: "contain",
-                }}
-              />
-            ) : (
-              // Show static frame when not playing
-              <img
-                src={aiAnimationStillFrame}
-                alt="AI Animation (Click to play)"
-                style={{
-                  width: "24px",
-                  height: "24px",
-                  objectFit: "contain",
-                  opacity: 0.9,
-                }}
-              />
-            )}
-          </button>
+        
         </div>
       </div>
 
@@ -510,76 +483,65 @@ const OrderType = () => {
 
       <div className="card-body">
         <div className="row g-3">
-          {isLoading
-            ? // Display skeleton loading for 4 order type cards
-              Array(4)
-                .fill(0)
-                .map((_, index) => (
-                  <div key={index} className="col-md-4 col-sm-6">
-                    <div className="card shadow-none bg-label-secondary h-100 position-relative overflow-hidden">
-                      <div className="card-body">
-                        <div className="d-flex align-items-center mb-2">
-                          <div
-                            className="rounded-2 avatar avatar-sm me-2 bg-secondary d-flex align-items-center justify-content-center"
-                            style={{
-                              width: "35px",
-                              height: "35px",
-                              opacity: 0.5,
-                            }}
-                          ></div>
-                          <span
-                            className="bg-secondary"
-                            style={{
-                              width: "80px",
-                              height: "20px",
-                              opacity: 0.5,
-                            }}
-                          ></span>
-                        </div>
-                        <div className="d-flex align-items-center mt-3">
-                          <div
-                            className="bg-secondary me-2"
-                            style={{
-                              width: "30px",
-                              height: "24px",
-                              opacity: 0.5,
-                            }}
-                          ></div>
-                          <div
-                            className="bg-secondary"
-                            style={{
-                              width: "50px",
-                              height: "20px",
-                              opacity: 0.5,
-                            }}
-                          ></div>
-                        </div>
-                        <div
-                          className="bg-secondary mt-1"
-                          style={{
-                            width: "70px",
-                            height: "15px",
-                            opacity: 0.5,
-                          }}
-                        ></div>
-                      </div>
-                      <div className="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center">
-                        <div
-                          className="spinner-border text-primary"
-                          role="status"
-                        >
-                          <span className="visually-hidden">Loading...</span>
-                        </div>
-                      </div>
+          {isLoading ? (
+            // Display skeleton loading for 4 order type cards
+            Array(4).fill(0).map((_, index) => (
+              <div key={index} className="col-md-4 col-sm-6">
+                <div className="card shadow-none bg-label-secondary h-100 position-relative overflow-hidden">
+                  <div className="card-body">
+                    <div className="d-flex align-items-center mb-2">
+                      <div
+                        className="rounded-2 avatar avatar-sm me-2 bg-secondary d-flex align-items-center justify-content-center"
+                        style={{
+                          width: "35px",
+                          height: "35px",
+                          opacity: 0.5,
+                        }}
+                      ></div>
+                      <span
+                        className="bg-secondary"
+                        style={{
+                          width: "80px",
+                          height: "20px",
+                          opacity: 0.5,
+                        }}
+                      ></span>
                     </div>
+                    <div className="d-flex align-items-center mt-3">
+                      <div
+                        className="bg-secondary me-2"
+                        style={{
+                          width: "30px",
+                          height: "24px",
+                          opacity: 0.5,
+                        }}
+                      ></div>
+                      <div
+                        className="bg-secondary"
+                        style={{
+                          width: "50px",
+                          height: "20px",
+                          opacity: 0.5,
+                        }}
+                      ></div>
+                    </div>
+                    <div
+                      className="bg-secondary mt-1"
+                      style={{
+                        width: "70px",
+                        height: "15px",
+                        opacity: 0.5,
+                      }}
+                    ></div>
                   </div>
-                ))
-            : // Display actual order type data
-              orderTypes.map((order, index) => (
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="row g-3">
+              {orderTypes.map((order, index) => (
                 <div key={index} className="col-md-4 col-sm-6">
-                  <div
-                    className={`card shadow-none bg-label-${order.color} h-100`}
-                  >
+                  <div className={`card shadow-none bg-label-${order.color} h-100`}>
                     <div className="card-body">
                       <div className="d-flex align-items-center mb-2">
                         <div
@@ -595,16 +557,14 @@ const OrderType = () => {
                       </div>
                       <div className="d-flex align-items-center mt-3">
                         <h4 className="mb-0 me-2">{order.count}</h4>
-                        {/* <small className={`${order.trendUp ? 'text-success' : 'text-danger'} fw-semibold`}>
-                        <i className={`fas fa-arrow-${order.trendUp ? 'up' : 'down'}`}></i>
-                        {order.trend}
-                      </small> */}
                       </div>
                       <small className="text-muted">Total Orders</small>
                     </div>
                   </div>
                 </div>
               ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -612,3 +572,4 @@ const OrderType = () => {
 };
 
 export default OrderType;
+

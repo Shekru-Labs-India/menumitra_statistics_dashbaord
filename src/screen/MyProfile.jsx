@@ -157,10 +157,10 @@ const MyProfile = () => {
         update_user_id: Number(localStorage.getItem("user_id")),
         user_id: Number(localStorage.getItem("user_id")),
         name: formData.name,
-        email: formData.email,
+        email: formData.email || '',
         mobile_number: formData.mobile_number,
         dob: formatDateForAPI(formData.dob),
-        aadhar_number: formData.aadhar_number,
+        aadhar_number: formData.aadhar_number || '',
         outlet_id: localStorage.getItem('outlet_id'),
         device_token: localStorage.getItem('device_token') || '',
         device_id: localStorage.getItem('device_id') || ''
@@ -168,42 +168,48 @@ const MyProfile = () => {
 
       const response = await axios({
         method: 'post',
-        url: 'https://men4u.xyz/common_api/update_profile_detail',
+        url: 'https://men4u.xyz/1.3/common_api/update_profile_detail',
         headers: getAuthHeaders(),
         data: payload
       });
 
       if (response.data.st === 1) {
-        // Get current timestamp
+        // Get current date and time in the format "DD MMM YYYY HH:MM:SS AM/PM"
         const now = new Date();
-        const formattedTimestamp = now.toLocaleString('en-US', {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: true,
-          second: '2-digit'
-        });
-
-        // Update state with formatted date and new timestamp
-        const updatedUserDetails = {
+        const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+        const currentDate = `${String(now.getDate()).padStart(2, '0')} ${months[now.getMonth()]} ${now.getFullYear()}`;
+        
+        // Convert to 12-hour format with AM/PM
+        let hours = now.getHours();
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // the hour '0' should be '12'
+        
+        const currentTime = `${String(hours).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')} ${ampm}`;
+        const updatedOn = `${currentDate} ${currentTime}`;
+        
+        // Update state with formatted date and current updated_on timestamp
+        setUserDetails({
+          ...userDetails,
           ...formData,
           dob: formatDateForDisplay(formData.dob),
-          updated_on: formattedTimestamp,
-          updated_by: userDetails.name // Using the user's name as the updater
-        };
-
-        setUserDetails(updatedUserDetails);
+          updated_on: updatedOn
+        });
         setSuccess(response.data.msg || 'Profile updated successfully!');
         setEditMode(false);
+        return; // Exit the function after successful update
       } else {
-        setError(response.data.msg || 'Failed to update profile');
+        throw new Error(response.data.msg || 'Failed to update profile');
       }
     } catch (error) {
       console.error('Failed to update profile:', error);
-      const errorMessage = handleApiError(error);
-      setError(errorMessage || 'Failed to update profile. Please try again.');
+      if (error.response?.data?.msg) {
+        setError(error.response.data.msg);
+      } else if (error.message) {
+        setError(error.message);
+      } else {
+        setError('Failed to update profile. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -417,7 +423,7 @@ const MyProfile = () => {
                           <div className="mb-4">
                           
                             <div className="fs-5 fw-bold">
-                              {formatDateForDisplay(userDetails.dob)}
+                              {formatDateForDisplay(userDetails.dob) === 'Not provided' ? '-' : formatDateForDisplay(userDetails.dob)}
                             </div>
                             <div className="text-muted small mb-1">Date of Birth</div>
                             
@@ -627,7 +633,7 @@ const MyProfile = () => {
                         <div className="col-12 col-md-6 mb-3">
                           <div className="d-flex flex-column">
                             <span className="fw-bold">
-                              {userDetails.created_on}
+                              {userDetails.created_on || '-'}
                             </span>
                             <small className="text-muted mb-1">
                               Created On
@@ -637,7 +643,7 @@ const MyProfile = () => {
                         <div className="col-12 col-md-6 mb-3">
                           <div className="d-flex flex-column">
                             <span className="fw-bold">
-                              {userDetails.created_by}
+                              {userDetails.created_by || '-'}
                             </span>
                             <small className="text-muted mb-1">
                               Created By
@@ -647,7 +653,7 @@ const MyProfile = () => {
                         <div className="col-12 col-md-6 mb-3">
                           <div className="d-flex flex-column">
                             <span className="fw-bold">
-                              {userDetails.updated_on}
+                              {userDetails.updated_on || '-'}
                             </span>
                             <small className="text-muted mb-1">
                               Updated On
@@ -657,7 +663,7 @@ const MyProfile = () => {
                         <div className="col-12 col-md-6 mb-3">
                           <div className="d-flex flex-column">
                             <span className="fw-bold">
-                              {userDetails.updated_by}
+                              {userDetails.updated_by || '-'}
                             </span>
                             <small className="text-muted mb-1">
                               Updated By
@@ -666,7 +672,7 @@ const MyProfile = () => {
                         </div>
                         <div className="d-flex flex-column">
                           <span className="fw-bold">
-                            {userDetails.last_login}
+                            {userDetails.last_login || '-'}
                           </span>
                           <small className="text-muted mb-1">Last Login</small>
                         </div>

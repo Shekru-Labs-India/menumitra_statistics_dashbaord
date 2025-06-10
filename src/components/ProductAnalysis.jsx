@@ -6,9 +6,7 @@ import axios from "axios";
 import aiAnimationGif from "../assets/img/gif/AI-animation-unscreen.gif";
 import aiAnimationStillFrame from "../assets/img/gif/AI-animation-unscreen-still-frame.gif";
 import { useDashboard } from "../context/DashboardContext"; // Import context
-
-// API configuration
-const API_ENDPOINT = "https://men4u.xyz/";
+import { apiEndpoint } from '../config/menuMitraConfig';
 
 function TopSell() {
   // Get data from context
@@ -32,6 +30,7 @@ function TopSell() {
   });
   const [error, setError] = useState(null);
   const [userInteracted, setUserInteracted] = useState(false); // Flag to track user interaction
+  const [isReloading, setIsReloading] = useState(false); // Add new state for reload action
 
   // Use context data when component mounts
   useEffect(() => {
@@ -115,40 +114,37 @@ function TopSell() {
     };
   };
 
-  // Fetch data from API
-  const fetchData = async (range) => {
-    setLoading(true);
+  // Modify fetchData to handle reload separately
+  const fetchData = async (range, isReloadAction = false) => {
+    // Only show loading state for initial load, not for reload
+    if (!isReloadAction) {
+      setLoading(true);
+    }
     setError(null);
-    // Set user interaction flag to true
     setUserInteracted(true);
     
     try {
-      // Get outlet ID from localStorage
       const outletId = localStorage.getItem('outlet_id');
       if (!outletId) {
         setError('No outlet ID found. Please log in again.');
         return;
       }
       
-      // Prepare request data
       const requestData = { 
         outlet_id: outletId,
         device_token: localStorage.getItem('device_token') || '',
         device_id: localStorage.getItem('device_id') || ''
       };
       
-      // Add date range if not "All Time" and if both dates are available for custom range
       const dateParams = getDateRange(range);
       if (dateParams && (range !== "Custom Range" || (startDate && endDate))) {
         Object.assign(requestData, dateParams);
       }
       
-      // Get authentication token
       const accessToken = localStorage.getItem('access');
       
-      // Make API request
       const response = await axios.post(
-        `${API_ENDPOINT}outlet_statistics/sales_performance`, 
+        `${apiEndpoint}sales_performance`, 
         requestData, 
         {
           headers: {
@@ -159,9 +155,7 @@ function TopSell() {
         }
       );
       
-      // Parse and store response data
       if (response.data) {
-        // Handle nested data structure
         const responseData = response.data.data || response.data;
         setSalesData({
           top_selling: responseData.top_selling || [],
@@ -172,7 +166,17 @@ function TopSell() {
       console.error("Error fetching data:", err);
       setError("Failed to load sales data. Please try again.");
     } finally {
-      setLoading(false);
+      if (!isReloadAction) {
+        setLoading(false);
+      }
+    }
+  };
+
+  const handleReload = () => {
+    if (startDate && endDate) {
+      fetchData('Custom Range', true);
+    } else {
+      fetchData(dateRange, true);
     }
   };
 
@@ -207,7 +211,7 @@ function TopSell() {
     return salesData[selectedTab === "top" ? "top_selling" : "low_selling"];
   };
 
-  // Render data table
+  // Modify renderDataTable to handle reload state
   const renderDataTable = () => {
     const data = getCurrentData();
     
@@ -219,7 +223,6 @@ function TopSell() {
       );
     }
     
-    // Check if total_quantity exists in the data
     const hasQuantity = data.length > 0 && 'total_quantity' in data[0];
     
     return (
@@ -286,6 +289,21 @@ function TopSell() {
     );
   };
 
+  // Add event listener for header reload
+  useEffect(() => {
+    const handleHeaderReload = () => {
+      setDateRange('All Time');
+      setStartDate(null);
+      setEndDate(null);
+      setShowDatePicker(false);
+      setUserInteracted(false);
+      fetchData('All Time');
+    };
+
+    window.addEventListener('resetFiltersToAllTime', handleHeaderReload);
+    return () => window.removeEventListener('resetFiltersToAllTime', handleHeaderReload);
+  }, []);
+
   return (
     <div className="card">
       {/* Header */}
@@ -294,64 +312,15 @@ function TopSell() {
         <div className="d-flex align-items-center gap-3">
           {renderDateOptions()}
 
-          {/* Reload button */}
+          {/* Modified Reload button */}
           <button
             type="button"
             className="btn btn-icon p-0"
-            onClick={() => {
-              // Always fetch data with current dateRange
-              fetchData(dateRange);
-            }}
-            disabled={isLoading}
+            onClick={handleReload}
+            disabled={isReloading}
             style={{ border: "1px solid var(--bs-primary)" }}
           >
-            <i className={`fas fa-sync-alt ${isLoading ? "fa-spin" : ""}`}></i>
-          </button>
-
-          <button
-            type="button"
-            className="btn btn-icon btn-sm p-0"
-            style={{
-              width: "40px",
-              height: "40px",
-              borderRadius: "50%",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              overflow: "hidden",
-              position: "relative",
-              border: "1px solid #e9ecef",
-            }}
-            onClick={() => setIsGifPlaying(true)}
-            title={
-              isGifPlaying ? "Animation playing" : "Click to play animation"
-            }
-          >
-            {/* Using two separate images - static frame and animated */}
-            {isGifPlaying ? (
-              // Show animated GIF when playing
-              <img
-                src={aiAnimationGif}
-                alt="AI Animation (Playing)"
-                style={{
-                  width: "24px",
-                  height: "24px",
-                  objectFit: "contain",
-                }}
-              />
-            ) : (
-              // Show static frame when not playing
-              <img
-                src={aiAnimationStillFrame}
-                alt="AI Animation (Click to play)"
-                style={{
-                  width: "24px",
-                  height: "24px",
-                  objectFit: "contain",
-                  opacity: 0.9,
-                }}
-              />
-            )}
+            <i className={`fas fa-sync-alt ${isReloading ? "fa-spin" : ""}`}></i>
           </button>
         </div>
       </div>

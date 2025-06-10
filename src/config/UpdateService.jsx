@@ -3,7 +3,7 @@ import axios from 'axios';
 export class UpdateService {
   static async checkForUpdates() {
     try {
-      const response = await axios.post('https://men4u.xyz/common_api/check_version', {
+      const response = await axios.post('https://men4u.xyz/1.3/common_api/check_version', {
         app_type: "statistics_dashboard"
       });
 

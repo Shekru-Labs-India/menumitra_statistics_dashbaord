@@ -18,6 +18,7 @@ const OrderStat = () => {
 
     const [dateRange, setDateRange] = useState('All Time');
     const [loading, setLoading] = useState(false);
+    const [isReloading, setIsReloading] = useState(false); // New state for reload action
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const [showDatePicker, setShowDatePicker] = useState(false);
@@ -99,6 +100,21 @@ const OrderStat = () => {
         }
     }, [isGifPlaying]);
 
+    // Add event listener for header reload
+    useEffect(() => {
+        const handleHeaderReload = () => {
+            setDateRange('All Time');
+            setStartDate(null);
+            setEndDate(null);
+            setShowDatePicker(false);
+            setUserInteracted(false);
+            fetchData('All Time');
+        };
+
+        window.addEventListener('resetFiltersToAllTime', handleHeaderReload);
+        return () => window.removeEventListener('resetFiltersToAllTime', handleHeaderReload);
+    }, []);
+
     const formatDate = (date) => {
         if (!date) return '';
         const day = date.getDate().toString().padStart(2, '0');
@@ -120,7 +136,6 @@ const OrderStat = () => {
     };
 
     const handleReload = () => {
-        setLoading(true);
         // Set user interaction flag to true
         setUserInteracted(true);
         
@@ -128,17 +143,22 @@ const OrderStat = () => {
         if (startDate && endDate) {
             console.log('Reloading with custom date range:', formatDate(startDate), 'to', formatDate(endDate));
             // For custom range, explicitly use 'Custom Range'
-            fetchData('Custom Range');
+            fetchData('Custom Range', true);
         } else {
             // For other ranges, use the current dateRange state
             console.log('Reloading with standard date range:', dateRange);
-            fetchData(dateRange);
+            fetchData(dateRange, true);
         }
     };
 
-    const fetchData = async (range) => {
+    const fetchData = async (range, isReloadAction = false) => {
         try {
-            setLoading(true);
+            // Use isReloading for reload actions, main loading state otherwise
+            if (isReloadAction) {
+                setIsReloading(true);
+            } else {
+                setLoading(true);
+            }
             setError('');
             
             // Prepare request data
@@ -165,7 +185,7 @@ const OrderStat = () => {
             
             // Make API request
             const response = await axios.post(
-                'https://men4u.xyz/outlet_statistics/order_statistics',
+                'https://men4u.xyz/1.3/outlet_statistics/order_statistics',
                 requestData,
                 {
                     headers: {
@@ -193,7 +213,11 @@ const OrderStat = () => {
             console.error('Failed to fetch order statistics:', error);
             setError('Failed to fetch order statistics');
         } finally {
-            setLoading(false);
+            if (isReloadAction) {
+                setIsReloading(false);
+            } else {
+                setLoading(false);
+            }
         }
     };
 
@@ -313,57 +337,15 @@ const OrderStat = () => {
 
                     <button
                         type="button"
-                        className={`btn btn-icon p-0 ${isLoading ? 'disabled' : ''}`}
+                        className={`btn btn-icon p-0 ${isReloading ? "disabled" : ""}`}
                         onClick={handleReload}
-                        disabled={isLoading}
-                        style={{ border: '1px solid var(--bs-primary)' }}
+                        disabled={isReloading}
+                        style={{ border: "1px solid var(--bs-primary)" }}
                     >
-                        <i className={`fas fa-sync-alt ${isLoading ? 'fa-spin' : ''}`}></i>
+                        <i className={`fas fa-sync-alt ${isReloading ? "fa-spin" : ""}`}></i>
                     </button>
 
-                    <button
-                        type="button"
-                        className="btn btn-icon btn-sm p-0"
-                        style={{ 
-                            width: '40px', 
-                            height: '40px', 
-                            borderRadius: '50%', 
-                            display: 'flex', 
-                            justifyContent: 'center', 
-                            alignItems: 'center',
-                            overflow: 'hidden',
-                            position: 'relative',
-                            border: '1px solid #e9ecef'
-                        }}
-                        onClick={() => setIsGifPlaying(true)}
-                        title={isGifPlaying ? "Animation playing" : "Click to play animation"}
-                    >
-                        {/* Using two separate images - static frame and animated */}
-                        {isGifPlaying ? (
-                            // Show animated GIF when playing
-                            <img 
-                                src={aiAnimationGif} 
-                                alt="AI Animation (Playing)"
-                                style={{ 
-                                    width: '24px', 
-                                    height: '24px',
-                                    objectFit: 'contain'
-                                }}
-                            />
-                        ) : (
-                            // Show static frame when not playing
-                            <img 
-                                src={aiAnimationStillFrame} 
-                                alt="AI Animation (Click to play)"
-                                style={{ 
-                                    width: '24px', 
-                                    height: '24px',
-                                    objectFit: 'contain',
-                                    opacity: 0.9
-                                }}
-                            />
-                        )}
-                    </button>
+    
                 </div>
             </div>
 
@@ -413,44 +395,24 @@ const OrderStat = () => {
 
             <div className="card-body">
                 <div className="row g-4">
-                    {isLoading ? (
-                        // Loading skeletons for metrics
-                        Array(4).fill(0).map((_, index) => (
-                            <div key={index} className="col-md-6">
-                                <div className="d-flex flex-column p-3 bg-label-primary rounded position-relative overflow-hidden" style={{ minHeight: '120px' }}>
-                                    <div className="bg-secondary mb-2" style={{ width: '120px', height: '20px', opacity: 0.5 }}></div>
-                                    <div className="d-flex align-items-center">
-                                        <div className="bg-primary rounded me-2" style={{ width: '4px', height: '40px', opacity: 0.5 }}></div>
-                                        <div>
-                                            <div className="bg-secondary mb-1" style={{ width: '50px', height: '24px', opacity: 0.5 }}></div>
-                                            <div className="bg-secondary" style={{ width: '80px', height: '16px', opacity: 0.5 }}></div>
-                                        </div>
-                                    </div>
-                                    <div className="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center">
-                                        <div className="spinner-border spinner-border-sm text-primary" role="status">
-                                            <span className="visually-hidden">Loading...</span>
+                    <div className="position-relative w-100">
+                        <div className="row g-4">
+                            {getMetrics().map((metric, index) => (
+                                <div key={index} className="col-md-6">
+                                    <div className="d-flex flex-column p-3 rounded" style={{ background: '#f3f3f3', position: 'relative' }}>
+                                        <div className="text-heading mb-2">{metric.title}</div>
+                                        <div className="d-flex align-items-center">
+                                            <div className="bg-primary rounded me-2" style={{ width: '4px', height: '40px' }}></div>
+                                            <div>
+                                                <h4 className="mb-0 text-heading fw-medium fs-4">{metric.value}</h4>
+                                                <small className="text-muted">{metric.subtitle}</small>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))
-                    ) : (
-                        // Display actual metrics
-                        getMetrics().map((metric, index) => (
-                            <div key={index} className="col-md-6">
-                                <div className="d-flex flex-column p-3 bg-label-primary rounded">
-                                    <div className="text-heading mb-2">{metric.title}</div>
-                                    <div className="d-flex align-items-center">
-                                        <div className="bg-primary rounded me-2" style={{ width: '4px', height: '40px' }}></div>
-                                        <div>
-                                            <h4 className="mb-0 text-heading fw-medium fs-4">{metric.value}</h4>
-                                            <small className="text-muted">{metric.subtitle}</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        ))
-                    )}
+                            ))}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

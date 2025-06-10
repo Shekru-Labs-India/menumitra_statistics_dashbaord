@@ -1,0 +1,338 @@
+import React, { useState, useEffect } from 'react';
+import DatePicker from 'react-datepicker';
+import "react-datepicker/dist/react-datepicker.css";
+import axios from 'axios';
+import { apiEndpoint } from '../config/menuMitraConfig';
+import { useDashboard } from '../context/DashboardContext'; // Import context
+
+const TopCombos = () => {
+  // Get data from context
+  const { 
+    menuCombos_from_context,
+    loading: contextLoading,
+    error: contextError
+  } = useDashboard();
+
+  // State management
+  const [dateRange, setDateRange] = useState("All Time");
+  const [loading, setLoading] = useState(false);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [error, setError] = useState(null);
+  const [isReloading, setIsReloading] = useState(false);
+  const [menuCombos, setMenuCombos] = useState([]);
+  const [userInteracted, setUserInteracted] = useState(false);
+
+  // Use context data when component mounts
+  useEffect(() => {
+    console.log('Raw Context Data:', menuCombos_from_context);
+    
+    if (menuCombos_from_context) {
+      // Check if the data is nested under menu_combos
+      const combosData = menuCombos_from_context.menu_combos || 
+                        menuCombos_from_context.top_combos || 
+                        (Array.isArray(menuCombos_from_context) ? menuCombos_from_context : []);
+      
+      console.log('Processed Combos Data:', combosData);
+      
+      if (combosData && combosData.length > 0) {
+        console.log('Setting Menu Combos:', combosData);
+        setMenuCombos(combosData);
+      } else {
+        console.log('No combo data found in:', menuCombos_from_context);
+        setMenuCombos([]);
+      }
+    } else {
+      console.log('No context data available');
+      setMenuCombos([]);
+    }
+  }, [menuCombos_from_context]);
+
+  // Set error from context if available
+  useEffect(() => {
+    if (contextError && !userInteracted) {
+      console.log('Context Error:', contextError);
+      setError(contextError);
+    }
+  }, [contextError, userInteracted]);
+
+  // Log when menuCombos state changes
+  useEffect(() => {
+    console.log('Current menuCombos state:', menuCombos);
+  }, [menuCombos]);
+
+  // Format date for display and API
+  const formatDate = (date) => {
+    if (!date) return '';
+    const day = date.getDate().toString().padStart(2, '0');
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = months[date.getMonth()];
+    return `${day} ${month} ${date.getFullYear()}`;
+  };
+
+  // Fetch menu combos data with filters
+  const fetchMenuCombos = async (isReloadAction = false) => {
+    try {
+      if (!isReloadAction) {
+        setLoading(true);
+      }
+      setError(null);
+      setUserInteracted(true);
+
+      const outletId = localStorage.getItem('outlet_id');
+      const deviceToken = localStorage.getItem('device_token');
+      const userRole = localStorage.getItem('role');
+      const accessToken = localStorage.getItem('access');
+
+      if (!outletId || !deviceToken || !userRole) {
+        throw new Error('Required credentials not found');
+      }
+
+      const requestData = {
+        outlet_id: parseInt(outletId),
+        device_token: deviceToken,
+        role: userRole
+      };
+
+      // Add date range parameters if selected
+      if (startDate && endDate) {
+        requestData.start_date = formatDate(startDate);
+        requestData.end_date = formatDate(endDate);
+      }
+
+      const response = await axios.post(
+        `${apiEndpoint}get_menu_combos`,
+        requestData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+          }
+        }
+      );
+
+      if (response.data.message === 'success') {
+        setMenuCombos(response.data.data.top_combos || []);
+      } else {
+        throw new Error('Failed to fetch menu combos');
+      }
+    } catch (err) {
+      console.error('Error fetching menu combos:', err);
+      setError(err.message || 'Failed to load menu combos');
+    } finally {
+      if (!isReloadAction) {
+        setLoading(false);
+      }
+      setIsReloading(false);
+    }
+  };
+
+  // Handle date range selection
+  const handleDateRangeChange = (range) => {
+    setDateRange(range);
+    setShowDatePicker(range === "Custom Range");
+    
+    if (range !== "Custom Range") {
+      setStartDate(null);
+      setEndDate(null);
+      fetchMenuCombos();
+    }
+  };
+
+  // Handle reload button click
+  const handleReload = () => {
+    setIsReloading(true);
+    if (startDate && endDate) {
+      fetchMenuCombos(true);
+    } else {
+      fetchMenuCombos(true);
+    }
+  };
+
+  // Handle custom date selection
+  const handleCustomDateSelect = () => {
+    if (startDate && endDate) {
+      setDateRange(`${formatDate(startDate)} - ${formatDate(endDate)}`);
+      setShowDatePicker(false);
+      fetchMenuCombos();
+    }
+  };
+
+  // Add event listener for header reload
+  useEffect(() => {
+    const handleHeaderReload = () => {
+      setDateRange('All Time');
+      setStartDate(null);
+      setEndDate(null);
+      setShowDatePicker(false);
+      setUserInteracted(false);
+    };
+
+    window.addEventListener('resetFiltersToAllTime', handleHeaderReload);
+    return () => window.removeEventListener('resetFiltersToAllTime', handleHeaderReload);
+  }, []);
+
+  // Determine current loading state
+  const isLoading = userInteracted ? loading : contextLoading;
+  // Determine current error state
+  const currentError = userInteracted ? error : contextError;
+
+  return (
+    <div className="card h-100">
+      {/* Header */}
+      <div className="card-header d-flex justify-content-between align-items-center">
+        <h5 className="card-title mb-0">Top Combo Orders</h5>
+        <div className="d-flex align-items-center gap-3">
+          <div className="dropdown">
+            <button
+              type="button"
+              className="btn btn-outline-primary dropdown-toggle"
+              data-bs-toggle="dropdown"
+            >
+              <i className="fas fa-calendar me-2"></i>
+              {dateRange}
+            </button>
+            <ul className="dropdown-menu dropdown-menu-end">
+              {[
+                "All Time",
+                "Today",
+                "Yesterday",
+                "Last 7 Days",
+                "Last 30 Days",
+                "Current Month",
+                "Last Month",
+                "Custom Range"
+              ].map((option) => (
+                <li key={option}>
+                  <a
+                    href="javascript:void(0);"
+                    className="dropdown-item"
+                    onClick={() => handleDateRangeChange(option)}
+                  >
+                    {option}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <button
+            type="button"
+            className="btn btn-icon p-0"
+            onClick={handleReload}
+            disabled={isReloading}
+            style={{ border: "1px solid var(--bs-primary)" }}
+          >
+            <i className={`fas fa-sync-alt ${isReloading ? "fa-spin" : ""}`}></i>
+          </button>
+        </div>
+      </div>
+
+      {/* Custom date picker */}
+      {showDatePicker && (
+        <div className="card-body border-bottom">
+          <div className="d-flex flex-column gap-2">
+            <label>Select Date Range:</label>
+            <div className="d-flex gap-2">
+              <DatePicker
+                selected={startDate}
+                onChange={setStartDate}
+                selectsStart
+                startDate={startDate}
+                endDate={endDate}
+                maxDate={new Date()}
+                className="form-control"
+                dateFormat="dd MMM yyyy"
+                placeholderText="DD MMM YYYY"
+              />
+              <DatePicker
+                selected={endDate}
+                onChange={setEndDate}
+                selectsEnd
+                startDate={startDate}
+                endDate={endDate}
+                minDate={startDate}
+                maxDate={new Date()}
+                className="form-control"
+                dateFormat="dd MMM yyyy"
+                placeholderText="DD MMM YYYY"
+              />
+            </div>
+            <button
+              className="btn btn-primary mt-2"
+              onClick={handleCustomDateSelect}
+              disabled={!startDate || !endDate}
+            >
+              Apply
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Error message */}
+      {currentError && (
+        <div className="alert alert-danger m-3" role="alert">
+          {currentError}
+        </div>
+      )}
+
+      {/* Body */}
+      <div className="card-body">
+        {isLoading ? (
+          <div className="text-center p-3">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        ) : menuCombos && menuCombos.length > 0 ? (
+          <div className="table-responsive">
+            <table className="table table-hover">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Combo Items</th>
+                  <th className="text-end">Order Count</th>
+                </tr>
+              </thead>
+              <tbody>
+                {menuCombos.map((combo, index) => {
+                  console.log('Rendering combo:', combo); // Debug log
+                  return (
+                    <tr key={index}>
+                      <td>{index + 1}</td>
+                      <td>
+                        {Array.isArray(combo.items) ? combo.items.map((item, itemIndex) => (
+                          <React.Fragment key={item.menu_id || itemIndex}>
+                            <span className="badge bg-gray-500 text-dark me-1">
+                              {item.name || item}
+                            </span>
+                            {itemIndex < combo.items.length - 1 && (
+                              <i className="fas fa-plus mx-1 text-muted"></i>
+                            )}
+                          </React.Fragment>
+                        )) : (
+                          <span className="badge bg-secondary text-dark me-1">
+                            {combo.items}
+                          </span>
+                        )}
+                      </td>
+                      <td className="text-end">{combo.order_count || combo.count || 0}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center text-muted p-3">
+            No combo orders available for the selected period
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default TopCombos;

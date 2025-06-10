@@ -7,6 +7,7 @@ import axios from 'axios';
 import aiAnimationGif from '../assets/img/gif/AI-animation-unscreen.gif';
 import aiAnimationStillFrame from '../assets/img/gif/AI-animation-unscreen-still-frame.gif';
 import { useDashboard } from '../context/DashboardContext'; // Import context
+import { apiEndpoint } from '../config/menuMitraConfig';
 
 const PaymentMethodsChart = () => {
   // Get data from context
@@ -17,6 +18,7 @@ const PaymentMethodsChart = () => {
 
   const [dateRange, setDateRange] = useState('All Time');
   const [loading, setLoading] = useState(false);
+  const [isReloading, setIsReloading] = useState(false); // Add new state for reload action
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -106,6 +108,7 @@ const PaymentMethodsChart = () => {
   const handleReload = () => {
     // Set user interaction flag to true
     setUserInteracted(true);
+    setIsReloading(true); // Use isReloading for reload action
     
     // Check if we have valid startDate and endDate (indicating custom range)
     if (startDate && endDate) {
@@ -121,7 +124,9 @@ const PaymentMethodsChart = () => {
 
   const fetchData = async (range) => {
     try {
-        setLoading(true);
+        if (!userInteracted) {
+            setLoading(true);
+        }
         
         // Prepare request data
         const requestData = {
@@ -147,7 +152,7 @@ const PaymentMethodsChart = () => {
         
         // Make API request
         const response = await axios.post(
-            'https://men4u.xyz/outlet_statistics/total_collection_source',
+            'https://men4u.xyz/1.3/outlet_statistics/total_collection_source',
             requestData,
             {
                 headers: {
@@ -178,6 +183,7 @@ const PaymentMethodsChart = () => {
         console.error('Failed to fetch payment methods data:', error);
     } finally {
         setLoading(false);
+        setIsReloading(false); // Always reset isReloading
     }
 };
 
@@ -243,6 +249,24 @@ const getDateRange = (range) => {
   // Determine current loading state
   const isLoading = userInteracted ? loading : contextLoading;
 
+  useEffect(() => {
+    // Add event listener for filter reset
+    const handleFilterReset = () => {
+      setDateRange('All Time');
+      setStartDate(null);
+      setEndDate(null);
+      setShowDatePicker(false);
+      setUserInteracted(false);
+      fetchData('All Time');
+    };
+
+    window.addEventListener('resetFiltersToAllTime', handleFilterReset);
+
+    return () => {
+      window.removeEventListener('resetFiltersToAllTime', handleFilterReset);
+    };
+  }, []);
+
   return (
     <div className="card">
       <div className="card-header d-flex justify-content-between align-items-md-center align-items-start">
@@ -295,59 +319,15 @@ const getDateRange = (range) => {
 
           <button
             type="button"
-            className={`btn btn-icon p-0 ${isLoading ? "disabled" : ""}`}
+            className={`btn btn-icon p-0 ${isReloading ? "disabled" : ""}`}
             onClick={handleReload}
-            disabled={isLoading}
+            disabled={isReloading}
             style={{ border: "1px solid var(--bs-primary)" }}
           >
-            <i className={`fas fa-sync-alt ${isLoading ? "fa-spin" : ""}`}></i>
+            <i className={`fas fa-sync-alt ${isReloading ? "fa-spin" : ""}`}></i>
           </button>
 
-          <button
-            type="button"
-            className="btn btn-icon btn-sm p-0"
-            style={{
-              width: "40px",
-              height: "40px",
-              borderRadius: "50%",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              overflow: "hidden",
-              position: "relative",
-              border: "1px solid #e9ecef",
-            }}
-            onClick={() => setIsGifPlaying(true)}
-            title={
-              isGifPlaying ? "Animation playing" : "Click to play animation"
-            }
-          >
-            {/* Using two separate images - static frame and animated */}
-            {isGifPlaying ? (
-              // Show animated GIF when playing
-              <img
-                src={aiAnimationGif}
-                alt="AI Animation (Playing)"
-                style={{
-                  width: "24px",
-                  height: "24px",
-                  objectFit: "contain",
-                }}
-              />
-            ) : (
-              // Show static frame when not playing
-              <img
-                src={aiAnimationStillFrame}
-                alt="AI Animation (Click to play)"
-                style={{
-                  width: "24px",
-                  height: "24px",
-                  objectFit: "contain",
-                  opacity: 0.9,
-                }}
-              />
-            )}
-          </button>
+         
         </div>
       </div>
 

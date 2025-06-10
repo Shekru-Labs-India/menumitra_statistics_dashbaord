@@ -19,7 +19,8 @@ function LoginScreen() {
   const [otp, setOtp] = useState(['', '', '', '']);
   const [countdown, setCountdown] = useState(15);
   const [resendDisabled, setResendDisabled] = useState(true);
-  const [isLoading, setIsLoading] = useState(false); // Add loading state
+  const [isLoading, setIsLoading] = useState(false); // For verify OTP
+  const [isResending, setIsResending] = useState(false); // Add new state for resend OTP
   const [error, setError] = useState(''); // Add error state
   const [showUpdatePopup, setShowUpdatePopup] = useState(false);
   const [versionInfo, setVersionInfo] = useState(null);
@@ -83,14 +84,14 @@ function LoginScreen() {
           // Check role from response
           const { role } = response.data;
           
-          // Only proceed if role is owner, manager, or captain
-          if (role === 'owner' || role === 'manager' || role === 'captain') {
+          // Allow both admin and owner roles
+          if (role === 'admin' || role === 'owner' || role ==='captain'  || role ==='manager') {
             setShowOtpForm(true);
             setCountdown(15);
             setResendDisabled(true);
           } else {
-            // Show error if role is not allowed
-            setError('Please login with a registered number. Only owner, manager, or captain can access this dashboard.');
+            // Show error if role is not admin or owner
+            setError('Access denied. Only admin and owner users can access this dashboard.');
           }
         }
       } catch (error) {
@@ -253,7 +254,7 @@ function LoginScreen() {
 
   const handleResendOtp = async () => {
     setOtp(['', '', '', '']);
-    setIsLoading(true);
+    setIsResending(true); // Use isResending instead of isLoading
     setError('');
     
     try {
@@ -272,7 +273,7 @@ function LoginScreen() {
       console.error('API Error (Resend):', error);
       setError(error.response?.data?.message || 'Failed to resend OTP. Please try again.');
     } finally {
-      setIsLoading(false);
+      setIsResending(false); // Reset resending state
     }
   };
 
@@ -561,9 +562,9 @@ function LoginScreen() {
                   <button
                     className="btn btn-text-primary waves-effect waves-light p-0"
                     onClick={handleResendOtp}
-                    disabled={resendDisabled || isLoading}
+                    disabled={resendDisabled || isResending} // Use isResending instead of isLoading
                   >
-                    {isLoading && !resendDisabled ? (
+                    {isResending ? ( // Use isResending for the loader
                       <span>
                         <i className="fas fa-circle-notch fa-spin me-2"></i>
                         Resending OTP...
