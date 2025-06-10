@@ -114,9 +114,50 @@ function TopSell() {
     };
   };
 
-  // Modify fetchData to handle reload separately
+  // Get the current data to display based on selected tab
+  const getCurrentData = () => {
+    // Only return the exact API data for the selected tab
+    return selectedTab === "top" ? salesData.top_selling : salesData.low_selling;
+  };
+
+  // Modify renderDataTable to show only API data
+  const renderDataTable = () => {
+    const data = getCurrentData();
+    
+    if (!data || data.length === 0) {
+      return (
+        <div className="text-center text-muted p-3">
+          No products data available for the selected period
+        </div>
+      );
+    }
+    
+    return (
+      <div className="table-responsive">
+        <table className="table table-hover">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Menu Name</th>
+              <th>Sales Count</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((product, index) => (
+              <tr key={`${product.item_id}-${index}`}>
+                <td>{index + 1}</td>
+                <td>{product.name}</td>
+                <td>{product.sales_count}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+
+  // Modify fetchData to store exact API response
   const fetchData = async (range, isReloadAction = false) => {
-    // Only show loading state for initial load, not for reload
     if (!isReloadAction) {
       setLoading(true);
     }
@@ -157,6 +198,7 @@ function TopSell() {
       
       if (response.data) {
         const responseData = response.data.data || response.data;
+        // Store exact API response without modifications
         setSalesData({
           top_selling: responseData.top_selling || [],
           low_selling: responseData.low_selling || []
@@ -169,6 +211,7 @@ function TopSell() {
       if (!isReloadAction) {
         setLoading(false);
       }
+      setIsReloading(false);
     }
   };
 
@@ -205,49 +248,6 @@ function TopSell() {
   const isLoading = userInteracted ? loading : contextLoading;
   // Determine current error state
   const currentError = userInteracted ? error : contextError;
-
-  // Get the current data to display based on selected tab
-  const getCurrentData = () => {
-    return salesData[selectedTab === "top" ? "top_selling" : "low_selling"];
-  };
-
-  // Modify renderDataTable to handle reload state
-  const renderDataTable = () => {
-    const data = getCurrentData();
-    
-    if (data.length === 0) {
-      return (
-        <div className="text-center text-muted p-3">
-          No products data available for the selected period
-        </div>
-      );
-    }
-    
-    const hasQuantity = data.length > 0 && 'total_quantity' in data[0];
-    
-    return (
-      <div className="table-responsive">
-        <table className="table table-hover">
-          <thead>
-            <tr>
-              <th>Menu Name</th>
-              <th>Sales Count</th>
-              {hasQuantity && <th>Total Quantity</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((product) => (
-              <tr key={product.item_id}>
-                <td>{product.name}</td>
-                <td>{product.sales_count}</td>
-                {hasQuantity && <td>{product.total_quantity}</td>}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    );
-  };
 
   // Render date options dropdown
   const renderDateOptions = () => {
@@ -309,62 +309,7 @@ function TopSell() {
       {/* Header */}
       <div className="card-header d-flex justify-content-between align-items-center">
         <h5 className="card-title mb-0">Products Analysis</h5>
-        <div className="d-flex align-items-center gap-3">
-          {renderDateOptions()}
-
-          {/* Modified Reload button */}
-          <button
-            type="button"
-            className="btn btn-icon p-0"
-            onClick={handleReload}
-            disabled={isReloading}
-            style={{ border: "1px solid var(--bs-primary)" }}
-          >
-            <i className={`fas fa-sync-alt ${isReloading ? "fa-spin" : ""}`}></i>
-          </button>
-        </div>
       </div>
-
-      {/* Custom date picker */}
-      {showDatePicker && (
-        <div className="card-body border-bottom">
-          <div className="d-flex flex-column gap-2">
-            <label>Select Date Range:</label>
-            <div className="d-flex gap-2">
-              <DatePicker
-                selected={startDate}
-                onChange={setStartDate}
-                selectsStart
-                startDate={startDate}
-                endDate={endDate}
-                maxDate={new Date()}
-                className="form-control"
-                dateFormat="dd MMM yyyy"
-                placeholderText="DD MMM YYYY"
-              />
-              <DatePicker
-                selected={endDate}
-                onChange={setEndDate}
-                selectsEnd
-                startDate={startDate}
-                endDate={endDate}
-                minDate={startDate}
-                maxDate={new Date()}
-                className="form-control"
-                dateFormat="dd MMM yyyy"
-                placeholderText="DD MMM YYYY"
-              />
-            </div>
-            <button
-              className="btn btn-primary mt-2"
-              onClick={handleCustomDateSelect}
-              disabled={!startDate || !endDate}
-            >
-              Apply
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Body */}
       <div className="card-body">

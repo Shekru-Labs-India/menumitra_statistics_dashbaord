@@ -34,6 +34,9 @@ function Header() {
   // Get refreshDashboard from context
   const { refreshDashboard } = useDashboard();
 
+  // Add new state for outlet name from API
+  const [outletNameFromApi, setOutletNameFromApi] = useState('');
+
   // Function to show toast notifications
   const showToast = (message, type = 'error') => {
     const options = {
@@ -411,6 +414,63 @@ function Header() {
       position: relative;
     }
   `;
+
+  // Add function to fetch outlet details from get_all_stats
+  const fetchOutletDetails = async () => {
+    try {
+      const outletId = localStorage.getItem('outlet_id');
+      const deviceToken = localStorage.getItem('device_token');
+      const accessToken = localStorage.getItem('access');
+      const userRole = localStorage.getItem('role');
+
+      if (!outletId || !deviceToken || !accessToken) {
+        return;
+      }
+
+      const response = await fetch(`https://men4u.xyz/outlet_statistics/get_all_stats`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
+        },
+        body: JSON.stringify({
+          outlet_id: parseInt(outletId),
+          device_token: deviceToken,
+          role: userRole
+        })
+      });
+
+      const data = await response.json();
+      
+      if (data.message === 'success' && data.data?.outlet_info) {
+        const outletName = data.data.outlet_info.outlet_name;
+        setOutletNameFromApi(outletName);
+        setSelectedOutlet(outletName);
+      }
+    } catch (err) {
+      console.error('Error fetching outlet details:', err);
+    }
+  };
+
+  // Call fetchOutletDetails when component mounts and when outlet_id changes
+  useEffect(() => {
+    const outletId = localStorage.getItem('outlet_id');
+    if (outletId) {
+      fetchOutletDetails();
+    }
+  }, [localStorage.getItem('outlet_id')]);
+
+  // Update the outlet selector button display
+  const getOutletDisplayName = () => {
+    if (isLoading) {
+      return "Loading...";
+    }
+    if (outletNameFromApi) {
+      return outletNameFromApi;
+    }
+    return selectedOutlet || "Select Outlet";
+  };
 
   return (
     <div>
@@ -815,17 +875,17 @@ function Header() {
                     padding: "8px 16px",
                     fontWeight: 600,
                     boxShadow: "rgba(0, 0, 0, 0.05) 0px 1px 2px",
-                    minWidth: "150px", // Add minimum width
-                    justifyContent: "space-between" // Ensure icon stays at the end
+                    minWidth: "150px",
+                    justifyContent: "space-between"
                   }}
                   type="button"
                   onClick={() => setShowOutletModal(true)}
-                  disabled={isLoading} // Disable button while loading
+                  disabled={isLoading}
                 >
                   <div className="d-flex align-items-center">
                     <i className="fas fa-store me-2"></i>
                     <span style={{ maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {isLoading ? "" : selectedOutlet || "Select Outlet"}
+                      {getOutletDisplayName()}
                     </span>
                   </div>
                 </button>

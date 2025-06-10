@@ -612,92 +612,10 @@ const FoodTypeGraph = () => {
         <div className="card">
             <div className="card-header d-flex justify-content-between align-items-md-center align-items-start">
                 <h5 className="card-title mb-0">Food Type Analysis</h5>
-                <div className="d-flex align-items-center gap-3">
-                    <div className="dropdown">
-                        <button
-                            type="button"
-                            className="btn btn-outline-primary dropdown-toggle"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                        >
-                            <i className="fas fa-calendar me-2"></i>
-                            {dateRange}
-                        </button>
-                        <ul className="dropdown-menu dropdown-menu-end">
-                            {getDateRangeOptions().map((option) => (
-                                <li key={option.value}>
-                                    <a
-                                        href="javascript:void(0);"
-                                        className="dropdown-item d-flex align-items-center"
-                                        onClick={() => handleDateRangeChange(option.value)}
-                                    >
-                                        <div className="d-flex flex-column">
-                                            <span>{option.label}</span>
-                                            {option.dateRange && (
-                                                <small className="text-muted">{option.dateRange}</small>
-                                            )}
-                                        </div>
-                                    </a>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    <button
-                        type="button"
-                        className={`btn btn-icon p-0 ${isReloading ? 'disabled' : ''}`}
-                        onClick={() => fetchData(dateRange, true)}
-                        disabled={isReloading}
-                        style={{ border: '1px solid var(--bs-primary)' }}
-                    >
-                        <i className={`fas fa-sync-alt ${isReloading ? 'fa-spin' : ''}`}></i>
-                    </button>
-
-                    {/* <button
-                        type="button"
-                        className="btn btn-icon btn-sm p-0"
-                        style={{ 
-                            width: '40px', 
-                            height: '40px', 
-                            borderRadius: '50%', 
-                            display: 'flex', 
-                            justifyContent: 'center', 
-                            alignItems: 'center',
-                            overflow: 'hidden',
-                            position: 'relative',
-                            border: '1px solid #e9ecef'
-                        }}
-                        onClick={() => setIsGifPlaying(true)}
-                        title={isGifPlaying ? "Animation playing" : "Click to play animation"}
-                    >
-                        {isGifPlaying ? (
-                            <img 
-                                src={aiAnimationGif} 
-                                alt="AI Animation (Playing)"
-                                style={{ 
-                                    width: '24px', 
-                                    height: '24px',
-                                    objectFit: 'contain'
-                                }}
-                            />
-                        ) : (
-                            <img 
-                                src={aiAnimationStillFrame} 
-                                alt="AI Animation (Click to play)"
-                                style={{ 
-                                    width: '24px', 
-                                    height: '24px',
-                                    objectFit: 'contain',
-                                    opacity: 0.9
-                                }}
-                            />
-                        )}
-                    </button> */}
-                </div>
             </div>
 
-            {showDatePicker && (
-                <div className="card-body">
+            <div className="card-body">
+                {showDatePicker && (
                     <div className="d-flex flex-column gap-2">
                         <label>Select Date Range:</label>
                         <div className="d-flex gap-2">
@@ -729,65 +647,53 @@ const FoodTypeGraph = () => {
                             Apply
                         </button>
                     </div>
-                </div>
-            )}
-            
-            {currentError && (
-                <div className="card-body">
+                )}
+                
+                {currentError && (
                     <div className="alert alert-danger" role="alert">
                         {currentError}
                     </div>
-                </div>
-            )}
-            
-            <div className="card-body">
-                {isLoading ? (
-                    <div className="d-flex justify-content-center align-items-center" style={{ height: '400px' }}>
-                        <div className="spinner-border text-primary" role="status">
-                            <span className="visually-hidden">Loading...</span>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="position-relative">
-                        {isReloading && (
-                            <div 
-                                className="position-absolute w-100 h-100 d-flex justify-content-center align-items-center"
-                                style={{ 
-                                    top: 0, 
-                                    left: 0, 
-                                    background: 'rgba(255, 255, 255, 0.8)',
-                                    zIndex: 1 
-                                }}
-                            >
-                                <div className="spinner-border text-primary" role="status">
-                                    <span className="visually-hidden">Reloading...</span>
-                                </div>
-                            </div>
-                        )}
-                        <div className={isReloading ? 'opacity-50' : ''}>
-                            <button
-                                type="button"
-                                className="btn btn-icon btn-sm btn-outline-primary position-absolute d-none d-md-block"
-                                style={{ 
-                                    top: '-5px', 
-                                    right: '3px',
-                                    zIndex: 1
-                                }}
-                                onClick={() => setShowModal(true)}
-                                title="Expand Graph"
-                            >
-                                <i className="fas fa-expand"></i>
-                            </button>
-                            <Chart
-                                options={chartOptions}
-                                series={chartSeries}
-                                type="bar"
-                                height={400}
-                                width="100%"
-                            />
-                        </div>
-                    </div>
                 )}
+                
+                <div className="position-relative">
+                    {isReloading && (
+                        <div 
+                            className="position-absolute w-100 h-100 d-flex justify-content-center align-items-center"
+                            style={{ 
+                                top: 0, 
+                                left: 0, 
+                                background: 'rgba(255, 255, 255, 0.8)',
+                                zIndex: 1 
+                            }}
+                        >
+                            <div className="spinner-border text-primary" role="status">
+                                <span className="visually-hidden">Reloading...</span>
+                            </div>
+                        </div>
+                    )}
+                    <div className={isReloading ? 'opacity-50' : ''}>
+                        <button
+                            type="button"
+                            className="btn btn-icon btn-sm btn-outline-primary position-absolute d-none d-md-block"
+                            style={{ 
+                                top: '-50px', 
+                                right: '3px',
+                                zIndex: 1
+                            }}
+                            onClick={() => setShowModal(true)}
+                            title="Expand Graph"
+                        >
+                            <i className="fas fa-expand"></i>
+                        </button>
+                        <Chart
+                            options={chartOptions}
+                            series={chartSeries}
+                            type="bar"
+                            height={400}
+                            width="100%"
+                        />
+                    </div>
+                </div>
             </div>
 
             {/* Modal for expanded graph */}

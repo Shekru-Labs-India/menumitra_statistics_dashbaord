@@ -615,92 +615,7 @@ const WeeklyOrderStat = () => {
     <div className="card">
       <div className="card-header d-flex justify-content-between align-items-md-center align-items-start">
         <h5 className="card-title mb-0">Weekly Order Statistics</h5>
-        <div className="d-flex align-items-center gap-2">
-          <div className="dropdown">
-            <button
-              type="button"
-              className="btn btn-outline-primary dropdown-toggle"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              <i className="fas fa-calendar me-2"></i>
-              {dateRange}
-            </button>
-            <ul className="dropdown-menu dropdown-menu-end">
-              {getDateRangeOptions().map((option) => (
-                <li key={option.value}>
-                  <a
-                    href="javascript:void(0);"
-                    className="dropdown-item d-flex align-items-center"
-                    onClick={() => handleDateRangeChange(option.value)}
-                  >
-                    <div className="d-flex flex-column">
-                      <span>{option.label}</span>
-                      {option.dateRange && (
-                        <small className="text-muted">{option.dateRange}</small>
-                      )}
-                    </div>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <button
-            type="button"
-            className={`btn btn-icon p-0 ${isReloading ? "disabled" : ""}`}
-            onClick={handleReload}
-            disabled={isReloading}
-            style={{ border: "1px solid var(--bs-primary)" }}
-          >
-            <i className={`fas fa-sync-alt ${isReloading ? "fa-spin" : ""}`}></i>
-          </button>
-
-        
-        </div>
       </div>
-
-      {showDatePicker && (
-        <div className="card-body">
-          <div className="d-flex flex-column gap-2">
-            <label>Select Date Range:</label>
-            <div className="d-flex gap-2">
-              <DatePicker
-                selected={startDate}
-                onChange={(date) => setStartDate(date)}
-                selectsStart
-                startDate={startDate}
-                endDate={endDate}
-                maxDate={new Date()}
-                placeholderText="DD MMM YYYY"
-                className="form-control"
-                dateFormat="dd MMM yyyy"
-              />
-              <DatePicker
-                selected={endDate}
-                onChange={(date) => setEndDate(date)}
-                selectsEnd
-                startDate={startDate}
-                endDate={endDate}
-                minDate={startDate}
-                maxDate={new Date()}
-                placeholderText="DD MMM YYYY"
-                className="form-control"
-                dateFormat="dd MMM yyyy"
-              />
-            </div>
-            <button className="btn btn-primary mt-2" onClick={handleCustomDateSelect} disabled={!startDate || !endDate}>
-              Apply
-            </button>
-          </div>
-        </div>
-      )}
-
-      {currentError && (
-        <div className="alert alert-danger m-3" role="alert">
-          {currentError}
-        </div>
-      )}
 
       <div className="card-body">
         <div className="d-flex justify-content-between mb-3">
@@ -759,7 +674,7 @@ const WeeklyOrderStat = () => {
                   type="button"
                   className="btn btn-icon btn-sm btn-outline-primary position-absolute d-none d-md-block"
                   style={{ 
-                    top: '-60px', 
+                    top: '-90px', 
                     right: '3px',
                     zIndex: 1
                   }}

@@ -279,64 +279,6 @@ const OrderAnalytics = () => {
       <div className="card">
         <div className="card-header d-flex justify-content-between align-items-md-center align-items-start">
           <h5 className="card-title mb-0">Order Analytics</h5>
-          <div className="d-flex align-items-center gap-2">
-            <div className="dropdown">
-              <button
-                type="button"
-                className="btn btn-outline-primary dropdown-toggle"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                <i className="fas fa-calendar me-2"></i>
-                {dateRange}
-              </button>
-              <ul className="dropdown-menu dropdown-menu-end">
-                {[
-                  "All Time",
-                  "Today",
-                  "Yesterday",
-                  "Last 7 Days",
-                  "Last 30 Days",
-                  "Current Month",
-                  "Last Month",
-                ].map((range) => (
-                  <li key={range}>
-                    <a
-                      href="javascript:void(0);"
-                      className="dropdown-item d-flex align-items-center"
-                      onClick={() => handleDateRangeChange(range)}
-                    >
-                      {range}
-                    </a>
-                  </li>
-                ))}
-                <li>
-                  <hr className="dropdown-divider" />
-                </li>
-                <li>
-                  <a
-                    href="javascript:void(0);"
-                    className="dropdown-item d-flex align-items-center"
-                    onClick={() => handleDateRangeChange("Custom Range")}
-                  >
-                    Custom Range
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <button
-              type="button"
-              className={`btn btn-icon p-0 ${isReloading ? "disabled" : ""}`}
-              onClick={handleReload}
-              disabled={isReloading}
-              style={{ border: "1px solid var(--bs-primary)" }}
-            >
-              <i className={`fas fa-sync-alt ${isReloading ? "fa-spin" : ""}`}></i>
-            </button>
-
-             
-          </div>
         </div>
 
         {showDatePicker && (

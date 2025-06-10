@@ -61,6 +61,9 @@ function HomeScreen() {
   const [redirectTimer, setRedirectTimer] = useState(null);
   const [isReloading, setIsReloading] = useState(false);
 
+  // Add new state for raw data
+  const [rawData, setRawData] = useState(null);
+
   // Check if user just arrived from login/OTP verification
   const isPostLogin = () => {
     // Get the timestamp of when token was saved (if available)
@@ -231,8 +234,7 @@ function HomeScreen() {
     const day = date.getDate().toString().padStart(2, '0');
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const month = months[date.getMonth()];
-    const year = date.getFullYear();
-    return `${day} ${month} ${year}`;
+    return `${day} ${month} ${date.getFullYear()}`;
   }, []);
 
   // Helper function to format currency in Indian format
@@ -333,23 +335,37 @@ function HomeScreen() {
     return requestData;
   }, [formatDate, startDate, endDate]);
 
-  // Memoized function to fetch statistics
-  const fetchStatistics = async (range = 'All Time', isReloadAction = false) => {
+  // Modified fetchStatistics to accept date range
+  const fetchStatistics = async (isReloadAction = false) => {
     try {
-      // Only show loading state for initial load, not for reload
       if (!isReloadAction) {
         setLoading(true);
       }
       setError('');
       setUserInteracted(true);
 
-      const requestData = prepareRequestData(range);
-      const response = await axios.post(`${apiEndpoint}analytics_reports`, requestData, {
+      const requestData = {
+        outlet_id: localStorage.getItem('outlet_id'),
+        device_token: localStorage.getItem('device_token') || '',
+        device_id: localStorage.getItem('device_id') || '',
+        // Add date range to request if available
+        ...(startDate && endDate ? {
+          start_date: formatDate(startDate),
+          end_date: formatDate(endDate)
+        } : {})
+      };
+
+      console.log('Fetching data with request:', requestData);
+
+      const response = await axios.post(`${apiEndpoint}get_all_stats`, requestData, {
         headers: getAuthHeaders(true)
       });
 
       if (response.data?.message === 'success' && response.data?.data) {
         const responseData = response.data.data;
+        setRawData(responseData); // Store raw data
+        
+        // Set statistics directly from response
         setStatistics({
           total_orders: responseData.total_orders || 0,
           average_order_value: responseData.average_order_value || 0,
@@ -365,46 +381,80 @@ function HomeScreen() {
       if (!isReloadAction) {
         setLoading(false);
       }
+      setIsReloading(false);
     }
   };
 
+  // Modified date range change handler
   const handleDateRangeChange = (range) => {
     setDateRange(range);
     if (range === 'Custom Range') {
-      // Don't reset the dates if they're already set
-      // Only show the date picker UI
       setShowDatePicker(true);
     } else {
       setShowDatePicker(false);
-      // Reset custom date values when selecting a non-custom range
-      setStartDate(null);
-      setEndDate(null);
-      // Set user interaction flag to true before API call
-      setUserInteracted(true);
-      console.log('Date range changed to:', range, '- using direct API call');
-      fetchStatistics(range);
+      // Calculate dates based on range
+      let newStartDate = null;
+      let newEndDate = null;
+      const today = new Date();
+
+      switch(range) {
+        case 'Today':
+          newStartDate = today;
+          newEndDate = today;
+          break;
+        case 'Yesterday':
+          newStartDate = new Date(today);
+          newStartDate.setDate(today.getDate() - 1);
+          newEndDate = newStartDate;
+          break;
+        case 'Last 7 Days':
+          newStartDate = new Date(today);
+          newStartDate.setDate(today.getDate() - 6);
+          newEndDate = today;
+          break;
+        case 'Last 30 Days':
+          newStartDate = new Date(today);
+          newStartDate.setDate(today.getDate() - 29);
+          newEndDate = today;
+          break;
+        case 'Current Month':
+          newStartDate = new Date(today.getFullYear(), today.getMonth(), 1);
+          newEndDate = today;
+          break;
+        case 'Last Month':
+          newStartDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+          newEndDate = new Date(today.getFullYear(), today.getMonth(), 0);
+          break;
+        case 'All Time':
+        default:
+          break;
+      }
+
+      setStartDate(newStartDate);
+      setEndDate(newEndDate);
+      
+      // Call refreshDashboard with formatted dates
+      if (newStartDate && newEndDate) {
+        refreshDashboard({
+          start_date: formatDate(newStartDate),
+          end_date: formatDate(newEndDate)
+        });
+      } else {
+        refreshDashboard();
+      }
     }
   };
 
-  const handleReload = () => {
-    setIsReloading(true);
-    if (startDate && endDate) {
-      fetchStatistics('Custom Range', true);
-    } else {
-      fetchStatistics(dateRange, true);
-    }
-  };
-
+  // Modified custom date select handler
   const handleCustomDateSelect = () => {
     if (startDate && endDate) {
       setDateRange(`${formatDate(startDate)} - ${formatDate(endDate)}`);
       setShowDatePicker(false);
-      // Set user interaction flag to true before API call
-      setUserInteracted(true);
-      console.log('Custom date range selected:', `${formatDate(startDate)} - ${formatDate(endDate)}`);
-      fetchStatistics('Custom Range');
-    } else {
-      setError('Please select both start and end dates.');
+      // Call refreshDashboard with formatted dates
+      refreshDashboard({
+        start_date: formatDate(startDate),
+        end_date: formatDate(endDate)
+      });
     }
   };
 
@@ -604,6 +654,86 @@ function HomeScreen() {
         <VerticalSidebar />
         <div className="layout-page d-flex flex-column min-vh-100">
           <Header />
+          
+          {/* Filter Section */}
+          <div className="mb-4 px-4 pt-3">
+            <div className="d-flex justify-content-end align-items-center">
+              <div className="dropdown">
+                <button
+                  type="button"
+                  className="btn btn-outline-primary dropdown-toggle px-3 py-2"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  <i className="fas fa-calendar me-2"></i>
+                  {dateRange}
+                </button>
+                <ul className="dropdown-menu dropdown-menu-end">
+                  {[
+                    "All Time",
+                    "Today",
+                    "Yesterday",
+                    "Last 7 Days",
+                    "Last 30 Days",
+                    "Current Month",
+                    "Last Month",
+                    "Custom Range"
+                  ].map((option) => (
+                    <li key={option}>
+                      <a
+                        href="javascript:void(0);"
+                        className="dropdown-item"
+                        onClick={() => handleDateRangeChange(option)}
+                      >
+                        {option}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {showDatePicker && (
+              <div className="mt-3">
+                <div className="d-flex flex-column gap-2">
+                  <label>Select Date Range:</label>
+                  <div className="d-flex gap-2">
+                    <DatePicker
+                      selected={startDate}
+                      onChange={setStartDate}
+                      selectsStart
+                      startDate={startDate}
+                      endDate={endDate}
+                      maxDate={new Date()}
+                      className="form-control"
+                      dateFormat="dd MMM yyyy"
+                      placeholderText="DD MMM YYYY"
+                    />
+                    <DatePicker
+                      selected={endDate}
+                      onChange={setEndDate}
+                      selectsEnd
+                      startDate={startDate}
+                      endDate={endDate}
+                      minDate={startDate}
+                      maxDate={new Date()}
+                      className="form-control"
+                      dateFormat="dd MMM yyyy"
+                      placeholderText="DD MMM YYYY"
+                    />
+                  </div>
+                  <button
+                    className="btn btn-primary mt-2"
+                    onClick={handleCustomDateSelect}
+                    disabled={!startDate || !endDate}
+                  >
+                    Apply
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="content-wrapper flex-grow-1">
             <div className="container-fluid flex-grow-1 container-p-y">
               {currentError && (
@@ -611,140 +741,8 @@ function HomeScreen() {
                   {currentError}
                 </div>
               )}
-              {/* Welcome and Filter Controls */}
-              <div className="row mb-4 align-items-center">
-                <div className="col-12 col-md-6">
-                  
-                </div>
-                <div className="col-12 col-md-6">
-                  <div className="d-flex justify-content-end align-items-center gap-3">
-                    <div className="dropdown">
-                      <button
-                        type="button"
-                        className="btn btn-outline-primary dropdown-toggle"
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                      >
-                        <i className="fas fa-calendar me-2"></i>
-                        {dateRange}
-                      </button>
-                      <ul className="dropdown-menu dropdown-menu-end">
-                        {[
-                          "All Time",
-                          "Today",
-                          "Yesterday",
-                          "Last 7 Days",
-                          "Last 30 Days",
-                          "Current Month",
-                          "Last Month",
-                        ].map((range) => (
-                          <li key={range}>
-                            <a
-                              href="javascript:void(0);"
-                              className="dropdown-item d-flex align-items-center"
-                              onClick={() => handleDateRangeChange(range)}
-                            >
-                              {range}
-                            </a>
-                          </li>
-                        ))}
-                        <li>
-                          <hr className="dropdown-divider" />
-                        </li>
-                        <li>
-                          <a
-                            href="javascript:void(0);"
-                            className="dropdown-item d-flex align-items-center"
-                            onClick={() => handleDateRangeChange("Custom Range")}
-                          >
-                            Custom Range
-                          </a>
-                        </li>
-                      </ul>
-                    </div>
-                    <button
-                      type="button"
-                      className={`btn btn-icon p-0 ${isLoading ? "disabled" : ""}`}
-                      onClick={handleReload}
-                      disabled={isLoading}
-                      style={{ border: "1px solid var(--bs-primary)" }}
-                    >
-                      <i className={`fas fa-sync-alt ${isLoading ? "fa-spin" : ""}`}></i>
-                    </button>
-                    {/* <button
-                      type="button"
-                      className="btn btn-icon btn-sm p-0"
-                      style={{
-                        width: "40px",
-                        height: "40px",
-                        borderRadius: "50%",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        overflow: "hidden",
-                        position: "relative",
-                        border: "1px solid #e9ecef",
-                      }}
-                      onClick={() => setIsGifPlaying(true)}
-                      title={isGifPlaying ? "Animation playing" : "Click to play animation"}
-                    >
-                      {isGifPlaying ? (
-                        <img
-                          src={aiAnimationGif}
-                          alt="AI Animation (Playing)"
-                          style={{ width: "24px", height: "24px", objectFit: "contain" }}
-                        />
-                      ) : (
-                        <img
-                          src={aiAnimationStillFrame}
-                          alt="AI Animation (Click to play)"
-                          style={{ width: "24px", height: "24px", objectFit: "contain", opacity: 0.9 }}
-                        />
-                      )}
-                    </button> */}
-                  </div>
-                </div>
-                {showDatePicker && (
-                  <div className="col-12 mt-3">
-                    <div className="d-flex flex-column gap-2">
-                      <label>Select Date Range:</label>
-                      <div className="d-flex gap-2 flex-wrap">
-                        <DatePicker
-                          selected={startDate}
-                          onChange={(date) => setStartDate(date)}
-                          selectsStart
-                          startDate={startDate}
-                          endDate={endDate}
-                          maxDate={new Date()}
-                          placeholderText="DD MMM YYYY"
-                          className="form-control"
-                          dateFormat="dd MMM yyyy"
-                        />
-                        <DatePicker
-                          selected={endDate}
-                          onChange={(date) => setEndDate(date)}
-                          selectsEnd
-                          startDate={startDate}
-                          endDate={endDate}
-                          minDate={startDate}
-                          maxDate={new Date()}
-                          placeholderText="DD MMM YYYY"
-                          className="form-control"
-                          dateFormat="dd MMM yyyy"
-                        />
-                      </div>
-                      <button
-                        className="btn btn-primary mt-2"
-                        onClick={handleCustomDateSelect}
-                        disabled={!startDate || !endDate}
-                      >
-                        Apply
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-              {/* Stats Cards Only (no outer card) */}
+              
+              {/* Stats Cards */}
               <div className="row g-4 mb-4">
                 {isLoading ? (
                   <>

@@ -374,67 +374,10 @@ const OrderType = () => {
     <div className="card">
       <div className="card-header d-flex align-items-center justify-content-between">
         <h5 className="card-title mb-0">Order Type Statistics</h5>
-        <div className="d-flex gap-2">
-          <div className="dropdown">
-            <button
-              type="button"
-              className="btn btn-outline-primary dropdown-toggle"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              <i className="fas fa-calendar me-2"></i>
-              {dateRange}
-            </button>
-            <ul className="dropdown-menu dropdown-menu-end">
-              {[
-                "All Time",
-                "Today",
-                "Yesterday",
-                "Last 7 Days",
-                "Last 30 Days",
-                "Current Month",
-                "Last Month",
-              ].map((range) => (
-                <li key={range}>
-                  <a
-                    href="javascript:void(0);"
-                    className="dropdown-item d-flex align-items-center"
-                    onClick={() => handleDateRangeChange(range)}
-                  >
-                    {range}
-                  </a>
-                </li>
-              ))}
-              <li>
-                <hr className="dropdown-divider" />
-              </li>
-              <li>
-                <a
-                  href="javascript:void(0);"
-                  className="dropdown-item d-flex align-items-center"
-                  onClick={() => handleDateRangeChange("Custom Range")}
-                >
-                  Custom Range
-                </a>
-              </li>
-            </ul>
-          </div>
-          <button
-            type="button"
-            className={`btn btn-icon p-0 ${isReloading ? "disabled" : ""}`}
-            onClick={handleReload}
-            disabled={isReloading}
-            style={{ border: "1px solid var(--bs-primary)" }}
-          >
-            <i className={`fas fa-sync-alt ${isReloading ? "fa-spin" : ""}`}></i>
-          </button>
-
-        
-        </div>
       </div>
 
-      {showDatePicker && (
-        <div className="card-body">
+      <div className="card-body">
+        {showDatePicker && (
           <div className="d-flex flex-column gap-2">
             <label>Select Date Range:</label>
             <div className="d-flex gap-2">
@@ -470,18 +413,14 @@ const OrderType = () => {
               Apply
             </button>
           </div>
-        </div>
-      )}
+        )}
 
-      {currentError && (
-        <div className="card-body">
+        {currentError && (
           <div className="alert alert-danger" role="alert">
             {currentError}
           </div>
-        </div>
-      )}
+        )}
 
-      <div className="card-body">
         <div className="row g-3">
           {isLoading ? (
             // Display skeleton loading for 4 order type cards

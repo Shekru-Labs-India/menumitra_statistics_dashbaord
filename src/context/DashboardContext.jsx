@@ -117,25 +117,23 @@ export const DashboardProvider = ({ children }) => {
         return;
       }
 
-      const requestBody = {
-        outlet_id: parseInt(outletId, 10),
-        device_token: deviceToken,
-        role: userRole
-      };
-
-      console.log('Context API request data:', requestBody);
-      
-      const headers = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${accessToken}`
-      };
-      
       // Make the API call
       const response = await axios.post(
-        `https://men4u.xyz/1.3/outlet_statistics/get_all_stats_without_filter`,
-        requestBody,
-        { headers }
+        `https://men4u.xyz/outlet_statistics/get_all_stats`,
+        {
+          outlet_id: parseInt(outletId, 10),
+          device_token: deviceToken,
+          role: userRole,
+          ...(dateFilter.start_date && dateFilter.end_date ? {
+            start_date: dateFilter.start_date,
+            end_date: dateFilter.end_date
+          } : {})
+        },
+        { headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
+        } }
       );
 
       if (response.data.st === 5) {
