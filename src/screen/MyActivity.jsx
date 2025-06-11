@@ -29,7 +29,7 @@ const MyActivity = () => {
 
   // Memoized axios instance
   const api = useMemo(() => axios.create({
-    baseURL: 'https://menusmitra.xyz',
+    baseURL: 'https://men4u.xyz',
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
