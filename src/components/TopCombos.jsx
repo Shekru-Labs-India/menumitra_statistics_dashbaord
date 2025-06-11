@@ -212,9 +212,20 @@ const TopCombos = () => {
                 </tr>
               </thead>
               <tbody>
-                {menuCombos.map((combo, index) => {
-                  console.log('Rendering combo:', combo); // Debug log
-                  return (
+                {[...menuCombos]
+                  .sort((a, b) => {
+                    // Get item names as strings for comparison
+                    const aItems = Array.isArray(a.items) 
+                      ? a.items.map(item => (item.name || item)).join(' + ')
+                      : a.items;
+                    const bItems = Array.isArray(b.items)
+                      ? b.items.map(item => (item.name || item)).join(' + ')
+                      : b.items;
+                    
+                    // Compare alphabetically
+                    return aItems.localeCompare(bItems);
+                  })
+                  .map((combo, index) => (
                     <tr key={index}>
                       <td>{index + 1}</td>
                       <td>
@@ -235,8 +246,7 @@ const TopCombos = () => {
                       </td>
                       <td className="text-end">{combo.order_count || combo.count || 0}</td>
                     </tr>
-                  );
-                })}
+                  ))}
               </tbody>
             </table>
           </div>

@@ -42,6 +42,7 @@ function HomeScreen() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isGifPlaying, setIsGifPlaying] = useState(false);
   const [error, setError] = useState('');
+  const [isRotating, setIsRotating] = useState(false);
   const [statistics, setStatistics] = useState({
     total_orders: 0,
     average_order_value: 0,
@@ -444,6 +445,73 @@ function HomeScreen() {
       }
     }
   };
+  const handleRefresh = async () => {
+    try {
+      setIsRotating(true);
+      setIsReloading(true);
+
+      // If we have a custom date range, use those dates
+      if (startDate && endDate) {
+        await refreshDashboard({
+          start_date: formatDate(startDate),
+          end_date: formatDate(endDate)
+        });
+      } else {
+        // For non-custom ranges, use the current dateRange
+        let newStartDate = null;
+        let newEndDate = null;
+        const today = new Date();
+
+        switch(dateRange) {
+          case 'Today':
+            newStartDate = today;
+            newEndDate = today;
+            break;
+          case 'Yesterday':
+            newStartDate = new Date(today);
+            newStartDate.setDate(today.getDate() - 1);
+            newEndDate = newStartDate;
+            break;
+          case 'Last 7 Days':
+            newStartDate = new Date(today);
+            newStartDate.setDate(today.getDate() - 6);
+            newEndDate = today;
+            break;
+          case 'Last 30 Days':
+            newStartDate = new Date(today);
+            newStartDate.setDate(today.getDate() - 29);
+            newEndDate = today;
+            break;
+          case 'Current Month':
+            newStartDate = new Date(today.getFullYear(), today.getMonth(), 1);
+            newEndDate = today;
+            break;
+          case 'Last Month':
+            newStartDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+            newEndDate = new Date(today.getFullYear(), today.getMonth(), 0);
+            break;
+          default:
+            // For 'All Time' or any other case
+            await refreshDashboard();
+            break;
+        }
+
+        if (newStartDate && newEndDate) {
+          await refreshDashboard({
+            start_date: formatDate(newStartDate),
+            end_date: formatDate(newEndDate)
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Error refreshing stats:', err);
+    } finally {
+      setTimeout(() => {
+        setIsRotating(false);
+        setIsReloading(false);
+      }, 1000);
+    }
+  };
 
   // Modified custom date select handler
   const handleCustomDateSelect = () => {
@@ -678,6 +746,22 @@ function HomeScreen() {
           {/* Filter Section */}
           <div className="mb-4 px-4 pt-3">
             <div className="d-flex justify-content-end align-items-center">
+              <button
+                className="btn btn-icon btn-outline-primary me-2"
+                onClick={handleRefresh}
+                style={{ 
+                  padding: "0.5rem",
+                  borderRadius: "8px",
+                  border: "1px solid var(--bs-primary)",
+                  width: "42px",
+                  height: "42px"
+                }}
+              >
+                <i
+                  className={`fas fa-sync-alt ${isReloading ? "rotate-animation" : ""}`}
+                  style={{ color: "#6c757d" }}
+                ></i>
+              </button>
               <div className="dropdown">
                 <button
                   type="button"

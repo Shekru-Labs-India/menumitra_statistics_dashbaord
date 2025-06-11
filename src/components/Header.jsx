@@ -847,27 +847,6 @@ function Header() {
 
             {/* Right aligned items */}
             <ul className="navbar-nav flex-row align-items-center ms-auto">
-              {/* Updated Time - Visible only on desktop */}
-              <li className="nav-item me-3 mb-4 d-none d-md-block">
-                <div className="d-flex flex-column align-items-start">
-                  <button
-                    className="btn btn-icon btn-sm btn-outline-primary mb-0"
-                    onClick={handleRefresh}
-                    style={{ padding: "2px", borderRadius: "20%", border: "1px solid var(--bs-primary)" }}
-                  >
-                    <i
-                      className={`fas fa-sync-alt ${
-                        isRotating ? "rotate-animation" : ""
-                      }`}
-                      style={{ color: "#6c757d" }}
-                    ></i>
-                  </button>
-                  <small className="text-muted">
-                    Last updated {timeElapsed}
-                  </small>
-                </div>
-              </li>
-
               {/* User Profile */}
               <li className="nav-item navbar-dropdown dropdown-user dropdown">
                 <a
@@ -935,25 +914,6 @@ function Header() {
       {/* Last Updated bar - Visible only on mobile */}
       <div className="last-updated-bar d-md-none">
         <div className="d-flex align-items-center" style={{ padding: "0.50rem 0.5rem" }}>
-          <button
-            onClick={handleRefresh}
-            className="btn btn-icon btn-sm btn-outline-primary me-2"
-            style={{ 
-              padding: "0.37rem",
-              borderRadius: "25%",
-              border: "1px solid var(--bs-primary)",
-              width: "22px",
-              height: "22px"
-            }}
-          >
-            <i 
-              className={`fas fa-sync-alt ${isRotating ? "rotate-animation" : ""}`} 
-              style={{ color: "#6c757d" }}
-            ></i>
-          </button>
-          <small className="text-muted" style={{ fontSize: "0.75rem" }}>
-            Last updated {timeElapsed}
-          </small>
         </div>
       </div>
 
@@ -1001,14 +961,14 @@ function Header() {
 
               {/* Outlet List */}
               <div className="outlet-list">
-                <div className="outlet-item">
+                {/* <div className="outlet-item">
                   <div className="outlet-info">
                     <div className="outlet-name-container d-flex align-items-center mb-1">
                       <i className="fas fa-store me-2"></i>
                       <span>All Outlets</span>
                     </div>
                   </div>
-                </div>
+                </div> */}
 
                 {/* Outlet List */}
                 {isLoading ? (

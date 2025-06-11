@@ -244,7 +244,10 @@ const getDateRange = (range) => {
     { method: 'Complimentary', value: paymentData.complemenatry_amount || 0, count: paymentData.complemenatry_orders || 0 },
   ];
 
-  const total = data.reduce((sum, item) => sum + item.value, 0);
+  // Calculate total excluding complimentary amounts
+  const total = data
+    .filter(item => item.method !== 'Complimentary')
+    .reduce((sum, item) => sum + item.value, 0);
 
   // Determine current loading state
   const isLoading = userInteracted ? loading : contextLoading;
