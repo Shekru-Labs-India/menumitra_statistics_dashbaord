@@ -230,7 +230,7 @@ const TopCombos = () => {
                       return countB - countA; // Sort by count descending
                     }
                     
-                    // If counts are equal, sort alphabetically
+                    // If counts are equal, sort alphabetically combos
                     const aItems = Array.isArray(a.items) 
                       ? a.items.map(item => capitalizeWords(item.name || item)).join(' + ')
                       : capitalizeWords(a.items);
