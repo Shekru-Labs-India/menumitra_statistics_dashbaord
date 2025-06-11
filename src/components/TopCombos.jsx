@@ -71,6 +71,14 @@ const TopCombos = () => {
     return `${day} ${month} ${date.getFullYear()}`;
   };
 
+  // Add capitalize function
+  const capitalizeWords = (str) => {
+    return str
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  };
+
   // Fetch menu combos data with filters
   const fetchMenuCombos = async (isReloadAction = false) => {
     try {
@@ -216,11 +224,11 @@ const TopCombos = () => {
                   .sort((a, b) => {
                     // Get item names as strings for comparison
                     const aItems = Array.isArray(a.items) 
-                      ? a.items.map(item => (item.name || item)).join(' + ')
-                      : a.items;
+                      ? a.items.map(item => capitalizeWords(item.name || item)).join(' + ')
+                      : capitalizeWords(a.items);
                     const bItems = Array.isArray(b.items)
-                      ? b.items.map(item => (item.name || item)).join(' + ')
-                      : b.items;
+                      ? b.items.map(item => capitalizeWords(item.name || item)).join(' + ')
+                      : capitalizeWords(b.items);
                     
                     // Compare alphabetically
                     return aItems.localeCompare(bItems);
@@ -232,7 +240,7 @@ const TopCombos = () => {
                         {Array.isArray(combo.items) ? combo.items.map((item, itemIndex) => (
                           <React.Fragment key={item.menu_id || itemIndex}>
                             <span className="badge bg-gray-500 text-dark me-1">
-                              {item.name || item}
+                              {capitalizeWords(item.name || item)}
                             </span>
                             {itemIndex < combo.items.length - 1 && (
                               <i className="fas fa-plus mx-1 text-muted"></i>
@@ -240,7 +248,7 @@ const TopCombos = () => {
                           </React.Fragment>
                         )) : (
                           <span className="badge bg-secondary text-dark me-1">
-                            {combo.items}
+                            {capitalizeWords(combo.items)}
                           </span>
                         )}
                       </td>
