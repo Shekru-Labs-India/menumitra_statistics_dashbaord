@@ -73,7 +73,7 @@ const MyProfile = () => {
           return;
         }
 
-        const response = await axios.post('https://men4u.xyz/common_api/view_profile_detail', 
+        const response = await axios.post('https://menusmitra.xyz/1.3/common_api/view_profile_detail', 
           { 
             user_id: user_id,
             outlet_id: localStorage.getItem('outlet_id'),
@@ -168,7 +168,7 @@ const MyProfile = () => {
 
       const response = await axios({
         method: 'post',
-        url: 'https://men4u.xyz/1.3/common_api/update_profile_detail',
+        url: 'https://menusmitra.xyz/1.3/common_api/update_profile_detail',
         headers: getAuthHeaders(),
         data: payload
       });

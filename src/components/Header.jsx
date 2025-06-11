@@ -97,7 +97,7 @@ function Header() {
         return;
       }
 
-      const response = await fetch(`https://men4u.xyz/1.3/common_api/get_outlet_list_admin`, {
+      const response = await fetch(`https://menusmitra.xyz/1.3/common_api/get_outlet_list_admin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -331,17 +331,51 @@ function Header() {
   }, [startTime]);
 
   // Add refresh function with rotation
-  const handleRefresh = () => {
-    setIsRotating(true);
-    setStartTime(new Date());
-    // Dispatch a custom event for filter reset
-    const resetEvent = new CustomEvent('resetFiltersToAllTime');
-    window.dispatchEvent(resetEvent);
-    // Call refresh dashboard after dispatching event
-    refreshDashboard();
-    setTimeout(() => {
-      setIsRotating(false);
-    }, 1000); // Stop rotation after 1s
+  const handleRefresh = async () => {
+    try {
+      setIsRotating(true);
+      setStartTime(new Date());
+
+      const outletId = localStorage.getItem('outlet_id');
+      const deviceToken = localStorage.getItem('device_token');
+      const accessToken = localStorage.getItem('access');
+      const userRole = localStorage.getItem('role');
+
+      if (!outletId || !deviceToken || !accessToken) {
+        return;
+      }
+
+      const response = await fetch(`https://menusmitra.xyz/1.3/outlet_statistics/get_all_stats`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
+        },
+        body: JSON.stringify({
+          outlet_id: parseInt(outletId),
+          device_token: deviceToken,
+          role: userRole
+        })
+      });
+
+      const data = await response.json();
+      
+      if (data.message === 'success') {
+        // Dispatch a custom event with the new data
+        const updateEvent = new CustomEvent('statsDataUpdated', { 
+          detail: data.data 
+        });
+        window.dispatchEvent(updateEvent);
+      }
+    } catch (err) {
+      console.error('Error refreshing stats:', err);
+      showToast('Failed to refresh data', 'error');
+    } finally {
+      setTimeout(() => {
+        setIsRotating(false);
+      }, 1000);
+    }
   };
 
   const handleClearSearch = () => {
@@ -427,7 +461,7 @@ function Header() {
         return;
       }
 
-      const response = await fetch(`https://men4u.xyz/outlet_statistics/get_all_stats`, {
+      const response = await fetch(`https://menusmitra.xyz/1.3/outlet_statistics/get_all_stats`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -735,86 +769,6 @@ function Header() {
         theme="colored"
       />
 
-      <style>
-        {`
-          @keyframes rotate {
-            from {
-              transform: rotate(0deg);
-            }
-            to {
-              transform: rotate(360deg);
-            }
-          }
-          .rotate-animation {
-            animation: rotate 1s linear;
-          }
-
-          .last-updated-bar {
-            padding: 4px 1.5rem;
-            font-size: 0.75rem;
-            color: #666;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 8px;
-          }
-
-          .last-updated-bar button {
-            padding: 2px 4px;
-            background: transparent;
-            border: 1px solid var(--bs-primary);
-            border-radius: 20%;
-            color: #666;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 24px;
-            height: 24px;
-          }
-
-          .last-updated-bar button i {
-            display: inline-block;
-          }
-
-          .last-updated-bar button i.rotate-animation {
-            animation: rotate 1s linear;
-          }
-
-          .last-updated-bar button:hover {
-            color: var(--bs-primary);
-          }
-
-          @media (max-width: 768px) {
-            .last-updated-bar {
-              padding: 2px 1rem;
-              font-size: 0.7rem;
-            }
-          }
-
-          .testing-environment-banner {
-            background-color:rgb(255, 255, 255);
-            color: black;
-            text-align: center;
-            padding: 4px 0;
-            font-size: 16px;
-            font-weight: 600;
-            width: 100%;
-            font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-          }
-
-          /* Remove the fixed positioning adjustment since banner is now part of the header flow */
-          .layout-navbar {
-            margin-top: 0 !important;
-          }
-        `}
-      </style>
-
-      {/* Testing Environment Banner */}
-      <div className="testing-environment-banner">
-        Testing Environment
-      </div>
-
       {/* Add overlay div */}
       <div className="layout-overlay"></div>
 
@@ -827,10 +781,9 @@ function Header() {
           boxShadow: "0 2px 6px rgba(0, 0, 0, 0.08)",
           position: "relative",
           zIndex: 10,
-          paddingTop: "0.5rem",
-          paddingBottom: "0.5rem",
-          marginBottom:
-            selectedOutletData?.outlet_status === false ? "0" : "0",
+          paddingTop: "1.25rem",
+          paddingBottom: "0.75rem",
+          marginBottom: selectedOutletData?.outlet_status === false ? "0" : "0"
         }}
       >
         <div
@@ -981,15 +934,27 @@ function Header() {
 
       {/* Last Updated bar - Visible only on mobile */}
       <div className="last-updated-bar d-md-none">
-        <button
-          onClick={handleRefresh}
-        >
-          <i 
-            className={`fas fa-sync-alt ${isRotating ? "rotate-animation" : ""}`} 
-            style={{ color: "#6c757d" }}
-          ></i>
-        </button>
-        <span>Last updated {timeElapsed}</span>
+        <div className="d-flex align-items-center" style={{ padding: "0.50rem 0.5rem" }}>
+          <button
+            onClick={handleRefresh}
+            className="btn btn-icon btn-sm btn-outline-primary me-2"
+            style={{ 
+              padding: "0.37rem",
+              borderRadius: "25%",
+              border: "1px solid var(--bs-primary)",
+              width: "22px",
+              height: "22px"
+            }}
+          >
+            <i 
+              className={`fas fa-sync-alt ${isRotating ? "rotate-animation" : ""}`} 
+              style={{ color: "#6c757d" }}
+            ></i>
+          </button>
+          <small className="text-muted" style={{ fontSize: "0.75rem" }}>
+            Last updated {timeElapsed}
+          </small>
+        </div>
       </div>
 
       {/* Outlet Selection Modal */}

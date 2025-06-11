@@ -219,7 +219,7 @@ const OrderType = () => {
       }
 
       const response = await axios.post(
-        'https://men4u.xyz/1.3/outlet_statistics/order_type_statistics',
+        'https://menusmitra.xyz/1.3/outlet_statistics/order_type_statistics',
         requestData,
         {
           headers: getAuthHeaders()

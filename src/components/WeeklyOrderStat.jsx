@@ -130,7 +130,7 @@ const WeeklyOrderStat = () => {
       };
       
       const response = await axios.post(
-        'https://men4u.xyz/outlet_statistics/weekly_order_stats',
+        'https://menusmitra.xyz/1.3/outlet_statistics/weekly_order_stats',
         requestData,
         { 
           headers: {

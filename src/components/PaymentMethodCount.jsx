@@ -40,7 +40,7 @@ const PaymentMethodCount = () => {
       
       // Make API request
       const response = await axios.post(
-        'https://men4u.xyz/1.3/outlet_statistics/payment_method_counts',
+        'https://menusmitra.xyz/1.3/outlet_statistics/payment_method_counts',
         requestData,
         {
           headers: {

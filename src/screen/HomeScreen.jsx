@@ -648,6 +648,26 @@ function HomeScreen() {
     return () => window.removeEventListener('resetFiltersToAllTime', handleHeaderReload);
   }, []);
 
+  // Add event listener for stats updates
+  useEffect(() => {
+    const handleStatsUpdate = (event) => {
+      const responseData = event.detail;
+      setRawData(responseData);
+      
+      // Update statistics with new data
+      setStatistics({
+        total_orders: responseData.analytic_reports?.total_orders || 0,
+        average_order_value: responseData.analytic_reports?.avg_order_value || 0,
+        customer_count: 0,
+        total_revenue: responseData.analytic_reports?.total_revenue || 0,
+        average_turnover_time: responseData.analytic_reports?.average_turnover_time || "0 min"
+      });
+    };
+
+    window.addEventListener('statsDataUpdated', handleStatsUpdate);
+    return () => window.removeEventListener('statsDataUpdated', handleStatsUpdate);
+  }, []);
+
   return (
     <div className="layout-wrapper layout-content-navbar">
       <div className="layout-container">
@@ -664,6 +684,11 @@ function HomeScreen() {
                   className="btn btn-outline-primary dropdown-toggle px-3 py-2"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
+                  style={{
+                    fontSize: "1rem",
+                    minWidth: "150px",
+                    height: "42px"
+                  }}
                 >
                   <i className="fas fa-calendar me-2"></i>
                   {dateRange}
