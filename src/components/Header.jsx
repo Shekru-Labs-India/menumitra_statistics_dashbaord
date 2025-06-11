@@ -509,6 +509,20 @@ function Header() {
   return (
     <div>
       <style>{modalStyles}</style>
+      
+      {/* Testing Environment Banner */}
+      <div 
+        style={{
+          backgroundColor: '#9155FD',
+          color: 'white',
+          textAlign: 'center',
+          padding: '0.2rem',
+          width: '100%',
+          fontWeight: 500
+        }}
+      >
+        Testing environment
+      </div>
      
       {/* Add custom CSS for React-Toastify to match Materio */}
       <style>

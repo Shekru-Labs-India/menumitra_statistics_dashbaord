@@ -222,7 +222,15 @@ const TopCombos = () => {
               <tbody>
                 {[...menuCombos]
                   .sort((a, b) => {
-                    // Get item names as strings for comparison
+                    // First sort by count in descending order
+                    const countA = a.order_count || a.count || 0;
+                    const countB = b.order_count || b.count || 0;
+                    
+                    if (countB !== countA) {
+                      return countB - countA; // Sort by count descending
+                    }
+                    
+                    // If counts are equal, sort alphabetically
                     const aItems = Array.isArray(a.items) 
                       ? a.items.map(item => capitalizeWords(item.name || item)).join(' + ')
                       : capitalizeWords(a.items);
@@ -230,7 +238,6 @@ const TopCombos = () => {
                       ? b.items.map(item => capitalizeWords(item.name || item)).join(' + ')
                       : capitalizeWords(b.items);
                     
-                    // Compare alphabetically
                     return aItems.localeCompare(bItems);
                   })
                   .map((combo, index) => (
