@@ -1050,7 +1050,21 @@ function Header() {
 
       {/* Show banner only when selected outlet status is false */}
       {selectedOutletData?.outlet_status === false && (
-        <div className="inactive-outlet-banner">
+        <div 
+          style={{
+            backgroundColor: '#ea5455',
+            color: 'white',
+            textAlign: 'center',
+            padding: '0.2rem',
+            width: '100%',
+            fontWeight: 500,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.5rem'
+          }}
+        >
+          <i className="fas fa-exclamation-circle"></i>
           This outlet is inactive. Please contact support.
         </div>
       )}
