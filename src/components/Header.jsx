@@ -97,7 +97,7 @@ function Header() {
         return;
       }
 
-      const response = await fetch(`https://men4u.xyz/1.3/common_api/get_outlet_list_admin`, {
+      const response = await fetch(`https://menusmitra.xyz/1.3/common_api/get_outlet_list_admin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -345,7 +345,7 @@ function Header() {
         return;
       }
 
-      const response = await fetch(`https://men4u.xyz/1.3/outlet_statistics/get_all_stats`, {
+      const response = await fetch(`https://menusmitra.xyz/1.3/outlet_statistics/get_all_stats`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -461,7 +461,7 @@ function Header() {
         return;
       }
 
-      const response = await fetch(`https://men4u.xyz/1.3/outlet_statistics/get_all_stats`, {
+      const response = await fetch(`https://menusmitra.xyz/1.3/outlet_statistics/get_all_stats`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -510,20 +510,6 @@ function Header() {
     <div>
       <style>{modalStyles}</style>
       
-      {/* Testing Environment Banner */}
-      <div 
-        style={{
-          backgroundColor: '#9155FD',
-          color: 'white',
-          textAlign: 'center',
-          padding: '0.2rem',
-          width: '100%',
-          fontWeight: 500
-        }}
-      >
-        Testing environment
-      </div>
-     
       {/* Add custom CSS for React-Toastify to match Materio */}
       <style>
         {`

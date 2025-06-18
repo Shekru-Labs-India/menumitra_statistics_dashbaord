@@ -152,7 +152,7 @@ const PaymentMethodsChart = () => {
         
         // Make API request
         const response = await axios.post(
-            'https://men4u.xyz/1.3/outlet_statistics/total_collection_source',
+            'https://menusmitra.xyz/1.3/outlet_statistics/total_collection_source',
             requestData,
             {
                 headers: {

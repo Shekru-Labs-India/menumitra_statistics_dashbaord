@@ -389,6 +389,8 @@ function HomeScreen() {
   // Modified date range change handler
   const handleDateRangeChange = (range) => {
     setDateRange(range);
+    setUserInteracted(true); // Mark that user has interacted with filters
+    
     if (range === 'Custom Range') {
       setShowDatePicker(true);
     } else {
@@ -428,13 +430,15 @@ function HomeScreen() {
           break;
         case 'All Time':
         default:
+          newStartDate = null;
+          newEndDate = null;
           break;
       }
 
       setStartDate(newStartDate);
       setEndDate(newEndDate);
       
-      // Call refreshDashboard with formatted dates
+      // Immediately trigger data refresh
       if (newStartDate && newEndDate) {
         refreshDashboard({
           start_date: formatDate(newStartDate),
@@ -518,13 +522,25 @@ function HomeScreen() {
     if (startDate && endDate) {
       setDateRange(`${formatDate(startDate)} - ${formatDate(endDate)}`);
       setShowDatePicker(false);
-      // Call refreshDashboard with formatted dates
+      setUserInteracted(true); // Mark that user has interacted with filters
+      
+      // Immediately trigger data refresh
       refreshDashboard({
         start_date: formatDate(startDate),
         end_date: formatDate(endDate)
       });
     }
   };
+
+  // Add useEffect to handle data updates when date range changes
+  useEffect(() => {
+    if (userInteracted && startDate && endDate) {
+      refreshDashboard({
+        start_date: formatDate(startDate),
+        end_date: formatDate(endDate)
+      });
+    }
+  }, [startDate, endDate, userInteracted]);
 
   // Skeleton card component
   const StatCardSkeleton = ({ color }) => {

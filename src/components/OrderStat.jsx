@@ -185,7 +185,7 @@ const OrderStat = () => {
             
             // Make API request
             const response = await axios.post(
-                'https://men4u.xyz/1.3/outlet_statistics/order_statistics',
+                'https://menusmitra.xyz/1.3/outlet_statistics/order_statistics',
                 requestData,
                 {
                     headers: {
