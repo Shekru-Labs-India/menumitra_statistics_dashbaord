@@ -37,6 +37,25 @@ function Header() {
   // Add new state for outlet name from API
   const [outletNameFromApi, setOutletNameFromApi] = useState('');
 
+  // Add formatRole function
+  const formatRole = (role) => {
+    if (!role) return '';
+    // Split by underscore and capitalize each word
+    const formattedRole = role.split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+    
+    // Add icons based on role
+    const roleLower = role.toLowerCase();
+    if (roleLower === 'super_owner') {
+      return <><i className="fa-solid fa-star me-1"></i>{formattedRole}</>;
+    } else if (roleLower === 'owner') {
+      return <><i className="fa-solid fa-user me-1"></i>{formattedRole}</>;
+    }
+    
+    return formattedRole;
+  };
+
   // Function to show toast notifications
   const showToast = (message, type = 'error') => {
     const options = {
@@ -871,7 +890,7 @@ function Header() {
                   <div className="flex-grow-1 me-3 text-end">
                     <h6 className="mb-0 small fw-bold">{userName}</h6>
                     <small className="text-muted">
-                      {storedRole.toUpperCase()}
+                      {formatRole(storedRole)}
                     </small>
                   </div>
                   <div className="avatar ms-2">
@@ -890,7 +909,7 @@ function Header() {
                         <div className="flex-grow-1">
                           <h6 className="mb-0 small">{userName}</h6>
                           <small className="text-muted">
-                            {storedRole.toUpperCase()}
+                            {formatRole(storedRole)}
                           </small>
                         </div>
                       </div>
