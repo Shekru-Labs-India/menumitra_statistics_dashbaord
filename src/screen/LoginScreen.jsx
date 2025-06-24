@@ -85,7 +85,7 @@ function LoginScreen() {
           const { role } = response.data;
           
           // Allow both admin and owner roles
-          if (role === 'admin' || role === 'owner' || role ==='captain'  || role ==='manager') {
+          if (role === 'admin' || role === 'owner' || role === 'super_owner' || role ==='captain'  || role ==='manager') {
             setShowOtpForm(true);
             setCountdown(15);
             setResendDisabled(true);

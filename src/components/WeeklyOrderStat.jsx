@@ -31,7 +31,6 @@ const WeeklyOrderStat = () => {
   const [minOrders, setMinOrders] = useState(0);
   const [error, setError] = useState('');
   const [userInteracted, setUserInteracted] = useState(false); // Flag to track user interaction
-  const [showModal, setShowModal] = useState(false); // New state for modal
 
   // Helper function to get auth headers
   const getAuthHeaders = useMemo(() => (includeAuth = true) => {
@@ -670,19 +669,6 @@ const WeeklyOrderStat = () => {
                 </div>
               )}
               <div className={isReloading ? 'opacity-50' : ''}>
-                <button
-                  type="button"
-                  className="btn btn-icon btn-sm btn-outline-primary position-absolute d-none d-md-block"
-                  style={{ 
-                    top: '-90px', 
-                    right: '3px',
-                    zIndex: 1
-                  }}
-                  onClick={() => setShowModal(true)}
-                  title="Expand Graph"
-                >
-                  <i className="fas fa-expand"></i>
-                </button>
                 <ReactApexChart 
                   options={chartOptions} 
                   series={chartSeries} 
@@ -694,57 +680,6 @@ const WeeklyOrderStat = () => {
           )}
         </div>
       </div>
-
-      {/* Modal for expanded graph */}
-      {showModal && (
-        <div 
-          className="modal fade show" 
-          tabIndex="-1" 
-          role="dialog"
-          style={{ 
-            display: 'block',
-            backgroundColor: 'rgba(0,0,0,0.5)'
-          }}
-        >
-          <div className="modal-dialog modal-xl modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Weekly Order Statistics</h5>
-                <button 
-                  type="button" 
-                  className="btn-close" 
-                  onClick={() => setShowModal(false)}
-                  aria-label="Close"
-                ></button>
-              </div>
-              <div className="modal-body">
-                <ReactApexChart
-                  options={{
-                    ...chartOptions,
-                    chart: {
-                      ...chartOptions.chart,
-                      toolbar: {
-                        show: true,
-                        tools: {
-                          download: true,
-                          selection: true,
-                          zoom: true,
-                          zoomin: true,
-                          zoomout: true,
-                          pan: true,
-                        }
-                      }
-                    }
-                  }}
-                  series={chartSeries}
-                  type="bar"
-                  height={600}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
