@@ -599,7 +599,7 @@ function HomeScreen() {
   };
 
   // Stats card component
-  const StatCard = ({ title, value, icon, color, isPrice }) => {
+  const StatCard = ({ title, value, icon, color, isPrice, isTime }) => {
     // Define background colors for each type
     const bgColorMap = {
       primary: 'rgba(115, 103, 240, 0.12)',  // Purple background
@@ -624,7 +624,7 @@ function HomeScreen() {
               <p className="card-text mb-2" style={{ color: '#545151', fontWeight: '500' }}>{title}</p>
               <div className="d-flex align-items-center mb-1">
                 <h4 className="mb-0 me-2">
-                  {isPrice ? value : formatNumber(value)}
+                  {isPrice ? value : isTime ? value : formatNumber(value)}
                 </h4>
               </div>
             </div>
@@ -916,9 +916,10 @@ function HomeScreen() {
                     />
                     <StatCard
                       title="Table Turnover"
-                      value={statistics.average_turnover_time}
+                      value={statistics.average_turnover_time || "0 min 0 sec"}
                       icon="fas fa-chair"
                       color="danger"
+                      isTime={true}
                     />
                   </>
                 )}

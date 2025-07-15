@@ -281,29 +281,29 @@ const OrderStat = () => {
       
       if (orderStats.success_orders > 0) {
         metrics.push({
-          title: "Success Order",
-          value: orderStats.success_orders.toString(),
+        title: "Success Order",
+        value: orderStats.success_orders.toString(),
         });
       }
       
       if (orderStats.cancelled_orders > 0) {
         metrics.push({
-          title: "Cancelled Order",
-          value: orderStats.cancelled_orders.toString(),
+        title: "Cancelled Order",
+        value: orderStats.cancelled_orders.toString(),
         });
       }
       
       if (orderStats.complementary_orders > 0) {
         metrics.push({
-          title: "Complimentary Order",
-          value: orderStats.complementary_orders.toString(),
+        title: "Complimentary Order",
+        value: orderStats.complementary_orders.toString(),
         });
       }
       
       if (orderStats.KOT_orders > 0) {
         metrics.push({
-          title: "Kitchen Order token (KOT)",
-          value: orderStats.KOT_orders.toString(),
+        title: "Kitchen Order token (KOT)",
+        value: orderStats.KOT_orders.toString(),
         });
       }
       
