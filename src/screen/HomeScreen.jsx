@@ -254,8 +254,8 @@ function HomeScreen() {
     return `₹${formatted},${lastThree}.${decimalPart}`;
   };
 
-  // Helper function to format numbers with commas in Indian format
-  const formatIndianNumber = (number) => {
+  // Helper function to format numbers with commas
+  const formatNumber = (number) => {
     const num = parseInt(number);
     if (isNaN(num) || num === 0) return '0';
     
@@ -388,7 +388,7 @@ function HomeScreen() {
           average_order_value: responseData.average_order_value || 0,
           customer_count: 0,
           total_revenue: responseData.total_revenue || 0,
-          average_turnover_time: responseData.average_turnover_time || "0 min"
+          average_turnover_time: responseData.average_turnover_time || "0 min 0 sec"
         });
       }
     } catch (error) {
@@ -405,6 +405,8 @@ function HomeScreen() {
   // Modified date range change handler
   const handleDateRangeChange = (range) => {
     setDateRange(range);
+    setUserInteracted(true); // Mark that user has interacted with filters
+    
     if (range === 'Custom Range') {
       setShowDatePicker(true);
     } else {
@@ -444,13 +446,15 @@ function HomeScreen() {
           break;
         case 'All Time':
         default:
+          newStartDate = null;
+          newEndDate = null;
           break;
       }
 
       setStartDate(newStartDate);
       setEndDate(newEndDate);
       
-      // Call refreshDashboard with formatted dates
+      // Immediately trigger data refresh
       if (newStartDate && newEndDate) {
         refreshDashboard({
           start_date: formatDate(newStartDate),
@@ -534,13 +538,25 @@ function HomeScreen() {
     if (startDate && endDate) {
       setDateRange(`${formatDate(startDate)} - ${formatDate(endDate)}`);
       setShowDatePicker(false);
-      // Call refreshDashboard with formatted dates
+      setUserInteracted(true); // Mark that user has interacted with filters
+      
+      // Immediately trigger data refresh
       refreshDashboard({
         start_date: formatDate(startDate),
         end_date: formatDate(endDate)
       });
     }
   };
+
+  // Add useEffect to handle data updates when date range changes
+  useEffect(() => {
+    if (userInteracted && startDate && endDate) {
+      refreshDashboard({
+        start_date: formatDate(startDate),
+        end_date: formatDate(endDate)
+      });
+    }
+  }, [startDate, endDate, userInteracted]);
 
   // Skeleton card component
   const StatCardSkeleton = ({ color }) => {
@@ -583,7 +599,7 @@ function HomeScreen() {
   };
 
   // Stats card component
-  const StatCard = ({ title, value, icon, color, isPrice }) => {
+  const StatCard = ({ title, value, icon, color, isPrice, isTime }) => {
     // Define background colors for each type
     const bgColorMap = {
       primary: 'rgba(115, 103, 240, 0.12)',  // Purple background
@@ -608,7 +624,7 @@ function HomeScreen() {
               <p className="card-text mb-2" style={{ color: '#545151', fontWeight: '500' }}>{title}</p>
               <div className="d-flex align-items-center mb-1">
                 <h4 className="mb-0 me-2">
-                  {isPrice ? value : formatIndianNumber(value)}
+                  {isPrice ? value : isTime ? value : formatNumber(value)}
                 </h4>
               </div>
             </div>
@@ -903,6 +919,7 @@ function HomeScreen() {
                       value={statistics.average_turnover_time}
                       icon="fas fa-chair"
                       color="danger"
+                      isTime={true}
                     />
                   </>
                 )}
