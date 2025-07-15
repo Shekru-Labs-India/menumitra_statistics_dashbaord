@@ -254,6 +254,22 @@ function HomeScreen() {
     return `₹${formatted},${lastThree}.${decimalPart}`;
   };
 
+  // Helper function to format numbers with commas
+  const formatNumber = (number) => {
+    const num = parseInt(number);
+    if (isNaN(num) || num === 0) return '0';
+    
+    const numStr = num.toString();
+    if (numStr.length <= 3) {
+      return numStr;
+    }
+    
+    const lastThree = numStr.substring(numStr.length - 3);
+    const otherNumbers = numStr.substring(0, numStr.length - 3);
+    const formatted = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ',');
+    return `${formatted},${lastThree}`;
+  };
+
   // Memoized function to prepare request data based on date range
   const prepareRequestData = useMemo(() => (range) => {
     const today = new Date();
@@ -608,7 +624,7 @@ function HomeScreen() {
               <p className="card-text mb-2" style={{ color: '#545151', fontWeight: '500' }}>{title}</p>
               <div className="d-flex align-items-center mb-1">
                 <h4 className="mb-0 me-2">
-                  {isPrice ? '' : ''}{value}
+                  {isPrice ? value : formatNumber(value)}
                 </h4>
               </div>
             </div>

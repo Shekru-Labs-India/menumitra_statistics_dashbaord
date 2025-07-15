@@ -276,28 +276,39 @@ const OrderStat = () => {
     const currentError = userInteracted ? error : contextError;
 
     // Generate metrics based on API response data
-    const getMetrics = () => [
-      {
-        title: "Success Order",
-        value: orderStats.success_orders.toString(),
-        // subtitle: "Success Order",
-      },
-      {
-        title: "Cancelled Order",
-        value: orderStats.cancelled_orders.toString(),
-        // subtitle: "Cancelled Order",
-      },
-      {
-        title: "Complimentary Order",
-        value: orderStats.complementary_orders.toString(),
-        // subtitle: "Complimentary Order",
-      },
-      {
-        title: "Kitchen Order token (KOT)",
-        value: orderStats.KOT_orders.toString(),
-        // subtitle: "Kitchen Order token",
-      },
-    ];
+    const getMetrics = () => {
+      const metrics = [];
+      
+      if (orderStats.success_orders > 0) {
+        metrics.push({
+          title: "Success Order",
+          value: orderStats.success_orders.toString(),
+        });
+      }
+      
+      if (orderStats.cancelled_orders > 0) {
+        metrics.push({
+          title: "Cancelled Order",
+          value: orderStats.cancelled_orders.toString(),
+        });
+      }
+      
+      if (orderStats.complementary_orders > 0) {
+        metrics.push({
+          title: "Complimentary Order",
+          value: orderStats.complementary_orders.toString(),
+        });
+      }
+      
+      if (orderStats.KOT_orders > 0) {
+        metrics.push({
+          title: "Kitchen Order token (KOT)",
+          value: orderStats.KOT_orders.toString(),
+        });
+      }
+      
+      return metrics;
+    };
 
     return (
         <div className="card">
@@ -310,14 +321,13 @@ const OrderStat = () => {
                     <div className="position-relative w-100">
                         <div className="row g-4">
                             {getMetrics().map((metric, index) => (
-                                <div key={index} className="col-md-6">
+                                <div key={index} className={`col-${getMetrics().length > 2 ? 'md-6' : 'md-6'}`}>
                                     <div className="d-flex flex-column p-3 rounded" style={{ background: '#f3f3f3', position: 'relative' }}>
                                         <div className="text-heading mb-2">{metric.title}</div>
                                         <div className="d-flex align-items-center">
                                             <div className="bg-primary rounded me-2" style={{ width: '4px', height: '40px' }}></div>
                                             <div>
                                                 <h4 className="mb-0 text-heading fw-medium fs-4">{metric.value}</h4>
-                                                <small className="text-muted">{metric.subtitle}</small>
                                             </div>
                                         </div>
                                     </div>
