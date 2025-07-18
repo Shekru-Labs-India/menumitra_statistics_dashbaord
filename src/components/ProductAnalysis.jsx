@@ -24,21 +24,26 @@ function TopSell() {
   const [endDate, setEndDate] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isGifPlaying, setIsGifPlaying] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [salesData, setSalesData] = useState({
-    top_selling: [],
-    low_selling: []
+    top_selling: { items: [], pagination: {} },
+    low_selling: { items: [], pagination: {} }
   });
   const [error, setError] = useState(null);
-  const [userInteracted, setUserInteracted] = useState(false); // Flag to track user interaction
-  const [isReloading, setIsReloading] = useState(false); // Add new state for reload action
-  const [searchQuery, setSearchQuery] = useState(""); // Add search query state
+  const [userInteracted, setUserInteracted] = useState(false);
+  const [isReloading, setIsReloading] = useState(false);
+  
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [entriesPerPage, setEntriesPerPage] = useState(10);
+  const entriesOptions = [10, 20, 50, 100];
 
   // Use context data when component mounts
   useEffect(() => {
     if (salesPerformance_from_context) {
       setSalesData({
-        top_selling: salesPerformance_from_context.top_selling || [],
-        low_selling: salesPerformance_from_context.low_selling || []
+        top_selling: salesPerformance_from_context.top_selling || { items: [], pagination: {} },
+        low_selling: salesPerformance_from_context.low_selling || { items: [], pagination: {} }
       });
     }
   }, [salesPerformance_from_context]);
@@ -117,7 +122,9 @@ function TopSell() {
 
   // Get the current data to display based on selected tab and search query
   const getCurrentData = () => {
-    const baseData = selectedTab === "top" ? salesData.top_selling : salesData.low_selling;
+    const baseData = selectedTab === "top" 
+      ? salesData.top_selling?.items 
+      : salesData.low_selling?.items;
     
     // Ensure baseData is an array
     if (!Array.isArray(baseData)) {
@@ -134,11 +141,71 @@ function TopSell() {
     );
   };
 
-  // Modify renderDataTable to show only API data
+  // Get current pagination data
+  const getCurrentPagination = () => {
+    return selectedTab === "top" 
+      ? salesData.top_selling?.pagination 
+      : salesData.low_selling?.pagination;
+  };
+
+  // Handle entries per page change
+  const handleEntriesChange = (e) => {
+    const newEntriesPerPage = parseInt(e.target.value);
+    setEntriesPerPage(newEntriesPerPage);
+    setCurrentPage(1); // Reset to first page when changing entries
+    fetchData(dateRange, false, 1, newEntriesPerPage);
+  };
+
+  // Handle page change
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    fetchData(dateRange, false, newPage, entriesPerPage);
+  };
+
+  // Modify getPageNumbers to show sliding window of 3 pages
+  const getPageNumbers = (currentPage, totalPages) => {
+    if (totalPages <= 3) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    // Calculate the three pages to show
+    let pages = [];
+    
+    // If we're at page 1, show 1,2,3
+    if (currentPage === 1) {
+      pages = [1, 2, 3];
+    }
+    // If we're at the last page, show last-2, last-1, last
+    else if (currentPage === totalPages) {
+      pages = [totalPages - 2, totalPages - 1, totalPages];
+    }
+    // If we're at the second-to-last page, show last-2, last-1, last
+    else if (currentPage === totalPages - 1) {
+      pages = [totalPages - 2, totalPages - 1, totalPages];
+    }
+    // Otherwise show current, current+1, current+2
+    else {
+      pages = [currentPage, currentPage + 1, currentPage + 2];
+    }
+
+    // Add ellipsis and last page if not showing last pages
+    if (pages[2] < totalPages - 1) {
+      pages.push('...', totalPages);
+    }
+    
+    // Add first page and ellipsis if not showing first pages
+    if (pages[0] > 2) {
+      pages.unshift('...', 1);
+    }
+
+    return pages;
+  };
+
+  // Modify renderDataTable to use the new pagination UI
   const renderDataTable = () => {
     const data = getCurrentData();
+    const pagination = getCurrentPagination();
     
-    // Ensure data is an array and has items
     if (!Array.isArray(data) || data.length === 0) {
       return (
         <div className="text-center text-muted p-3">
@@ -148,31 +215,123 @@ function TopSell() {
     }
     
     return (
-      <div className="table-responsive">
-        <table className="table table-hover">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Menu Name</th>
-              <th>Sales Count</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((product, index) => (
-              <tr key={`${product.item_id}-${index}`}>
-                <td>{index + 1}</td>
-                <td>{product.name}</td>
-                <td>{product.sales_count}</td>
+      <>
+        <div className="table-responsive mb-3">
+          <table className="table table-hover">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Menu Name</th>
+                <th>Sales Count</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {data.map((product, index) => (
+                <tr key={`${product.item_id}-${index}`}>
+                  <td>{((pagination.current_page - 1) * pagination.entries_per_page) + index + 1}</td>
+                  <td>{product.name}</td>
+                  <td>{product.sales_count}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Controls container */}
+        <div className="d-flex flex-column gap-2">
+          {/* Showing entries text */}
+          <div className="text-center text-lg-start text-muted" style={{ fontSize: '0.75rem' }}>
+            Showing {((pagination.current_page - 1) * pagination.entries_per_page) + 1} to {Math.min(pagination.current_page * pagination.entries_per_page, pagination.total_items)} of {pagination.total_items} entries
+          </div>
+
+          {/* Controls row - entries and pagination on same line */}
+          <div className="d-flex flex-column flex-lg-row justify-content-between align-items-center gap-3">
+            {/* Entries per page selector */}
+            <div className="d-flex align-items-center justify-content-center justify-content-lg-start" style={{ fontSize: '0.8rem' }}>
+              <span className="me-1">Show</span>
+              <select 
+                className="form-select form-select-sm" 
+                value={entriesPerPage}
+                onChange={handleEntriesChange}
+                style={{ 
+                  width: '45px',
+                  height: '24px',
+                  padding: '2px 2px 2px 4px',
+                  fontSize: '0.8rem',
+                  border: '1px solid #dee2e6',
+                  borderRadius: '3px',
+                  backgroundPosition: 'right 2px center',
+                  marginRight: '4px'
+                }}
+              >
+                {entriesOptions.map(option => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+              <span>entries</span>
+            </div>
+
+            {/* Pagination controls */}
+            {pagination && pagination.total_pages > 1 && (
+              <div className="d-flex align-items-center flex-wrap gap-1 justify-content-center justify-content-lg-end">
+                <button 
+                  className="btn btn-outline-primary py-0 px-2"
+                  style={{ 
+                    fontSize: '0.75rem', 
+                    minWidth: '45px', 
+                    height: '24px', 
+                    lineHeight: '22px'
+                  }}
+                  onClick={() => handlePageChange(pagination.current_page - 1)}
+                  disabled={!pagination.has_previous}
+                >
+                  Prev
+                </button>
+                
+                {getPageNumbers(pagination.current_page, pagination.total_pages).map((page, index) => (
+                  page === '...' ? (
+                    <span key={`ellipsis-${index}`} className="px-1" style={{ fontSize: '0.75rem' }}>...</span>
+                  ) : (
+                    <button
+                      key={`page-${page}`}
+                      className={`btn py-0 px-2 ${page === pagination.current_page ? 'btn-primary' : 'btn-outline-primary'}`}
+                      style={{ 
+                        fontSize: '0.75rem', 
+                        minWidth: '24px', 
+                        height: '24px',
+                        lineHeight: '22px',
+                        padding: '0 6px'
+                      }}
+                      onClick={() => handlePageChange(page)}
+                    >
+                      {page}
+                    </button>
+                  )
+                ))}
+
+                <button 
+                  className="btn btn-outline-primary py-0 px-2"
+                  style={{ 
+                    fontSize: '0.75rem', 
+                    minWidth: '45px', 
+                    height: '24px', 
+                    lineHeight: '22px'
+                  }}
+                  onClick={() => handlePageChange(pagination.current_page + 1)}
+                  disabled={!pagination.has_next}
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </>
     );
   };
 
-  // Modify fetchData to store exact API response
-  const fetchData = async (range, isReloadAction = false) => {
+  // Modify fetchData to include pagination parameters
+  const fetchData = async (range, isReloadAction = false, page = 1, perPage = entriesPerPage) => {
     if (!isReloadAction) {
       setLoading(true);
     }
@@ -189,7 +348,9 @@ function TopSell() {
       const requestData = { 
         outlet_id: outletId,
         device_token: localStorage.getItem('device_token') || '',
-        device_id: localStorage.getItem('device_id') || ''
+        device_id: localStorage.getItem('device_id') || '',
+        page: page,
+        entries: perPage
       };
       
       const dateParams = getDateRange(range);
@@ -200,7 +361,7 @@ function TopSell() {
       const accessToken = localStorage.getItem('access');
       
       const response = await axios.post(
-        `${apiEndpoint}sales_performance`, 
+        `${apiEndpoint}get_all_stats`, 
         requestData, 
         {
           headers: {
@@ -213,10 +374,9 @@ function TopSell() {
       
       if (response.data) {
         const responseData = response.data.data || response.data;
-        // Store exact API response without modifications
         setSalesData({
-          top_selling: responseData.top_selling || [],
-          low_selling: responseData.low_selling || []
+          top_selling: responseData.sales_performance.top_selling || { items: [], pagination: {} },
+          low_selling: responseData.sales_performance.low_selling || { items: [], pagination: {} }
         });
       }
     } catch (err) {
@@ -360,8 +520,8 @@ function TopSell() {
 
         {/* Search Bar */}
         <div className="mb-3">
-          <div className="input-group">
-            <span className="input-group-text">
+          <div className="input-group" style={{ height: '32px' }}>
+            <span className="input-group-text" style={{ padding: '4px 8px', height: '32px', display: 'flex', alignItems: 'center' }}>
               <i className="fas fa-search"></i>
             </span>
             <input
@@ -370,12 +530,25 @@ function TopSell() {
               placeholder="Search by menu name..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ 
+                padding: '4px 8px',
+                height: '32px',
+                minHeight: '32px',
+                fontSize: '14px'
+              }}
             />
             {searchQuery && (
               <button
                 className="btn btn-outline-secondary"
                 type="button"
                 onClick={() => setSearchQuery("")}
+                style={{ 
+                  padding: '4px 8px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
               >
                 <i className="fas fa-times"></i>
               </button>
