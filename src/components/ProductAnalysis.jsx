@@ -31,6 +31,7 @@ function TopSell() {
   const [error, setError] = useState(null);
   const [userInteracted, setUserInteracted] = useState(false); // Flag to track user interaction
   const [isReloading, setIsReloading] = useState(false); // Add new state for reload action
+  const [searchQuery, setSearchQuery] = useState(""); // Add search query state
 
   // Use context data when component mounts
   useEffect(() => {
@@ -114,17 +115,31 @@ function TopSell() {
     };
   };
 
-  // Get the current data to display based on selected tab
+  // Get the current data to display based on selected tab and search query
   const getCurrentData = () => {
-    // Only return the exact API data for the selected tab
-    return selectedTab === "top" ? salesData.top_selling : salesData.low_selling;
+    const baseData = selectedTab === "top" ? salesData.top_selling : salesData.low_selling;
+    
+    // Ensure baseData is an array
+    if (!Array.isArray(baseData)) {
+      return [];
+    }
+    
+    // Filter data based on search query
+    if (!searchQuery || searchQuery.trim() === "") {
+      return baseData;
+    }
+    
+    return baseData.filter(product => 
+      product.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
   };
 
   // Modify renderDataTable to show only API data
   const renderDataTable = () => {
     const data = getCurrentData();
     
-    if (!data || data.length === 0) {
+    // Ensure data is an array and has items
+    if (!Array.isArray(data) || data.length === 0) {
       return (
         <div className="text-center text-muted p-3">
           No products data available for the selected period
@@ -341,6 +356,31 @@ function TopSell() {
           >
             Low Selling
           </button>
+        </div>
+
+        {/* Search Bar */}
+        <div className="mb-3">
+          <div className="input-group">
+            <span className="input-group-text">
+              <i className="fas fa-search"></i>
+            </span>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Search by menu name..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            {searchQuery && (
+              <button
+                className="btn btn-outline-secondary"
+                type="button"
+                onClick={() => setSearchQuery("")}
+              >
+                <i className="fas fa-times"></i>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Error message */}
