@@ -143,15 +143,21 @@ function TopSell() {
         end = endDate;
         break;
       default: // All Time
-        return {
-          start_date: "All time",
-          end_date: "All time"
-        };
+        return null;
     }
+
+    // Format dates in DD MMM YYYY format
+    const formatToAPIDate = (date) => {
+      if (!date) return null;
+      const day = date.getDate().toString().padStart(2, "0");
+      const month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][date.getMonth()];
+      const year = date.getFullYear();
+      return `${day} ${month} ${year}`;
+    };
     
     return { 
-      start_date: formatDate(start),
-      end_date: formatDate(end)
+      start_date: formatToAPIDate(start),
+      end_date: formatToAPIDate(end)
     };
   };
 
@@ -415,26 +421,25 @@ function TopSell() {
       };
 
       // Handle date range in payload
-      if (range === "All Time") {
-        requestData.start_date = "All time";
-        requestData.end_date = "All time";
-      } else if (range === "Custom Range") {
-        // If we have a date range string from API, parse it
-        if (dateRange.includes(" - ")) {
-          const [startStr, endStr] = dateRange.split(" - ");
-          requestData.start_date = startStr.trim();
-          requestData.end_date = endStr.trim();
-        } else if (startDate && endDate) {
-          // Otherwise use the date objects if available
-          requestData.start_date = formatDate(startDate);
-          requestData.end_date = formatDate(endDate);
-        }
-      } else {
-        // For predefined ranges (Today, Yesterday, etc.)
-        const dateParams = getDateRange(range);
-        if (dateParams) {
-          requestData.start_date = dateParams.start_date;
-          requestData.end_date = dateParams.end_date;
+      if (range !== "All Time") {
+        if (range === "Custom Range") {
+          // If we have a date range string from API, parse it
+          if (dateRange.includes(" - ")) {
+            const [startStr, endStr] = dateRange.split(" - ");
+            requestData.start_date = startStr.trim();
+            requestData.end_date = endStr.trim();
+          } else if (startDate && endDate) {
+            // Otherwise use the date objects if available
+            requestData.start_date = formatDate(startDate);
+            requestData.end_date = formatDate(endDate);
+          }
+        } else {
+          // For predefined ranges (Today, Yesterday, etc.)
+          const dateParams = getDateRange(range);
+          if (dateParams && dateParams.start_date !== null) { // Changed from "All time" to "null"
+            requestData.start_date = dateParams.start_date;
+            requestData.end_date = dateParams.end_date;
+          }
         }
       }
 
