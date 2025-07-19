@@ -47,7 +47,23 @@ function TopSell() {
         low_selling: salesPerformance_from_context.low_selling || { items: [], pagination: {} }
       });
     }
-  }, [salesPerformance_from_context]);
+    
+    // Update date range from context
+    if (dateRangeInfo_from_context) {
+      if (dateRangeInfo_from_context.start_date === "All time" && dateRangeInfo_from_context.end_date === "All time") {
+        setDateRange("All Time");
+        setStartDate(null);
+        setEndDate(null);
+      } else {
+        setDateRange(`${dateRangeInfo_from_context.start_date} - ${dateRangeInfo_from_context.end_date}`);
+        // Convert string dates to Date objects if needed
+        const start = new Date(dateRangeInfo_from_context.start_date);
+        const end = new Date(dateRangeInfo_from_context.end_date);
+        setStartDate(start);
+        setEndDate(end);
+      }
+    }
+  }, [salesPerformance_from_context, dateRangeInfo_from_context]);
 
   // Set error from context if available
   useEffect(() => {
@@ -70,10 +86,25 @@ function TopSell() {
 
   // Format date for display (e.g., "01 Jan 2023")
   const formatDate = (date) => {
-    if (!date) return "";
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][date.getMonth()];
-    return `${day} ${month} ${date.getFullYear()}`;
+    if (!date) return "All time";
+    
+    // If date is a string in "DD MMM YYYY" format, return as is
+    if (typeof date === 'string' && /^\d{2} [A-Za-z]{3} \d{4}$/.test(date)) {
+      return date;
+    }
+
+    try {
+      const dateObj = new Date(date);
+      if (isNaN(dateObj.getTime())) return "All time";
+
+      const day = dateObj.getDate().toString().padStart(2, "0");
+      const month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][dateObj.getMonth()];
+      const year = dateObj.getFullYear();
+      return `${day} ${month} ${year}`;
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return "All time";
+    }
   };
 
   // Get date range parameters based on selected option
@@ -83,25 +114,25 @@ function TopSell() {
     
     switch (range) {
       case "Today":
-        start = end = new Date();
+        start = end = today;
         break;
       case "Yesterday":
-        start = end = new Date();
+        start = end = new Date(today);
         start.setDate(start.getDate() - 1);
         break;
       case "Last 7 Days":
-        end = new Date();
-        start = new Date();
+        end = new Date(today);
+        start = new Date(today);
         start.setDate(start.getDate() - 6);
         break;
       case "Last 30 Days":
-        end = new Date();
-        start = new Date();
+        end = new Date(today);
+        start = new Date(today);
         start.setDate(start.getDate() - 29);
         break;
       case "Current Month":
         start = new Date(today.getFullYear(), today.getMonth(), 1);
-        end = new Date();
+        end = today;
         break;
       case "Last Month":
         start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
@@ -112,7 +143,10 @@ function TopSell() {
         end = endDate;
         break;
       default: // All Time
-        return null;
+        return {
+          start_date: "All time",
+          end_date: "All time"
+        };
     }
     
     return { 
@@ -149,33 +183,47 @@ function TopSell() {
       : salesData.low_selling?.pagination;
   };
 
+  // Handle page change
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    
+    // Determine the current range and format dates properly
+    let currentRange;
+    if (dateRange === "All Time") {
+      currentRange = "All Time";
+    } else if (dateRange.includes(" - ")) {
+      // If it's a date range string from the API response, use it as is
+      currentRange = "Custom Range";
+    } else {
+      // For predefined ranges (Today, Yesterday, etc.)
+      currentRange = dateRange;
+    }
+    
+    fetchData(currentRange, false, newPage, entriesPerPage);
+  };
+
   // Handle entries per page change
   const handleEntriesChange = (e) => {
     const newEntriesPerPage = parseInt(e.target.value);
     setEntriesPerPage(newEntriesPerPage);
     setCurrentPage(1); // Reset to first page when changing entries
     
-    // Use current date range when changing entries
-    if (startDate && endDate) {
-      fetchData('Custom Range', false, 1, newEntriesPerPage);
-    } else if (dateRange === "All Time" && dateRangeInfo_from_context) {
-      fetchData('All Time', false, 1, newEntriesPerPage);
+    // Determine the current range and format dates properly
+    let currentRange;
+    if (dateRange === "All Time") {
+      currentRange = "All Time";
+    } else if (dateRange.includes(" - ")) {
+      // If it's a date range string from the API response, use it as is
+      currentRange = "Custom Range";
     } else {
-      fetchData(dateRange, false, 1, newEntriesPerPage);
+      // For predefined ranges (Today, Yesterday, etc.)
+      currentRange = dateRange;
     }
+    
+    fetchData(currentRange, false, 1, newEntriesPerPage);
   };
 
-  // Handle page change with date range
-  const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
-    if (dateRange === "All Time" && dateRangeInfo_from_context) {
-      fetchData('All Time', false, newPage, entriesPerPage);
-    } else {
-      fetchData(dateRange, false, newPage, entriesPerPage);
-    }
-  };
-
-  // Modify getPageNumbers to show sliding window of 3 pages
+  // Add back the getPageNumbers function
   const getPageNumbers = (currentPage, totalPages) => {
     if (totalPages <= 3) {
       return Array.from({ length: totalPages }, (_, i) => i + 1);
@@ -343,7 +391,7 @@ function TopSell() {
     );
   };
 
-  // Modify fetchData to include date range info from context
+  // Modify fetchData to ensure proper date handling
   const fetchData = async (range, isReloadAction = false, page = 1, perPage = entriesPerPage) => {
     if (!isReloadAction) {
       setLoading(true);
@@ -365,17 +413,32 @@ function TopSell() {
         page: page,
         entries: perPage
       };
-      
-      // Use date range info from context if no custom range is selected
-      if (range === "All Time" && dateRangeInfo_from_context) {
-        requestData.start_date = dateRangeInfo_from_context.start_date;
-        requestData.end_date = dateRangeInfo_from_context.end_date;
+
+      // Handle date range in payload
+      if (range === "All Time") {
+        requestData.start_date = "All time";
+        requestData.end_date = "All time";
+      } else if (range === "Custom Range") {
+        // If we have a date range string from API, parse it
+        if (dateRange.includes(" - ")) {
+          const [startStr, endStr] = dateRange.split(" - ");
+          requestData.start_date = startStr.trim();
+          requestData.end_date = endStr.trim();
+        } else if (startDate && endDate) {
+          // Otherwise use the date objects if available
+          requestData.start_date = formatDate(startDate);
+          requestData.end_date = formatDate(endDate);
+        }
       } else {
+        // For predefined ranges (Today, Yesterday, etc.)
         const dateParams = getDateRange(range);
-        if (dateParams && (range !== "Custom Range" || (startDate && endDate))) {
-          Object.assign(requestData, dateParams);
+        if (dateParams) {
+          requestData.start_date = dateParams.start_date;
+          requestData.end_date = dateParams.end_date;
         }
       }
+
+      console.log('Sending request with data:', requestData); // Debug log
       
       const accessToken = localStorage.getItem('access');
       
@@ -397,10 +460,41 @@ function TopSell() {
           top_selling: responseData.sales_performance.top_selling || { items: [], pagination: {} },
           low_selling: responseData.sales_performance.low_selling || { items: [], pagination: {} }
         });
+
+        // Update date range if received in response
+        if (responseData.date_range_info) {
+          if (responseData.date_range_info.start_date === "All time" && responseData.date_range_info.end_date === "All time") {
+            setDateRange("All Time");
+            setStartDate(null);
+            setEndDate(null);
+          } else {
+            const newDateRange = `${responseData.date_range_info.start_date} - ${responseData.date_range_info.end_date}`;
+            setDateRange(newDateRange);
+            
+            // Only try to parse dates if they're not "All time"
+            if (responseData.date_range_info.start_date !== "All time" && 
+                responseData.date_range_info.end_date !== "All time") {
+              try {
+                const start = new Date(responseData.date_range_info.start_date);
+                const end = new Date(responseData.date_range_info.end_date);
+                if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
+                  setStartDate(start);
+                  setEndDate(end);
+                }
+              } catch (error) {
+                console.error('Error parsing dates from response:', error);
+              }
+            }
+          }
+        }
       }
     } catch (err) {
       console.error("Error fetching data:", err);
-      setError("Failed to load sales data. Please try again.");
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else {
+        setError("Failed to load sales data. Please try again.");
+      }
     } finally {
       if (!isReloadAction) {
         setLoading(false);

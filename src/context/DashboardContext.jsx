@@ -245,6 +245,7 @@ export const DashboardProvider = ({ children }) => {
     weeklyOrderStats_from_context,
     menuCombos_from_context,
     dateRangeInfo_from_context,
+  
     
     // Maintain original loading and error states
     loading,
