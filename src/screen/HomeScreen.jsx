@@ -465,6 +465,29 @@ function HomeScreen() {
       }
     }
   };
+  // Add CSS for rotation animation at the top of the component
+  const rotateStyle = {
+    animation: 'rotate 1s linear infinite'
+  };
+
+  // Add keyframes style to the component
+  React.useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes rotate {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => document.head.removeChild(style);
+  }, []);
+
+  // Modify handleRefresh to properly handle rotation state
   const handleRefresh = async () => {
     try {
       setIsRotating(true);
@@ -526,6 +549,7 @@ function HomeScreen() {
     } catch (err) {
       console.error('Error refreshing stats:', err);
     } finally {
+      // Add a small delay before stopping the rotation
       setTimeout(() => {
         setIsRotating(false);
         setIsReloading(false);
@@ -790,8 +814,11 @@ function HomeScreen() {
                 }}
               >
                 <i
-                  className={`fas fa-sync-alt ${isReloading ? "rotate-animation" : ""}`}
-                  style={{ color: "#6c757d" }}
+                  className="fas fa-sync-alt"
+                  style={{ 
+                    color: "#6c757d",
+                    ...(isRotating ? rotateStyle : {})
+                  }}
                 ></i>
               </button>
               <div className="dropdown">

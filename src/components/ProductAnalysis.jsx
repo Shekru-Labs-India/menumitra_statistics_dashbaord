@@ -12,6 +12,7 @@ function TopSell() {
   // Get data from context
   const { 
     salesPerformance_from_context,
+    dateRangeInfo_from_context,
     loading: contextLoading,
     error: contextError
   } = useDashboard();
@@ -46,7 +47,23 @@ function TopSell() {
         low_selling: salesPerformance_from_context.low_selling || { items: [], pagination: {} }
       });
     }
-  }, [salesPerformance_from_context]);
+    
+    // Update date range from context
+    if (dateRangeInfo_from_context) {
+      if (dateRangeInfo_from_context.start_date === "All time" && dateRangeInfo_from_context.end_date === "All time") {
+        setDateRange("All Time");
+        setStartDate(null);
+        setEndDate(null);
+      } else {
+        setDateRange(`${dateRangeInfo_from_context.start_date} - ${dateRangeInfo_from_context.end_date}`);
+        // Convert string dates to Date objects if needed
+        const start = new Date(dateRangeInfo_from_context.start_date);
+        const end = new Date(dateRangeInfo_from_context.end_date);
+        setStartDate(start);
+        setEndDate(end);
+      }
+    }
+  }, [salesPerformance_from_context, dateRangeInfo_from_context]);
 
   // Set error from context if available
   useEffect(() => {
@@ -330,7 +347,7 @@ function TopSell() {
     );
   };
 
-  // Modify fetchData to include pagination parameters
+  // Modify fetchData to include date range parameters
   const fetchData = async (range, isReloadAction = false, page = 1, perPage = entriesPerPage) => {
     if (!isReloadAction) {
       setLoading(true);
@@ -352,10 +369,17 @@ function TopSell() {
         page: page,
         entries: perPage
       };
-      
-      const dateParams = getDateRange(range);
-      if (dateParams && (range !== "Custom Range" || (startDate && endDate))) {
-        Object.assign(requestData, dateParams);
+
+      // Handle date parameters based on current state
+      if (dateRange === "All Time") {
+        requestData.start_date = "All time";
+        requestData.end_date = "All time";
+      } else if (startDate && endDate) {
+        requestData.start_date = formatDate(startDate);
+        requestData.end_date = formatDate(endDate);
+      } else if (dateRangeInfo_from_context) {
+        requestData.start_date = dateRangeInfo_from_context.start_date;
+        requestData.end_date = dateRangeInfo_from_context.end_date;
       }
       
       const accessToken = localStorage.getItem('access');
@@ -378,6 +402,15 @@ function TopSell() {
           top_selling: responseData.sales_performance.top_selling || { items: [], pagination: {} },
           low_selling: responseData.sales_performance.low_selling || { items: [], pagination: {} }
         });
+
+        // Update date range if received in response
+        if (responseData.date_range_info) {
+          if (responseData.date_range_info.start_date === "All time" && responseData.date_range_info.end_date === "All time") {
+            setDateRange("All Time");
+          } else {
+            setDateRange(`${responseData.date_range_info.start_date} - ${responseData.date_range_info.end_date}`);
+          }
+        }
       }
     } catch (err) {
       console.error("Error fetching data:", err);
