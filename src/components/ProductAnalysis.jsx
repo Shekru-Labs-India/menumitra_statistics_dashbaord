@@ -12,6 +12,7 @@ function TopSell() {
   // Get data from context
   const { 
     salesPerformance_from_context,
+    dateRangeInfo_from_context,
     loading: contextLoading,
     error: contextError
   } = useDashboard();
@@ -153,13 +154,25 @@ function TopSell() {
     const newEntriesPerPage = parseInt(e.target.value);
     setEntriesPerPage(newEntriesPerPage);
     setCurrentPage(1); // Reset to first page when changing entries
-    fetchData(dateRange, false, 1, newEntriesPerPage);
+    
+    // Use current date range when changing entries
+    if (startDate && endDate) {
+      fetchData('Custom Range', false, 1, newEntriesPerPage);
+    } else if (dateRange === "All Time" && dateRangeInfo_from_context) {
+      fetchData('All Time', false, 1, newEntriesPerPage);
+    } else {
+      fetchData(dateRange, false, 1, newEntriesPerPage);
+    }
   };
 
-  // Handle page change
+  // Handle page change with date range
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
-    fetchData(dateRange, false, newPage, entriesPerPage);
+    if (dateRange === "All Time" && dateRangeInfo_from_context) {
+      fetchData('All Time', false, newPage, entriesPerPage);
+    } else {
+      fetchData(dateRange, false, newPage, entriesPerPage);
+    }
   };
 
   // Modify getPageNumbers to show sliding window of 3 pages
@@ -330,7 +343,7 @@ function TopSell() {
     );
   };
 
-  // Modify fetchData to include pagination parameters
+  // Modify fetchData to include date range info from context
   const fetchData = async (range, isReloadAction = false, page = 1, perPage = entriesPerPage) => {
     if (!isReloadAction) {
       setLoading(true);
@@ -353,9 +366,15 @@ function TopSell() {
         entries: perPage
       };
       
-      const dateParams = getDateRange(range);
-      if (dateParams && (range !== "Custom Range" || (startDate && endDate))) {
-        Object.assign(requestData, dateParams);
+      // Use date range info from context if no custom range is selected
+      if (range === "All Time" && dateRangeInfo_from_context) {
+        requestData.start_date = dateRangeInfo_from_context.start_date;
+        requestData.end_date = dateRangeInfo_from_context.end_date;
+      } else {
+        const dateParams = getDateRange(range);
+        if (dateParams && (range !== "Custom Range" || (startDate && endDate))) {
+          Object.assign(requestData, dateParams);
+        }
       }
       
       const accessToken = localStorage.getItem('access');

@@ -16,6 +16,10 @@ export const DashboardProvider = ({ children }) => {
   const [salesPerformance_from_context, setSalesPerformance] = useState(null);
   const [weeklyOrderStats_from_context, setWeeklyOrderStats] = useState(null);
   const [menuCombos_from_context, setMenuCombos] = useState(null);
+  const [dateRangeInfo_from_context, setDateRangeInfo] = useState({
+    start_date: "All time",
+    end_date: "All time"
+  });
   
   // Original loading and error states
   const [loading, setLoading] = useState(true);
@@ -157,6 +161,10 @@ export const DashboardProvider = ({ children }) => {
         setSalesPerformance(stats.sales_performance || null);
         setWeeklyOrderStats(stats.weekly_order_stats || null);
         setMenuCombos(stats.menu_combos || stats.top_combos || null);
+        setDateRangeInfo(stats.date_range_info || {
+          start_date: "All time",
+          end_date: "All time"
+        });
         
         setError(null);
         lastFetchTimeRef.current = Date.now();
@@ -236,6 +244,7 @@ export const DashboardProvider = ({ children }) => {
     salesPerformance_from_context,
     weeklyOrderStats_from_context,
     menuCombos_from_context,
+    dateRangeInfo_from_context,
     
     // Maintain original loading and error states
     loading,
@@ -253,6 +262,7 @@ export const DashboardProvider = ({ children }) => {
     salesPerformance_from_context,
     weeklyOrderStats_from_context,
     menuCombos_from_context,
+    dateRangeInfo_from_context,
     loading,
     error,
     refreshDashboard,
